@@ -7,10 +7,26 @@
 
 namespace Lexy
 {
+	enum class RegexElementType
+	{
+		UNDEFINED,
+		CHARACTER,
+		UNION,
+		CONCATENATION,
+		KLEENE,
+		PLUS,
+		QUESTIONMARK,
+		OPENING_PARENTHESIS,
+		CLOSING_PARENTHESIS,
+		BACKSLASH,
+		DOT
+	};
+
 	struct RegexElement
 	{
 		char Character;
-		bool IsOperator = false;
+		RegexElementType Type = RegexElementType::UNDEFINED;
+		int32_t Priority = 0;
 	};
 
 	class ThompsonCalculator
@@ -23,18 +39,21 @@ namespace Lexy
 		}
 
 		NFA& CalculateNFA();
-		
-		NFA SymbolToNFA(char symbol);
-		NFA ConcatenateNFA();
-		NFA UnionNFA();
-		NFA KleeneNFA();
+		void ChangeRegularExpression(const std::string& regexExpression);
 	private:
+		void SymbolToNFA(char symbol);
+		void ConcatenateNFA();
+		void UnionNFA();
+		void KleeneNFA();
+		void PlusNFA();
+		void QuestionMarkNFA();
+
 		std::vector<RegexElement> PreProcessRegexExpression();
-		void ExecuteOperator(char op);
+		void ExecuteOperator(RegexElementType op);
 	private:
 		std::string m_RegexExpression;
-		NFA m_NFA;
-		std::stack<NFA> m_NFAStack;
-		std::stack<char> m_OperatorStack;
+		NFA* m_NFA = nullptr;
+		std::vector<NFA> m_NFAStack;
+		std::vector<RegexElementType> m_OperatorStack;
 	};
 }

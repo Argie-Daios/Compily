@@ -6,16 +6,91 @@
 
 namespace Lexy
 {
-	using priority_value_t = int32_t;
-	static std::unordered_map<char, priority_value_t> s_Operators = {
-		{'|', 0}, 
-		{'(', 0},
-		{'&', 1},
-		{'*', 2},
-		{')', 0}
-	};
+	static RegexElementType TryParseOperator(char character)
+	{
+		switch (character)
+		{
+		case '|': return RegexElementType::UNION;
+		case '&': return RegexElementType::CONCATENATION;
+		case '*': return RegexElementType::KLEENE;
+		case '+': return RegexElementType::PLUS;
+		case '?': return RegexElementType::QUESTIONMARK;
+		case '(': return RegexElementType::OPENING_PARENTHESIS;
+		case ')': return RegexElementType::CLOSING_PARENTHESIS;
+		}
 
-	static std::string expandRange(char start, char end)
+		return RegexElementType::UNDEFINED;
+	}
+
+	static bool IsOperator(const RegexElementType& type)
+	{
+		switch (type)
+		{
+		case RegexElementType::UNION:
+		case RegexElementType::CONCATENATION:
+		case RegexElementType::KLEENE:
+		case RegexElementType::PLUS:
+		case RegexElementType::QUESTIONMARK:
+		case RegexElementType::OPENING_PARENTHESIS:
+		case RegexElementType::CLOSING_PARENTHESIS: return true;
+		}
+
+		return false;
+	}
+
+	static int32_t GetOperatorPriority(const RegexElementType& type)
+	{
+		switch (type)
+		{
+		case RegexElementType::UNION: return 1;
+		case RegexElementType::CONCATENATION: return 2;
+
+		case RegexElementType::KLEENE:
+		case RegexElementType::PLUS:
+		case RegexElementType::QUESTIONMARK: return 3;
+		}
+
+		return 0;
+	}
+
+	static bool IsOperatorUnary(const RegexElementType& type)
+	{
+		switch (type)
+		{
+		case RegexElementType::KLEENE:
+		case RegexElementType::PLUS:
+		case RegexElementType::QUESTIONMARK: return true;
+		}
+
+		return false;
+	}
+
+	static RegexElementType TryParseSymbol(char character)
+	{
+		switch (character)
+		{
+		case '\\': return RegexElementType::BACKSLASH;
+		case '.': return RegexElementType::DOT;
+		}
+
+		return RegexElementType::CHARACTER;
+	}
+
+	static bool CanConcatenante(const RegexElement& elementLeft, const RegexElement& elementRight)
+	{
+		if (elementLeft.Type == RegexElementType::UNDEFINED ||
+			elementRight.Type == RegexElementType::UNDEFINED) return false;
+		if (TryParseOperator(elementRight.Character) != RegexElementType::UNDEFINED &&
+			elementRight.Type != RegexElementType::OPENING_PARENTHESIS) return false;
+
+		bool isLeftElementOperator = TryParseOperator(elementLeft.Character)
+			!= RegexElementType::UNDEFINED;
+		if (isLeftElementOperator && IsOperatorUnary(elementLeft.Type)) return true;
+
+		return !isLeftElementOperator || elementLeft.Type == RegexElementType::CLOSING_PARENTHESIS;
+	}
+
+	static std::string ExpandRange(char start, char end)
 	{
 		if (start > end)
 			std::swap(start, end);
@@ -36,7 +111,7 @@ namespace Lexy
 		char start = matchStr[1];
 		char end = matchStr[3];
 
-		return expandRange(start, end);
+		return ExpandRange(start, end);
 	}
 
 	static std::string ExtractRegexPatterns(const std::string& input, const std::regex& pattern)
@@ -61,55 +136,90 @@ namespace Lexy
 
 	NFA& ThompsonCalculator::CalculateNFA()
 	{
+		if(m_NFA != nullptr) return *m_NFA;
+
 		auto regexSequence = PreProcessRegexExpression();
 		for (auto& regexElement : regexSequence)
 		{
-			if (regexElement.IsOperator)
+			if (IsOperator(regexElement.Type))
 			{ 
-				if (regexElement.Character == ')')
+				if (regexElement.Type == RegexElementType::CLOSING_PARENTHESIS)
 				{
 					while (!m_OperatorStack.empty())
 					{
-						char prevOperator = m_OperatorStack.top();
-						if (prevOperator == '(') break;
-						m_OperatorStack.pop();
+						RegexElementType prevOperator = m_OperatorStack.back();
+						if (prevOperator == RegexElementType::OPENING_PARENTHESIS)
+							break;
+						m_OperatorStack.pop_back();
 						ExecuteOperator(prevOperator);
 					}
-					m_OperatorStack.pop();
+					m_OperatorStack.pop_back();
 				}
 				else
 				{
 					while (!m_OperatorStack.empty())
 					{
-						char prevOperator = m_OperatorStack.top();
-						priority_value_t prevOperatorPriority = s_Operators.at(prevOperator);
-						priority_value_t currOperatorPriority = s_Operators.at(regexElement.Character);
-						if (regexElement.Character == '(' ||
-							prevOperatorPriority <= currOperatorPriority)
+						RegexElementType prevOperator = m_OperatorStack.back();
+						int32_t prevOperatorPriority = GetOperatorPriority(prevOperator);
+						int32_t currOperatorPriority = GetOperatorPriority(regexElement.Type);
+
+						if (regexElement.Type == RegexElementType::OPENING_PARENTHESIS)
+							break;
+						if (prevOperatorPriority < currOperatorPriority)
 							break;
 
-						m_OperatorStack.pop();
+						m_OperatorStack.pop_back();
 						ExecuteOperator(prevOperator);
 					}
-					m_OperatorStack.push(regexElement.Character);
+
+					m_OperatorStack.push_back(regexElement.Type);
 				}
 			}
 			else
 			{
-				m_NFAStack.push(SymbolToNFA(regexElement.Character));
+				SymbolToNFA(regexElement.Character);
 			}
 		}
 
 		while (!m_OperatorStack.empty())
 		{
-			char op = m_OperatorStack.top();
-			m_OperatorStack.pop();
+			RegexElementType op = m_OperatorStack.back();
+			m_OperatorStack.pop_back();
 			ExecuteOperator(op);
 		}
 
 		if(!m_NFAStack.empty())
-			m_NFA = m_NFAStack.top();
-		return m_NFA;
+			m_NFA = &(m_NFAStack.back());
+
+		return *m_NFA;
+	}
+
+	void ThompsonCalculator::ChangeRegularExpression(const std::string& regexExpression)
+	{
+		m_RegexExpression = regexExpression;
+		m_NFA = nullptr;
+		while (!m_NFAStack.empty()) m_NFAStack.pop_back();
+		while (!m_OperatorStack.empty()) m_OperatorStack.pop_back();
+	}
+
+	static const char* TypeToStr(const RegexElementType& type)
+	{
+		switch (type)
+		{
+		case RegexElementType::UNDEFINED: return "Undefined";
+		case RegexElementType::CHARACTER: return "Character";
+		case RegexElementType::UNION: return "Union";
+		case RegexElementType::CONCATENATION: return "Concatenation";
+		case RegexElementType::KLEENE: return "Kleene";
+		case RegexElementType::PLUS: return "Plus";
+		case RegexElementType::QUESTIONMARK: return "Questionmark";
+		case RegexElementType::OPENING_PARENTHESIS: return "Opening Parenthesis";
+		case RegexElementType::CLOSING_PARENTHESIS: return "Closing Parenthesis";
+		case RegexElementType::BACKSLASH: return "Backslash";
+		case RegexElementType::DOT: return "Dot";
+		}
+
+		return "NULL";
 	}
 
 	std::vector<RegexElement> ThompsonCalculator::PreProcessRegexExpression()
@@ -123,124 +233,135 @@ namespace Lexy
 			const char character = m_RegexExpression[i];
 			if (std::isspace(character)) continue;
 
-			auto operatorIterator = s_Operators.find(character);
-			if (operatorIterator != s_Operators.end())
+			RegexElement element;
+			element.Character = character;
+			element.Type = TryParseOperator(character);
+			if (element.Type != RegexElementType::UNDEFINED)
 			{
-				if (character == '(')
-				{
-					if (!regexSequence.empty() && (!regexSequence.back().IsOperator ||
-						regexSequence.back().Character == ')' || regexSequence.back().Character == '*'))
-					{
-						regexSequence.push_back({ '&', true });
-					}
-				}
-				regexSequence.push_back({character, true});
+				element.Priority = GetOperatorPriority(element.Type);
 			}
 			else
 			{
-				if (!regexSequence.empty() && (!regexSequence.back().IsOperator ||
-					regexSequence.back().Character == ')' || regexSequence.back().Character == '*'))
+				element.Type = TryParseSymbol(character);
+				switch (element.Type)
 				{
-					regexSequence.push_back({ '&', true });
+				case RegexElementType::BACKSLASH:
+				{
+					if (i + 1 < length)
+					{
+						element.Character = m_RegexExpression[i + 1];
+						i++;
+					}
+					break;
 				}
-
-				if (character == '\\' && i + 1 < length)
+				case RegexElementType::DOT:
 				{
-					regexSequence.push_back({ m_RegexExpression[i+1], false});
-					i++;
+					element.Character = WILDCARD;
+					break;
 				}
-				else
-				{
-					regexSequence.push_back({ character, false });
 				}
 			}
 
+			if (!regexSequence.empty() && CanConcatenante(regexSequence.back(), element))
+			{
+				RegexElementType type = RegexElementType::CONCATENATION;
+				regexSequence.push_back({ '&', type, GetOperatorPriority(type) });
+			}
+			regexSequence.push_back(element);
 			i++;
 		}
 
-		for (auto& elem : regexSequence)
+		/*for (auto& elem : regexSequence)
 		{
-			std::cout << "Element: [ character: " << elem.Character << " | IsOperator: " <<
-				(elem.IsOperator ? "true" : "false") << " ]" << std::endl;
-		}
+			std::cout << "Element: [ character: " << elem.Character << " | Type: " <<
+				TypeToStr(elem.Type) << " | Priority: " << elem.Priority << " ]" << std::endl;
+		}*/
 
 		return regexSequence;
 	}
 
-	void ThompsonCalculator::ExecuteOperator(char op)
+	void ThompsonCalculator::ExecuteOperator(RegexElementType op)
 	{
-
 		switch (op)
 		{
-		case '|':
+		case RegexElementType::UNION:
 		{
-			m_NFAStack.push(UnionNFA());
+			UnionNFA();
 			break;
 		}
-		case '&':
+		case RegexElementType::CONCATENATION:
 		{
-			m_NFAStack.push(ConcatenateNFA());
+			ConcatenateNFA();
 			break;
 		}
-		case '*':
+		case RegexElementType::KLEENE:
 		{
-			m_NFAStack.push(KleeneNFA());
+			KleeneNFA();
+			break;
+		}
+		case RegexElementType::PLUS:
+		{
+			PlusNFA();
+			break;
+		}
+		case RegexElementType::QUESTIONMARK:
+		{
+			QuestionMarkNFA();
 			break;
 		}
 		}
 	}
 
-	NFA ThompsonCalculator::SymbolToNFA(char symbol)
+	void ThompsonCalculator::SymbolToNFA(char symbol)
 	{
-		NFA nfa;
-
+		m_NFAStack.emplace_back();
+		NFA& nfa = m_NFAStack.back();
 		FA& fa = nfa.GetFiniteAutomate();
 
-		int32_t startState = fa.PushVertex(false);
+		int32_t startState = fa.PushVertex(" ");
 		nfa.SetStart(startState);
 
-		int32_t acceptingState = fa.PushVertex(false);
+		int32_t acceptingState = fa.PushVertex(" ");
 		nfa.SetAccepting(acceptingState);
 
 		fa.PushEdge(startState, acceptingState, symbol);
-
-		return nfa;
 	}
 
-	NFA ThompsonCalculator::ConcatenateNFA()
+	void ThompsonCalculator::ConcatenateNFA()
 	{
-		NFA nfaRight = m_NFAStack.top();
-		m_NFAStack.pop();
-		NFA nfaLeft = m_NFAStack.top();
-		m_NFAStack.pop();
+		size_t size = m_NFAStack.size();
+		NFA& nfaRight = m_NFAStack.at(size - 1);
+		NFA& nfaLeft = m_NFAStack.at(size - 2);
 
-		NFA newNFA;
-		newNFA = nfaLeft & nfaRight;
-
-		return newNFA;
+		nfaLeft &= nfaRight;
+		m_NFAStack.pop_back();
 	}
 
-	NFA ThompsonCalculator::UnionNFA()
+	void ThompsonCalculator::UnionNFA()
 	{
-		NFA nfaRight = m_NFAStack.top();
-		m_NFAStack.pop();
-		NFA nfaLeft = m_NFAStack.top();
-		m_NFAStack.pop();
+		size_t size = m_NFAStack.size();
+		NFA& nfaRight = m_NFAStack.at(size - 1);
+		NFA& nfaLeft = m_NFAStack.at(size - 2);
 		
-		NFA newNFA;
-		newNFA = nfaLeft | nfaRight;
-
-		return newNFA;
+		nfaLeft |= nfaRight;
+		m_NFAStack.pop_back();
 	}
 
-	NFA ThompsonCalculator::KleeneNFA()
+	void ThompsonCalculator::KleeneNFA()
 	{
-		NFA nfa= m_NFAStack.top();
-		m_NFAStack.pop();
-	
-		NFA newNFA;
-		newNFA = nfa.Kleene();
+		NFA& nfa = m_NFAStack.back();
+		nfa.Kleene();
+	}
 
-		return newNFA;
+	void ThompsonCalculator::PlusNFA()
+	{
+		NFA& nfa = m_NFAStack.back();
+		nfa.Plus();
+	}
+
+	void ThompsonCalculator::QuestionMarkNFA()
+	{
+		NFA& nfa = m_NFAStack.back();
+		nfa.QuestionMark();
 	}
 }

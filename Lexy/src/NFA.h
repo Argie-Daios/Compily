@@ -5,15 +5,25 @@
 #include <string>
 
 #define EPSILON '\0'
+#define WILDCARD '\xFF'
 
 namespace Lexy
 {
-	using FA = Graph<bool, char>;
+	using FA = Graph<std::string, char>;
 
 	class NFA
 	{
 	public:
-		NFA() = default;
+		NFA()
+		{
+			s_ConstructCount++;
+		}
+
+		NFA(const NFA& nfa)
+			: m_Graph(nfa.m_Graph), m_Start(nfa.m_Start), m_Accepting(nfa.m_Accepting)
+		{
+			s_CopyCount++;
+		}
 
 		bool IsAccepting(const std::string& string);
 
@@ -27,12 +37,19 @@ namespace Lexy
 
 		friend NFA operator|(NFA& nfaLeft, NFA& nfaRight);
 		friend NFA operator&(NFA& nfaLeft, NFA& nfaRight);
-		NFA Kleene();
+		NFA& operator|=(NFA& nfa);
+		NFA& operator&=(NFA& nfa);
+		NFA& Kleene();
+		NFA& Plus();
+		NFA& QuestionMark();
 	private:
 		void ExpandEpsilonClosure(std::vector<int32_t>& states);
 	private:
 		FA m_Graph;
 		int32_t m_Start;
 		int32_t m_Accepting;
+	public:
+		inline static uint32_t s_ConstructCount = 0U;
+		inline static uint32_t s_CopyCount = 0U;
 	};
 }

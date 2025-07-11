@@ -3,30 +3,52 @@
 #include "NFA.h"
 #include "ThompsonCalculator.h"
 
+static Lexy::NFA& CreateRule(const std::string& ruleRegex)
+{
+	Lexy::ThompsonCalculator calcuator(ruleRegex);
+	Lexy::NFA& nfa = calcuator.CalculateNFA();
+	return nfa;
+}
+
 int main()
 {
-	Lexy::ThompsonCalculator calcuator("[a-c]*[1-3]*([d-f]|\\&)");
-	Lexy::NFA nfa = calcuator.CalculateNFA();
+	std::vector<std::pair<std::string, Lexy::NFA&>> rules = {
+		{"Comment", CreateRule("\\/\\/.*")},
+		{"Keyword", CreateRule("if|while|for|class|struct")},
+		{"Identifier", CreateRule("([A-Z]|[a-z])([A-Z]|[a-z]|[0-9]|\\_)*")},
+		{"Double", CreateRule("[0-9]+\\.[0-9]+")},
+		{"Integer", CreateRule("[0-9]+")},
+	};
 
-	/*auto fa = nfa.GetFiniteAutomate();
-	auto vertices = fa.GetVertices();
-	std::cout << "NFA Starting: [" << nfa.GetStart() << "]" << std::endl;
-	std::cout << "NFA Accepting: [" << nfa.GetAccepting() << "]" << std::endl;
-	for (auto& [id, vertex] : vertices)
+	std::cout << "NFA total constructs: " << Lexy::NFA::s_ConstructCount << std::endl;
+	std::cout << "NFA total copies: " << Lexy::NFA::s_CopyCount << std::endl;
+	std::cout << "Graph total constructs: " << Lexy::FA::s_ConstructCount << std::endl;
+	std::cout << "Graph total copies: " << Lexy::FA::s_CopyCount << std::endl;
+	std::cout << "Vertex total constructs: " << Lexy::FA::s_VertexConstructCount << std::endl;
+	std::cout << "Vertex total copies: " << Lexy::FA::s_VertexCopyCount << std::endl;
+	std::cout << "Vertex total moves: " << Lexy::FA::s_VertexMoveCount << std::endl;
+	std::cout << "Edge total constructs: " << Lexy::FA::s_EdgeConstructCount << std::endl;
+	std::cout << "Edge total copies: " << Lexy::FA::s_EdgeCopyCount << std::endl;
+	std::cout << "Edge total moves: " << Lexy::FA::s_EdgeMoveCount << std::endl;
+
+	while (true)
 	{
-		std::cout << "[" << id << "]" << std::endl;
-		auto edges = fa.GetEdgesOfVertex(id);
-		for (auto& edge : edges)
-		{
-			std::string data;
-			data += edge.Data;
-			std::cout << "\t====> [" << edge.Destination << "] with " <<
-				(edge.Data == EPSILON ? "<epsilon>" : data) << std::endl;
-		}
-	}*/
+		std::string input;
+		std::cout << "Input: ";
+		std::getline(std::cin, input);
 
-	std::cout << "abc: " << nfa.IsAccepting("aabbbbccc2132321def") << std::endl;
-	std::cout << "bc: " << nfa.IsAccepting("acb123&") << std::endl;
+		std::string result = "None";
+		for (auto& [name, rule] : rules)
+		{
+			if (rule.IsAccepting(input))
+			{
+				result = name;
+				break;
+			}
+		}
+
+		std::cout << "Matched rule: " << result << std::endl << std::endl;
+	}
 
 	return 0;
 }
