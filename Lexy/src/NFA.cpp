@@ -16,7 +16,7 @@ namespace Lexy
 			int32_t stateID = stack.back();
 			stack.pop_back();
 
-			auto edges = m_Graph.GetEdgesOfVertex(stateID);
+			auto& edges = m_Graph.GetEdgesOfVertex(stateID);
 			for (const auto& edge : edges)
 			{
 				if (edge.Data == EPSILON && visited.find(edge.Destination) == visited.end())
@@ -42,7 +42,7 @@ namespace Lexy
 
 			for (int32_t stateID : currentStates)
 			{
-				auto edges = m_Graph.GetEdgesOfVertex(stateID);
+				auto& edges = m_Graph.GetEdgesOfVertex(stateID);
 				for (const auto& edge : edges)
 				{
 					if (edge.Data == WILDCARD || edge.Data == character)
@@ -63,6 +63,52 @@ namespace Lexy
 		
 		return std::find(currentStates.begin(), currentStates.end(), m_Accepting)
 			!= currentStates.end();
+	}
+
+	int NFA::Match(const std::string& input, int start)
+	{
+		int maxLength = -1;
+
+		std::vector<int32_t> currentStates = { m_Start };
+		ExpandEpsilonClosure(currentStates);
+
+		if (std::find(currentStates.begin(), currentStates.end(), m_Accepting) != currentStates.end()) 
+		{
+			maxLength = 0;
+		}
+
+		for (int i = start; i < input.length(); ++i) 
+		{
+			char character = input[i];
+			std::vector<int32_t> nextStates;
+
+			for (int32_t stateID : currentStates) 
+			{
+				auto& edges = m_Graph.GetEdgesOfVertex(stateID);
+				for (const auto& edge : edges) 
+				{
+					if (edge.Data == WILDCARD || edge.Data == character) 
+					{
+						nextStates.push_back(edge.Destination);
+					}
+				}
+			}
+
+			if (nextStates.empty()) 
+			{
+				break;
+			}
+
+			ExpandEpsilonClosure(nextStates);
+			currentStates = std::move(nextStates);
+
+			if (std::find(currentStates.begin(), currentStates.end(), m_Accepting) != currentStates.end()) 
+			{
+				maxLength = i - start + 1;
+			}
+		}
+
+		return maxLength;
 	}
 
 	NFA operator|(NFA& nfaLeft, NFA& nfaRight)

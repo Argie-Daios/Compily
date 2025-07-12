@@ -32,6 +32,7 @@ namespace Lexy
 	class ThompsonCalculator
 	{
 	public:
+		ThompsonCalculator() = default;
 		ThompsonCalculator(const std::string& regexExpression)
 			: m_RegexExpression(regexExpression)
 		{

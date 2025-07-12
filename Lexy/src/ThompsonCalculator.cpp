@@ -1,6 +1,7 @@
 #include "ThompsonCalculator.h"
 
 #include <unordered_map>
+#include <unordered_set>
 #include <functional>
 #include <regex>
 
@@ -90,46 +91,126 @@ namespace Lexy
 		return !isLeftElementOperator || elementLeft.Type == RegexElementType::CLOSING_PARENTHESIS;
 	}
 
-	static std::string ExpandRange(char start, char end)
-	{
-		if (start > end)
-			std::swap(start, end);
 
-		std::string result = "(";
-		for (char c = start; c <= end; ++c)
+	std::string ExpandBracketContent(const std::string& content)
+	{
+		std::string result;
+		bool isNegated = !content.empty() && content[0] == '^';
+		std::unordered_set<char> negatedChars;
+
+		size_t i = isNegated ? 1 : 0;
+		auto parseEscapedChar = [](const std::string& str, size_t& i) -> char {
+			if (i >= str.size()) return '\0';
+			if (str[i] != '\\') return str[i];
+
+			i++; // skip '\'
+			if (i >= str.size()) return '\\';
+
+			switch (str[i]) {
+			case 'n': return '\n';
+			case 't': return '\t';
+			case 'r': return '\r';
+			case '\\': return '\\';
+			case '"': return '\"';
+			case '\'': return '\'';
+			default: return str[i]; // unknown escape, return as is
+			}
+			};
+
+		while (i < content.size())
 		{
-			if (c != start) result += "|";
-			result += c;
+			char start = parseEscapedChar(content, i);
+			i++;
+			if (i + 1 < content.size() && content[i] == '-')
+			{
+				i++;
+				char end = parseEscapedChar(content, i);
+				i++;
+
+				if (start <= end)
+				{
+					for (char c = start; c <= end; ++c)
+					{
+						if (isNegated) negatedChars.insert(c);
+						else
+						{
+							result += c;
+							result += '|';
+						}
+					}
+				}
+				else
+				{
+					if (isNegated)
+					{
+						negatedChars.insert(start);
+						negatedChars.insert(end);
+					}
+					else
+					{
+						result += start;
+						result += '|';
+						result += end;
+						result += '|';
+					}
+				}
+			}
+			else
+			{
+				if (isNegated)
+				{
+					negatedChars.insert(start);
+				}
+				else
+				{
+					result += start;
+					result += '|';
+				}
+			}
 		}
-		result += ")";
+
+		if (isNegated)
+		{
+			for (char c = 32; c <= 126; ++c)
+			{
+				if (negatedChars.find(c) == negatedChars.end())
+				{
+					if (IsOperator(TryParseOperator(c)))
+					{
+						result += '\\';
+					}
+					result += c;
+					result += '|';
+				}
+			}
+		}
+
+		if (!result.empty() && result.back() == '|')
+			result.pop_back();
+
 		return result;
 	}
 
-	static std::string Replacer(const std::smatch& match)
-	{
-		std::string matchStr = match.str();
-		char start = matchStr[1];
-		char end = matchStr[3];
-
-		return ExpandRange(start, end);
-	}
-
-	static std::string ExtractRegexPatterns(const std::string& input, const std::regex& pattern)
-	{
+	std::string ExtractRegexBracketPatterns(const std::string& input) {
+		std::regex bracket_pattern(R"(\[([^\]]+)\])");
 		std::string output;
-		std::sregex_iterator iter(input.begin(), input.end(), pattern);
+		std::sregex_iterator begin(input.begin(), input.end(), bracket_pattern);
 		std::sregex_iterator end;
 
-		size_t lastPos = 0;
-		while (iter != end)
-		{
-			std::smatch match = *iter;
-			output += input.substr(lastPos, match.position() - lastPos);
-			output += Replacer(match);
-			lastPos = match.position() + match.length();
-			++iter;
+		size_t last_pos = 0;
+
+		for (auto it = begin; it != end; ++it) {
+			std::smatch match = *it;
+			output += input.substr(last_pos, match.position() - last_pos);
+
+			std::string group = match[1];
+			std::string replacement = "(" + ExpandBracketContent(group) + ")";
+
+			output += replacement;
+			last_pos = match.position() + match.length();
 		}
-		output += input.substr(lastPos);
+
+		output += input.substr(last_pos);
 
 		return output;
 	}
@@ -224,14 +305,14 @@ namespace Lexy
 
 	std::vector<RegexElement> ThompsonCalculator::PreProcessRegexExpression()
 	{
-		m_RegexExpression = ExtractRegexPatterns(m_RegexExpression, std::regex(R"(\[.\-.\])"));
+		m_RegexExpression = ExtractRegexBracketPatterns(m_RegexExpression);
 
 		std::vector<RegexElement> regexSequence;
 		size_t length = m_RegexExpression.length();
+		size_t totalSymbols = 0U;
 		for (size_t i = 0; i < length;)
 		{
 			const char character = m_RegexExpression[i];
-			if (std::isspace(character)) continue;
 
 			RegexElement element;
 			element.Character = character;
@@ -260,6 +341,8 @@ namespace Lexy
 					break;
 				}
 				}
+
+				totalSymbols++;
 			}
 
 			if (!regexSequence.empty() && CanConcatenante(regexSequence.back(), element))
@@ -277,6 +360,7 @@ namespace Lexy
 				TypeToStr(elem.Type) << " | Priority: " << elem.Priority << " ]" << std::endl;
 		}*/
 
+		m_NFAStack.reserve(totalSymbols);
 		return regexSequence;
 	}
 
@@ -316,7 +400,7 @@ namespace Lexy
 	{
 		m_NFAStack.emplace_back();
 		NFA& nfa = m_NFAStack.back();
-		FA& fa = nfa.GetFiniteAutomate();
+		FAGraph& fa = nfa.GetFiniteAutomate();
 
 		int32_t startState = fa.PushVertex(" ");
 		nfa.SetStart(startState);

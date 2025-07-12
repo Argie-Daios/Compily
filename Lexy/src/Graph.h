@@ -25,6 +25,12 @@ namespace Lexy
 			s_CopyCount++;
 		}
 
+		Graph(Graph&& graph)
+			: m_Vertices(std::move(graph.m_Vertices))
+		{
+			s_CopyCount++;
+		}
+
 		int32_t PushVertex(const VertexDataType& data)
 		{
 			int32_t id = (int32_t)m_Vertices.size();

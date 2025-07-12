@@ -1,4 +1,4 @@
-workspace "Lexy"
+workspace "Compily"
 	platforms { "x86", "x64" }
 	configurations { "Debug", "Release" }
 

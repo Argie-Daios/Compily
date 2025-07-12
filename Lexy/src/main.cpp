@@ -1,53 +1,104 @@
 #include <iostream>
 
-#include "NFA.h"
-#include "ThompsonCalculator.h"
+#include "Lexer.h"
 
-static Lexy::NFA& CreateRule(const std::string& ruleRegex)
+enum TokenType
 {
-	Lexy::ThompsonCalculator calcuator(ruleRegex);
-	Lexy::NFA& nfa = calcuator.CalculateNFA();
-	return nfa;
-}
+	COMMENT,
+	KEYWORD,
+	PUNCTUATION,
+	STRING,
+	IDENTIFIER,
+	DOUBLE,
+	INTEGER,
+	WHITESPACE
+};
 
 int main()
 {
-	std::vector<std::pair<std::string, Lexy::NFA&>> rules = {
-		{"Comment", CreateRule("\\/\\/.*")},
-		{"Keyword", CreateRule("if|while|for|class|struct")},
-		{"Identifier", CreateRule("([A-Z]|[a-z])([A-Z]|[a-z]|[0-9]|\\_)*")},
-		{"Double", CreateRule("[0-9]+\\.[0-9]+")},
-		{"Integer", CreateRule("[0-9]+")},
-	};
-
-	std::cout << "NFA total constructs: " << Lexy::NFA::s_ConstructCount << std::endl;
-	std::cout << "NFA total copies: " << Lexy::NFA::s_CopyCount << std::endl;
-	std::cout << "Graph total constructs: " << Lexy::FA::s_ConstructCount << std::endl;
-	std::cout << "Graph total copies: " << Lexy::FA::s_CopyCount << std::endl;
-	std::cout << "Vertex total constructs: " << Lexy::FA::s_VertexConstructCount << std::endl;
-	std::cout << "Vertex total copies: " << Lexy::FA::s_VertexCopyCount << std::endl;
-	std::cout << "Vertex total moves: " << Lexy::FA::s_VertexMoveCount << std::endl;
-	std::cout << "Edge total constructs: " << Lexy::FA::s_EdgeConstructCount << std::endl;
-	std::cout << "Edge total copies: " << Lexy::FA::s_EdgeCopyCount << std::endl;
-	std::cout << "Edge total moves: " << Lexy::FA::s_EdgeMoveCount << std::endl;
-
-	while (true)
-	{
-		std::string input;
-		std::cout << "Input: ";
-		std::getline(std::cin, input);
-
-		std::string result = "None";
-		for (auto& [name, rule] : rules)
+	Lexy::Lexer::Init(R"(
+		if(x==2.0)
 		{
-			if (rule.IsAccepting(input))
-			{
-				result = name;
-				break;
-			}
+			y = z + 5;
 		}
+	)");
+	Lexy::Lexer::CreateRule(R"(\/\/.*)", []() -> int32_t {
+		return COMMENT;
+	});
 
-		std::cout << "Matched rule: " << result << std::endl << std::endl;
+	Lexy::Lexer::CreateRule(R"(if|ifelse|while|for|class|struct)", []() {
+		return KEYWORD;
+	});
+
+	Lexy::Lexer::CreateRule(R"(\(|\)|\=\=|\!\=|\>|\>\=|\<|\<\=|\{|\}|\+|\-|\*|\/|\=|\;)",
+		[]() {
+			return PUNCTUATION;
+		});
+
+	Lexy::Lexer::CreateRule(R"(\".*\")", []() {
+		return STRING;
+	});
+
+	Lexy::Lexer::CreateRule(R"([A-Za-z][A-Za-z0-9\_]*)", []() {
+		return IDENTIFIER;
+	});
+
+	Lexy::Lexer::CreateRule(R"([0-9]+\.[0-9]+)", []() {
+		return DOUBLE;
+	});
+
+	Lexy::Lexer::CreateRule(R"([0-9]+)", []() {
+		return INTEGER;
+	});
+
+	Lexy::Lexer::CreateRule(R"([ \t\r\n]+)");
+
+	Lexy::Lexer::Token token;
+	while ((token = Lexy::Lexer::NextToken()).State != Lexy::Lexer::TokenState::End)
+	{
+		switch (token.TokenType)
+		{
+		case COMMENT:
+		{
+			std::cout << "Comment" << std::endl;
+			break;
+		}
+		case KEYWORD:
+		{
+			std::cout << "Keyword" << std::endl;
+			break;
+		}
+		case PUNCTUATION:
+		{
+			std::cout << "Punctuation" << std::endl;
+			break;
+		}
+		case STRING:
+		{
+			std::cout << "String" << std::endl;
+			break;
+		}
+		case IDENTIFIER:
+		{
+			std::cout << "Identifier" << std::endl;
+			break;
+		}
+		case DOUBLE:
+		{
+			std::cout << "Double" << std::endl;
+			break;
+		}
+		case INTEGER:
+		{
+			std::cout << "Integer" << std::endl;
+			break;
+		}
+		default:
+		{
+			std::cout << "Whitespace" << std::endl;
+			break;
+		}
+		}
 	}
 
 	return 0;
