@@ -1,6 +1,7 @@
 workspace "Compily"
 	platforms { "x86", "x64" }
 	configurations { "Debug", "Release" }
+	startproject "MyCompiler"
 
 	configurations 
 	{
@@ -10,10 +11,79 @@ workspace "Compily"
 
 	outputdir = "%{cfg.buildcfg}-%{cfg.architecture}";
 
-	IncludeDir = {}
+	filter "system:windows"
+    	systemversion "latest"
+    	defines { "COMPILY_WINDOWS" }
 
-project "Lexy"
-	location "Lexy"
+	filter "system:linux"
+   		defines { "COMPILY_LINUX" }
+
+	filter "platforms:x86"
+		architecture "x86"
+
+	filter "platforms:x64"
+		architecture "x64"
+
+	filter "configurations:Debug"
+		defines "COMPILY_DEBUG"
+		runtime "Debug"
+		symbols "On"
+
+	filter "configurations:Release"
+		defines "COMPILY_RELEASE"
+		runtime "Release"
+		optimize "On"
+
+group "Dependencies"
+	project "Lexy"
+		location "Lexy"
+		kind "StaticLib"
+		language "C++"
+		cppdialect "C++17"
+
+		targetdir  ("bin/" .. outputdir .. "/%{prj.name}")
+		objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+		files
+		{
+			"%{prj.name}/src/**.h",
+			"%{prj.name}/src/**.cpp",
+		}
+
+		includedirs
+		{
+			"%{prj.name}/src",
+		}
+
+	project "Parsy"
+		location "Parsy"
+		kind "StaticLib"
+		language "C++"
+		cppdialect "C++17"
+
+		targetdir  ("bin/" .. outputdir .. "/%{prj.name}")
+		objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+		files
+		{
+			"%{prj.name}/src/**.h",
+			"%{prj.name}/src/**.cpp",
+		}
+
+		includedirs
+		{
+			"%{wks.location}/Lexy/src",
+			"%{prj.name}/src"
+		}
+
+		links
+		{
+			"Lexy"
+		}
+group ""
+
+project "MyCompiler"
+	location "MyCompiler"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
@@ -29,28 +99,13 @@ project "Lexy"
 
 	includedirs
 	{
-		"%{prj.name}/src",
+		"%{wks.location}/Lexy/src",
+		"%{wks.location}/Parsy/src",
+		"%{prj.name}/src"
 	}
 
-	filter "system:windows"
-    	systemversion "latest"
-    	defines { "LEXY_WINDOWS" }
-
-	filter "system:linux"
-   		defines { "LEXY_LINUX" }
-
-	filter "platforms:x86"
-		architecture "x86"
-
-	filter "platforms:x64"
-		architecture "x64"
-
-	filter "configurations:Debug"
-		defines "LEXY_DEBUG"
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		defines "LEXY_RELEASE"
-		runtime "Release"
-		optimize "On"
+	links
+	{
+		"Lexy",
+		"Parsy"
+	}
