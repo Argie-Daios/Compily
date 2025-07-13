@@ -7,12 +7,17 @@
 
 #include "ThompsonCalculator.h"
 
+#define IGNORE -1
+
 namespace Lexy
 {
 	class Lexer
 	{
-		using RuleCallback = std::function<int32_t()>;
 	public:
+		using RuleBufferCallback = std::function<void(int32_t)>;
+		using RuleCallback = std::function<int32_t()>;
+		using RuleBuffer = std::unordered_map<int32_t, std::string>;
+
 		enum class TokenState
 		{
 			Success,
@@ -33,11 +38,16 @@ namespace Lexy
 			}
 		};
 	public:
-		static void Init(const std::string& inputStream);
-		static void Tokenize();
-		static Token NextToken();
-		static int32_t CreateRule(const std::string& regex, const RuleCallback& callback = []() { return -1; });
-		inline static const std::string& GetTokenContent() { return m_TokenContent; }
+		Lexer(const std::string& inputStream);
+		void Tokenize();
+		Token NextToken();
+		int32_t CreateRule(const std::string& regex, const RuleCallback& callback =
+			[]() { return IGNORE; });
+		void CreateRule(const RuleBuffer& ruleBuffer, const RuleBufferCallback& callback =
+			[](int32_t type) { });
+		inline const std::string& GetTokenContent() { return m_TokenContent; }
+		inline void AdvanceLineCount() { m_LineCount++; }
+		inline uint32_t GetLineCount() { return m_LineCount; }
 	private:
 		struct Rule
 		{
@@ -52,11 +62,12 @@ namespace Lexy
 			}
 		};
 	private:
-		inline static std::string m_Input;
-		inline static uint32_t m_InputOffset = 0U;
-		inline static ThompsonCalculator m_ThompsonCalculator;
-		inline static std::vector<Rule> m_Rules;
+		std::string m_Input;
+		uint32_t m_InputOffset = 0U;
+		ThompsonCalculator m_ThompsonCalculator;
+		std::vector<Rule> m_Rules;
 
-		inline static std::string m_TokenContent;
+		std::string m_TokenContent;
+		uint32_t m_LineCount = 1U;
 	};
 }

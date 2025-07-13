@@ -1,6 +1,9 @@
 #pragma once
 
-namespace MyLexer
+#include "Lexy.h"
+
+class MyLexer : Lexy::Lexer
 {
-	void Init();
-}
+public:
+	MyLexer(const std::string& inputStream);
+};

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NFA.h"
+#include "Graphs/NFA.h"
 
 #include <string>
 #include <stack>
