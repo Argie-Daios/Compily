@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Graph.h"
+#include <Utilities.h>
 
 #define WILDCARD '\xFF'
 
 namespace Lexy
 {
-	using FAGraph = Graph<bool, char>;
+	using FAGraph = Utilities::Graph<bool, char>;
 
 	class FA
 	{

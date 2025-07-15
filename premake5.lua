@@ -35,6 +35,26 @@ workspace "Compily"
 		optimize "On"
 
 group "Dependencies"
+	project "Utilities"
+		location "Utilities"
+		kind "StaticLib"
+		language "C++"
+		cppdialect "C++17"
+
+		targetdir  ("bin/" .. outputdir .. "/%{prj.name}")
+		objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+		files
+		{
+			"%{prj.name}/src/**.h",
+			"%{prj.name}/src/**.cpp",
+		}
+
+		includedirs
+		{
+			"%{prj.name}/src",
+		}
+
 	project "Lexy"
 		location "Lexy"
 		kind "StaticLib"
@@ -52,7 +72,13 @@ group "Dependencies"
 
 		includedirs
 		{
+			"%{wks.location}/Utilities/src",
 			"%{prj.name}/src",
+		}
+
+		links
+		{
+			"Utilities"
 		}
 
 	project "Parsy"
@@ -72,12 +98,14 @@ group "Dependencies"
 
 		includedirs
 		{
+			"%{wks.location}/Utilities/src",
 			"%{wks.location}/Lexy/src",
 			"%{prj.name}/src"
 		}
 
 		links
 		{
+			"Utilities",
 			"Lexy"
 		}
 group ""
@@ -99,6 +127,7 @@ project "MyCompiler"
 
 	includedirs
 	{
+		"%{wks.location}/Utilities/src",
 		"%{wks.location}/Lexy/src",
 		"%{wks.location}/Parsy/src",
 		"%{prj.name}/src"

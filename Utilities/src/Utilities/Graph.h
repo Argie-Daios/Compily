@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace Lexy
+namespace Utilities
 {
 	template<typename VertexDataType, typename EdgeDataType>
 	class Graph

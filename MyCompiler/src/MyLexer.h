@@ -5,5 +5,5 @@
 class MyLexer : Lexy::Lexer
 {
 public:
-	MyLexer(const std::string& inputStream);
+	MyLexer(const std::ifstream& inputStream);
 };

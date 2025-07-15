@@ -1,12 +1,20 @@
 #include "Lexer.h"
 
+#include <sstream>
+
 #define INITIAL_RULE_SLOTS 50
 
 namespace Lexy
 {
-	Lexer::Lexer(const std::string& input)
+	Lexer::Lexer(const std::ifstream& inputStream)
 	{
-        m_Input = input;
+        if (!inputStream.good())
+        {
+            // Error
+        }
+        std::stringstream ss;
+        ss << inputStream.rdbuf();
+        m_Input = ss.str();
 		m_Rules.reserve(INITIAL_RULE_SLOTS);
 	}
 
@@ -40,7 +48,7 @@ namespace Lexy
 
         if (maxLength <= 0) 
         {
-            std::cout << "Error: Invalid token" << std::endl;
+            std::cout << "Error: Invalid token on line " << m_LineCount << std::endl;
             return Token(TokenState::Failure, -1);
         }
         
@@ -48,7 +56,7 @@ namespace Lexy
         m_InputOffset += maxLength;
 
         auto& rule = m_Rules.at(maxRule);
-        int32_t tokenType = rule.Callback();
+        TokenID_t tokenType = rule.Callback();
 
         if (tokenType == -1)
         {
@@ -58,7 +66,7 @@ namespace Lexy
         return Token(TokenState::Success, tokenType);
 	}
 
-	int32_t Lexer::CreateRule(const std::string& regex, const RuleCallback& callback)
+    TokenID_t Lexer::CreateRule(const std::string& regex, const RuleCallback& callback)
 	{
 		m_ThompsonCalculator.ChangeRegularExpression(regex);
 		m_Rules.emplace_back(std::move(m_ThompsonCalculator.CalculateNFA()), callback);

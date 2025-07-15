@@ -11,12 +11,14 @@
 
 namespace Lexy
 {
+	using TokenID_t = int32_t;
+
 	class Lexer
 	{
 	public:
-		using RuleBufferCallback = std::function<void(int32_t)>;
-		using RuleCallback = std::function<int32_t()>;
-		using RuleBuffer = std::unordered_map<int32_t, std::string>;
+		using RuleBufferCallback = std::function<void(TokenID_t)>;
+		using RuleCallback = std::function<TokenID_t()>;
+		using RuleBuffer = std::unordered_map<TokenID_t, std::string>;
 
 		enum class TokenState
 		{
@@ -28,23 +30,23 @@ namespace Lexy
 		struct Token
 		{
 			TokenState State;
-			int32_t TokenType;
+			TokenID_t TokenID;
 
 			Token() = default;
-			Token(const TokenState& state, int32_t rule)
-				: State(state), TokenType(rule)
+			Token(const TokenState& state, TokenID_t id)
+				: State(state), TokenID(id)
 			{
 
 			}
 		};
 	public:
-		Lexer(const std::string& inputStream);
+		Lexer(const std::ifstream& inputStream);
 		void Tokenize();
 		Token NextToken();
-		int32_t CreateRule(const std::string& regex, const RuleCallback& callback =
+		TokenID_t CreateRule(const std::string& regex, const RuleCallback& callback =
 			[]() { return IGNORE; });
 		void CreateRule(const RuleBuffer& ruleBuffer, const RuleBufferCallback& callback =
-			[](int32_t type) { });
+			[](TokenID_t tokenID) { });
 		inline const std::string& GetTokenContent() { return m_TokenContent; }
 		inline void AdvanceLineCount() { m_LineCount++; }
 		inline uint32_t GetLineCount() { return m_LineCount; }
