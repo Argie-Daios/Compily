@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 
 namespace Parsy
 {
@@ -98,8 +99,18 @@ namespace Parsy
 		CFGElement(const CFGElementType& type, int32_t id) : Type(type), ID(id) {}
 		CFGElement(const CFGElement&) = default;
 		CFGElement(CFGElement&&) = default;
+
+		void Print() const;
+
+		bool operator==(const CFGElement& other) const
+		{
+			if (&other == this) return true;
+
+			return other.Type == this->Type && other.ID == this->ID;
+		}
 	};
 
+	using Production = std::vector<CFGElement>;
 	class CFG
 	{
 	public:
@@ -123,10 +134,24 @@ namespace Parsy
 		}
 
 		size_t GetProductionCount() const { return m_ProductionCount; }
-		const std::vector<std::vector<CFGElement>>& GetProductions() const { return m_Elements; }
+		const std::vector<Production>& GetProductions() const { return m_Elements; }
 	private:
-		std::vector<std::vector<CFGElement>> m_Elements;
+		std::vector<Production> m_Elements;
 		size_t m_ProductionCount = 0U;
 	};
 #endif
+}
+
+namespace std
+{
+	template<>
+	struct hash<Parsy::CFGElement>
+	{
+		std::size_t operator()(const Parsy::CFGElement& elem) const
+		{
+			std::size_t h1 = std::hash<Parsy::CFGElementType>{}(elem.Type);
+			std::size_t h2 = std::hash<int32_t>{}(elem.ID);
+			return h1 ^ (h2 << 1);
+		}
+	};
 }

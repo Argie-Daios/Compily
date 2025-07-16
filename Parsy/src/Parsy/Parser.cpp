@@ -5,7 +5,7 @@
 namespace Parsy
 {
     Parser::Parser(const std::ifstream& inputStream)
-        : m_Lexer(inputStream), m_LALR1(this)
+        : m_Lexer(inputStream), m_StartingRule({CFGElementType::Epsilon, -1}), m_CLR1(this)
     {
 
     }
@@ -47,17 +47,34 @@ namespace Parsy
             }
             std::cout << std::endl;
         }
+
+        std::cout << std::endl;
+
+        std::cout << "CLR1 Symbols = " << std::endl;
+        m_CLR1.PrintSymbols();
+
+        std::cout << std::endl;
+
+        std::cout << "CLR1 Non Terminals = " << std::endl;
+        m_CLR1.PrintNonTerminals();
     }
 
-    void Parser::BeginRule(RuleID_t rule)
+    void Parser::BeginRule(RuleID_t rule, bool startRule)
     {
         m_CFGMap.emplace(rule, CFG());
+        m_CLR1.AddElement(CFGElement(CFGElementType::NonTerminal, rule));
+        if (startRule)
+        {
+            m_StartingRule.Type = CFGElementType::NonTerminal;
+            m_StartingRule.ID = rule;
+        }
         m_BoundRule = rule;
     }
 
     void Parser::Add(const CFGElement& element)
     {
         m_CFGMap.at(m_BoundRule).AddElement(element);
+        m_CLR1.AddElement(element);
     }
 
     void Parser::Union()

@@ -3,7 +3,7 @@
 #include "Lexy.h"
 
 #include "CFG.h"
-#include "LALR1.h"
+#include "CLR1.h"
 
 namespace Parsy
 {
@@ -16,16 +16,16 @@ namespace Parsy
 
 		void Parse();
 
-		void BeginRule(RuleID_t rule);
+		void BeginRule(RuleID_t rule, bool startRule = false);
 		void Add(const CFGElement& element);
 		void Union();
 		void EndRule();
 	private:
 		Lexy::Lexer m_Lexer;
 
-		RuleID_t m_StartingRule = -1;
+		CFGElement m_StartingRule;
 		std::unordered_map<RuleID_t, CFG> m_CFGMap;
-		LALR1 m_LALR1;
+		CLR1 m_CLR1;
 
 		RuleID_t m_BoundRule = -1;
 	
