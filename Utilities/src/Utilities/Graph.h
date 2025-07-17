@@ -51,6 +51,7 @@ namespace Utilities
 		}
 
 		inline std::unordered_map<int32_t, Vertex>& GetVertices() { return m_Vertices; }
+		inline Vertex& GetVertex(int32_t id) { return m_Vertices.at(id); }
 
 		std::vector<Edge>& GetEdgesOfVertex(const int32_t& source)
 		{

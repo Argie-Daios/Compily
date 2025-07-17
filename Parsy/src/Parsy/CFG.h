@@ -93,7 +93,7 @@ namespace Parsy
 	struct CFGElement
 	{
 		CFGElementType Type;
-		int32_t ID;
+		int32_t ID = -1;
 
 		CFGElement() = default;
 		CFGElement(const CFGElementType& type, int32_t id) : Type(type), ID(id) {}
@@ -138,6 +138,8 @@ namespace Parsy
 	private:
 		std::vector<Production> m_Elements;
 		size_t m_ProductionCount = 0U;
+
+		friend class Parser;
 	};
 #endif
 }

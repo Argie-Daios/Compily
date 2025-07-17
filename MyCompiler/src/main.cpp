@@ -18,7 +18,7 @@ int main()
 
 	Parsy::Parser parser(stream);
 
-	parser.BeginRule(EXPRESSION);
+	parser.BeginRule(EXPRESSION, true);
 
 	parser.Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION });
 	parser.Add({ Parsy::CFGElementType::Symbol, PLUS });
