@@ -2,7 +2,7 @@
 
 #include "Lexy.h"
 
-class MyLexer : Lexy::Lexer
+class MyLexer : public Lexy::Lexer
 {
 public:
 	MyLexer(const std::ifstream& inputStream);

@@ -4,15 +4,131 @@
 
 namespace Parsy
 {
+    struct StackState
+    {
+        int32_t state;
+        CFGElement symbol;
+    };
+
     Parser::Parser(const std::ifstream& inputStream)
-        : m_Lexer(inputStream), m_CLR1(this)
+        : m_CLR1(this)
     {
         m_CFGMap.emplace(m_StartingRule, RuleProperties());
         m_CFGMap.at(m_StartingRule).Grammar.AddElement({});
     }
 
-    void Parser::Parse()
+    bool Parser::Parse()
     {
+        if (m_Lexer == nullptr)
+        {
+            std::cout << "Null" << std::endl;
+            return false;
+        }
+        m_CLR1.GenerateFirstSets();
+        m_CLR1.GenerateStateGraph();
+        m_CLR1.GenerateTable();
+        Print();
+
+        std::vector<StackState> inputStack = { {0, {CFGElementType::Epsilon, -1}} };
+        Lexy::Lexer::Token token;
+        bool keepToken = false;
+        while (true)
+        {
+            if(!keepToken)
+                token = m_Lexer->NextToken();
+            keepToken = false;
+            StackState& topState = inputStack.back();
+            CFGElement element;
+            switch (token.State)
+            {
+            case Lexy::Lexer::TokenState::Success:
+            {
+                element.Type = CFGElementType::Symbol;
+                element.ID = token.TokenID;
+                break;
+            }
+            case Lexy::Lexer::TokenState::End:
+            {
+                element.Type = CFGElementType::Dollar;
+                element.ID = -1;
+                break;
+            }
+            case Lexy::Lexer::TokenState::Failure:
+            {
+
+                break;
+            }
+            }
+            
+            BottomUpAction& action = m_CLR1.GetAction(topState.state, element);
+            switch (action.Types)
+            {
+            case BottomUpActionType_Shift:
+            {
+                //std::cout << "Shift [ TokenID: " << token.TokenID << " ]" << std::endl;
+                inputStack.push_back({ action.ID, {CFGElementType::Symbol, token.TokenID} });
+                break;
+            }
+            case BottomUpActionType_Reduce:
+            {
+                auto& productions = m_CFGMap.at(action.ID).Grammar.GetProductions();
+                const Production& production = productions.at(action.ReducedProduction);
+                int32_t popTimes = production.size();
+
+                for (int32_t i = 0; i < popTimes; i++)
+                {
+                    if (production.at(i).Type == CFGElementType::Epsilon) continue;
+                    inputStack.pop_back();
+                }
+
+                StackState& newTopState = inputStack.back();
+                int32_t gotoID = m_CLR1.GetGotoState(newTopState.state, { CFGElementType::NonTerminal, action.ID });
+                inputStack.push_back({ gotoID, { CFGElementType::NonTerminal, action.ID } });
+
+               /* std::cout << "Reduce [ RuleID: " << action.ID << ", ProductionID: " <<
+                    action.ReducedProduction << " ]" << std::endl;*/
+                keepToken = true;
+
+                break;
+            }
+            case BottomUpActionType_Accept:
+            {
+                std::cout << "Accepted" << std::endl;
+                return true;
+            }
+            case BottomUpActionType_Error:
+            {
+                std::cout << "ERROR" << std::endl;
+                return false;
+            }
+            }
+
+            /*std::cout << "Stack" << std::endl;
+            std::cout << "====================" << std::endl;
+            for (auto& it = inputStack.rbegin(); it != inputStack.rend(); it++)
+            {
+                std::cout << "StackElement: [ State: " << it->state << ", Symbol: ";
+                it->symbol.Print();
+                std::cout << " ]" << std::endl;
+            }
+            std::cout << "====================" << std::endl;*/
+        }
+
+        std::cout << "Not Accepted" << std::endl;
+        return false;
+    }
+
+    void Parser::Print()
+    { 
+        auto& set = m_CLR1.GetFirstSet({ CFGElementType::NonTerminal, 0 });
+        std::cout << "First Set of Rule(0) { ";
+        for (auto& element : set)
+        {
+            element.Print();
+            std::cout << " ";
+        }
+        std::cout << "}" << std::endl << std::endl;
+
         for (auto& [ruleID, ruleProps] : m_CFGMap)
         {
             std::cout << "Rule(" << ruleID << ") ===> ";
@@ -71,8 +187,6 @@ namespace Parsy
         m_CLR1.PrintNonTerminals();
 
         std::cout << std::endl;
-
-        m_CLR1.GenerateStateGraph();
     }
 
     void Parser::BeginRule(RuleID_t rule, bool startRule)

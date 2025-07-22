@@ -106,6 +106,9 @@ namespace Parsy
 		{
 			if (&other == this) return true;
 
+			if (other.Type == this->Type && (other.Type == CFGElementType::Dollar ||
+				other.Type == CFGElementType::Epsilon)) return true;
+
 			return other.Type == this->Type && other.ID == this->ID;
 		}
 	};

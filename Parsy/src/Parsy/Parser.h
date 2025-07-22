@@ -18,7 +18,8 @@ namespace Parsy
 	public:
 		Parser(const std::ifstream& inputStream);
 
-		void Parse();
+		bool Parse();
+		void Print();
 
 		template<typename Type>
 		void DeclareTokenType(Lexy::TokenID_t token)
@@ -48,9 +49,10 @@ namespace Parsy
 		{
 			TypeCallback TokenTypeConstructCallback = [](std::any& any) { any.reset(); };
 		};
-	private:
-		Lexy::Lexer m_Lexer;
+	protected:
+		Lexy::Lexer* m_Lexer = nullptr;
 
+	private:
 		RuleID_t m_StartingRule = -100;
 		std::unordered_map<RuleID_t, RuleProperties> m_CFGMap;
 		std::unordered_map<Lexy::TokenID_t, TokenProperties> m_TokenMap;

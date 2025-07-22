@@ -60,6 +60,4 @@ MyLexer::MyLexer(const std::ifstream& inputStream)
 	CreateRule(R"([\r\n]+)", [this]() { AdvanceLineCount(); return IGNORE; });
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	Tokenize();
 }
