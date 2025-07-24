@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <any>
 
 #include "ThompsonCalculator.h"
 
@@ -47,6 +48,7 @@ namespace Lexy
 			[]() { return IGNORE; });
 		void CreateRule(const RuleBuffer& ruleBuffer, const RuleBufferCallback& callback =
 			[](TokenID_t tokenID) { });
+		inline std::any& GetDefaultTokenValue() { return m_DefaultTokenValue; }
 		inline const std::string& GetTokenContent() { return m_TokenContent; }
 		inline void AdvanceLineCount() { m_LineCount++; }
 		inline uint32_t GetLineCount() { return m_LineCount; }
@@ -69,6 +71,7 @@ namespace Lexy
 		ThompsonCalculator m_ThompsonCalculator;
 		std::vector<Rule> m_Rules;
 
+		std::any m_DefaultTokenValue;
 		std::string m_TokenContent;
 		uint32_t m_LineCount = 1U;
 	};

@@ -41,19 +41,27 @@ MyLexer::MyLexer(const std::ifstream& inputStream)
 
 	CreateRule(R"(\/\/.*)", []() -> int32_t { return COMMENT; });
 
-	CreateRule(s_Keywords, [](int32_t type) { std::cout << "Type: " << type << std::endl; });
+	CreateRule(s_Keywords);
 
-	CreateRule(s_Operators, [](int32_t type) { std::cout << "Type: " << type << std::endl; });
+	CreateRule(s_Operators);
 
-	CreateRule(s_Punctuation, [](int32_t type) { std::cout << "Type: " << type << std::endl; });
+	CreateRule(s_Punctuation);
 
 	CreateRule(R"(\".*\")", []() { return STRING; });
 
-	CreateRule(R"([A-Za-z][A-Za-z0-9\_]*)", []() { return IDENTIFIER; });
+	CreateRule(R"([A-Za-z][A-Za-z0-9\_]*)", [this]() { 
+		auto& defaultValue = GetDefaultTokenValue();
+		defaultValue = GetTokenContent();
+		return IDENTIFIER; 
+	});
 
 	CreateRule(R"([0-9]+\.[0-9]+)", []() { return DOUBLE; });
 
-	CreateRule(R"([0-9]+)", []() { return INTEGER; });
+	CreateRule(R"([0-9]+)", [this]() { 
+		auto& defaultValue = GetDefaultTokenValue();
+		defaultValue = std::stoi(GetTokenContent());
+		return INTEGER; 
+		});
 
 	CreateRule(R"([ \t]+)");
 

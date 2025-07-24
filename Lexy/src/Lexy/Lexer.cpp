@@ -29,6 +29,7 @@ namespace Lexy
 
     Lexer::Token Lexer::NextToken()
 	{
+        m_DefaultTokenValue.reset();
         if (m_InputOffset >= m_Input.length()) return Token(TokenState::End, -1);
 
         int32_t maxLength = -1;

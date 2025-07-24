@@ -1,48 +1,34 @@
-#include "CLR1.h"
+#include "LR1.h"
 
-#include "Parser.h"
-
-#include <iostream>
-#include <vector>
-
-#include <Windows.h>
+#include "Parsy/Parser.h"
 
 namespace Parsy
 {
-	static BottomUpAction s_ErrorAction(BottomUpActionType_Error);
+	static BottomUpAction s_ErrorAction(BottomUpActionType::Error);
+	static const std::unordered_set<CFGElement> s_EmptySet;
 
-	CLR1::CLR1(Parser* parserRef)
+	LR1::LR1(Parser* parserRef)
 		: m_ParserRef(parserRef)
 	{
 		m_Symbols.insert({ CFGElementType::Dollar, -1 });
 	}
 
-	void CLR1::AddElement(const CFGElement& element)
+	void LR1::RegisterToken(const CFGElement& element)
 	{
-		switch (element.Type)
-		{
-		case CFGElementType::NonTerminal:
-		{
-			m_NonTerminals.insert(element);
-			break;
-		}
-		case CFGElementType::Epsilon:
-		{
-
-			break;
-		}
-		default:
-		{
-			m_Symbols.insert(element);
-			break;
-		}
-		}
+		if (element.Type != CFGElementType::Symbol) return;
+		m_Symbols.insert(element);
 	}
 
-	BottomUpAction& CLR1::GetAction(int32_t state, const CFGElement& symbol)
+	void LR1::RegisterNonTerminal(const CFGElement& element)
+	{
+		if (element.Type != CFGElementType::NonTerminal) return;
+		m_NonTerminals.insert(element);
+	}
+
+	BottomUpAction& LR1::GetAction(int32_t state, const CFGElement& symbol)
 	{
 		int32_t symbolIndex = 0U;
-		for (auto& setSymbol : m_Symbols)
+		for (const CFGElement& setSymbol : m_Symbols)
 		{
 			if (setSymbol == symbol)
 			{
@@ -55,10 +41,10 @@ namespace Parsy
 		return m_ActionTable.at(index);
 	}
 
-	int32_t& CLR1::GetGotoState(int32_t state, const CFGElement& nonTerminal)
+	int32_t& LR1::GetGotoState(int32_t state, const CFGElement& nonTerminal)
 	{
 		int32_t nonTerminalIndex = 0U;
-		for (auto& setNonTerminal : m_NonTerminals)
+		for (const CFGElement& setNonTerminal : m_NonTerminals)
 		{
 			if (setNonTerminal == nonTerminal)
 			{
@@ -70,17 +56,42 @@ namespace Parsy
 		return m_GotoTable.at(index);
 	}
 
-	void CLR1::GenerateStateGraph()
+	const std::unordered_set<CFGElement>& LR1::GetFirstSet(const CFGElement& element)
 	{
-		CLR1State state;
+		if (element.Type != CFGElementType::NonTerminal) return s_EmptySet;
+		return m_RulesSets.at(element.ID).FirstSet;
+	}
+
+	const std::unordered_set<CFGElement>& LR1::GetFollowSet(const CFGElement& element)
+	{
+		if (element.Type != CFGElementType::NonTerminal) return s_EmptySet;
+		return m_RulesSets.at(element.ID).FollowSet;
+	}
+
+	void LR1::GenerateFirstSets()
+	{
+		for (auto& [ruleID, cfg] : m_ParserRef->m_CFGMap)
+		{
+			CalculateFirstOfRule(ruleID);
+		}
+	}
+
+	void LR1::GenerateFollowSets()
+	{
+
+	}
+
+	void LR1::GenerateStateGraph()
+	{
+		BottomUpState state;
 		state.CFGSet.emplace_back(m_ParserRef->m_StartingRule, 0, 0, true);
-		state.CFGSet.back().LookAheadSymbols.insert({CFGElementType::Dollar, -1});
+		state.CFGSet.back().LookAheadSymbols.insert({ CFGElementType::Dollar, -1 });
 		int32_t id = m_StateGraph.PushVertex(state);
-		CLR1State& stateRef = m_StateGraph.GetVertex(id).Data;
+		auto& stateRef = m_StateGraph.GetVertex(id).Data;
 		ExpandNonTerminals(stateRef);
 
 		std::vector<int32_t> vertexStack = { id };
-		std::unordered_map<CLR1StateCFG, int32_t> stateMemo;
+		std::unordered_map<BottomUpStateProduction, int32_t> stateMemo;
 		while (!vertexStack.empty())
 		{
 			int32_t top = vertexStack.back();
@@ -88,7 +99,7 @@ namespace Parsy
 
 			auto& state = m_StateGraph.GetVertex(top).Data;
 			std::unordered_map<CFGElement, int32_t> elementMemo;
-			for(auto& element : state.CFGSet)
+			for (auto& element : state.CFGSet)
 			{
 				auto& productions = m_ParserRef->m_CFGMap.at(element.Rule).Grammar.GetProductions();
 				auto& production = productions.at(element.Production);
@@ -114,7 +125,7 @@ namespace Parsy
 
 				if (elementMemo.find(dotElement) == elementMemo.end())
 				{
-					int32_t id = m_StateGraph.PushVertex(CLR1State());
+					int32_t id = m_StateGraph.PushVertex(BottomUpState());
 					m_StateGraph.PushEdge(top, id, dotElement);
 					vertexStack.push_back(id);
 					stateMemo.emplace(element, id);
@@ -140,19 +151,18 @@ namespace Parsy
 		}
 	}
 
-	void CLR1::GenerateTable()
+	void LR1::GenerateTable()
 	{
 		size_t totalVertices = m_StateGraph.GetTotalVertices();
-		m_ActionTable.resize(m_Symbols.size() * totalVertices, BottomUpAction(BottomUpActionType_Error));
+		m_ActionTable.resize(m_Symbols.size() * totalVertices, BottomUpAction(BottomUpActionType::Empty));
 		m_GotoTable.resize(m_NonTerminals.size() * totalVertices);
 		for (int32_t i = 0; i < totalVertices; i++)
 		{
-			CLR1State& vertexState = m_StateGraph.GetVertex(i).Data;
+			auto& vertexState = m_StateGraph.GetVertex(i).Data;
 			if (vertexState.IsAccept)
 			{
 				BottomUpAction& action = GetAction(i, { CFGElementType::Dollar, -1 });
-				action.Types = BottomUpActionType_Accept;
-				action.TypeCount++;
+				action.Type = BottomUpActionType::Accept;
 				continue;
 			}
 			auto& edges = m_StateGraph.GetEdgesOfVertex(i);
@@ -175,9 +185,16 @@ namespace Parsy
 				default:
 				{
 					BottomUpAction& action = GetAction(i, element);
-					action.ID = edge.Destination;
-					action.Types = BottomUpActionType_Shift;
-					action.TypeCount++;
+					action.ActionData.emplace(BottomUpActionType::Shift,
+						BottomUpActionData(edge.Destination));
+					if (action.Type == BottomUpActionType::Reduce)
+					{
+						action.Type = BottomUpActionType::ShiftReduce;
+					}
+					else
+					{
+						action.Type = BottomUpActionType::Shift;
+					}
 					break;
 				}
 				}
@@ -191,130 +208,36 @@ namespace Parsy
 					for (auto& lookAheadSymbol : stateCFG.LookAheadSymbols)
 					{
 						BottomUpAction& action = GetAction(i, lookAheadSymbol);
-						action.ID = stateCFG.Rule;
-						action.ReducedProduction = stateCFG.Production;
-						action.Types = BottomUpActionType_Reduce;
-						action.TypeCount++;
+						action.ActionData.emplace(BottomUpActionType::Reduce,
+							BottomUpActionData(stateCFG.Rule, stateCFG.Production));
+						if (action.Type == BottomUpActionType::Shift)
+						{
+							action.Type = BottomUpActionType::ShiftReduce;
+						}
+						else if (action.Type == BottomUpActionType::Reduce)
+						{
+							action.Type = BottomUpActionType::ReduceReduce;
+						}
+						else
+						{
+							action.Type = BottomUpActionType::Reduce;
+						}
 					}
 				}
 			}
 		}
 	}
 
-	void Parsy::CLR1::PrintSymbols()
+	void LR1::AdvanceIfEpsilon(const Production& production, BottomUpStateProduction& stateCFG)
 	{
-		std::cout << "{ ";
-		for (auto& symbol : m_Symbols)
-		{
-			symbol.Print();
-			std::cout << " ";
-		}
-		std::cout << "}" << std::endl;
-	}
-
-	void Parsy::CLR1::PrintNonTerminals()
-	{
-		std::cout << "{ ";
-		for (auto& nonTerminal : m_NonTerminals)
-		{
-			nonTerminal.Print();
-			std::cout << " ";
-		}
-		std::cout << "}" << std::endl;
-	}
-
-	void CLR1::PrintStateGraph()
-	{
-		auto& vertices = m_StateGraph.GetVertices();
-		for (auto& [id, vertex] : vertices)
-		{
-			std::cout << "[State " << id << "]" << std::endl;
-			auto& edges = m_StateGraph.GetEdgesOfVertex(id);
-			for (auto& edge : edges)
-			{
-				std::cout << "Edge to " << edge.Destination << " with ";
-				edge.Data.Print();
-				std::cout << std::endl;
-			}
-			for (auto& element : vertex.Data.CFGSet)
-			{
-				std::cout << "\tRule: " << element.Rule << ", Production: " << element.Production
-					<< ", DotPosition: " << element.DotPosition << ", IsAccept: " <<
-					(element.IsAccept ? "true" : "false");
-				std::cout << " | [ ";
-				for (auto& symbol : element.LookAheadSymbols)
-				{
-					symbol.Print();
-					std::cout << " ";
-				}
-				std::cout << "]" << std::endl;
-			}
-		}
-	}
-
-	void CLR1::PrintTable()
-	{
-		std::cout << "Actions" << std::endl;
-		std::cout << "===========================" << std::endl;
-		for (int32_t i = 0; i < m_ActionTable.size(); i++)
-		{
-			if (i % m_Symbols.size() == 0) std::cout << std::endl;
-			BottomUpAction& action = m_ActionTable.at(i);
-			int32_t index = i % (int32_t)m_Symbols.size();
-			auto& setIt = m_Symbols.begin();
-			std::advance(setIt, index);
-			std::cout << "Element { State: " << i % m_Symbols.size() << ", Symbol: ";
-			setIt->Print();
-			std::cout << " }" << ": [ ";
-			std::cout << "Types: " << action.TypeCount << ", Type: ";
-			switch (action.Types)
-			{
-			case BottomUpActionType_Accept:
-			{
-				std::cout << "Accept";
-				break;
-			}
-			case BottomUpActionType_Shift:
-			{
-				std::cout << "Shift";
-				break;
-			}
-			case BottomUpActionType_Reduce:
-			{
-				std::cout << "Reduce";
-				break;
-			}
-			case BottomUpActionType_Error:
-			{
-				std::cout << "Error";
-				break;
-			}
-			}
-			std::cout << ", ID: " << action.ID;
-			std::cout << ", Production: " << action.ReducedProduction;
-			std::cout << " ]" << std::endl;
-		}
-
-		std::cout << std::endl;
-		std::cout << "GOTO" << std::endl;
-		std::cout << "===========================" << std::endl;
-		for (int32_t i = 0; i < m_GotoTable.size(); i++)
-		{
-			int32_t stateID = m_GotoTable.at(i);
-			std::cout << "Element " << i % m_NonTerminals.size() << ": " << stateID << std::endl;
-		}
-	}
-
-	void CLR1::AdvanceIfEpsilon(const Production& production, CLR1StateCFG& stateCFG)
-	{
-		for (auto& element : production)
+		for (const CFGElement& element : production)
 		{
 			if (element.Type != CFGElementType::Epsilon) break;
 			stateCFG.DotPosition++;
 		}
 	}
 
-	const std::unordered_set<CFGElement> CLR1::CalculateFirstOfElement(const CFGElement& element)
+	const std::unordered_set<CFGElement> LR1::CalculateFirstOfElement(const CFGElement& element)
 	{
 		std::unordered_set<CFGElement> firstSet;
 		switch (element.Type)
@@ -333,12 +256,12 @@ namespace Parsy
 		return firstSet;
 	}
 
-	const std::unordered_set<CFGElement> CLR1::CalculateFirstOfProduction(const Production& production)
+	const std::unordered_set<CFGElement> LR1::CalculateFirstOfProduction(const Production& production)
 	{
 		std::unordered_set<CFGElement> firstSet;
 		for (int32_t i = 0; i < production.size(); i++)
 		{
-			auto& element = production.at(i);
+			const CFGElement& element = production.at(i);
 			auto& elementSet = CalculateFirstOfElement(element);
 			for (auto& element : elementSet)
 			{
@@ -351,19 +274,19 @@ namespace Parsy
 		return firstSet;
 	}
 
-	const std::unordered_set<CFGElement>& CLR1::CalculateFirstOfRule(int32_t ruleID)
+	const std::unordered_set<CFGElement>& LR1::CalculateFirstOfRule(int32_t ruleID)
 	{
 		auto& it = m_RulesSets.find(ruleID);
 		if (it != m_RulesSets.end()) return it->second.FirstSet;
 
 		m_RulesSets.try_emplace(ruleID);
 		auto& set = m_RulesSets.at(ruleID).FirstSet;
-		auto& cfg = m_ParserRef->m_CFGMap.at(ruleID);
+		Parser::RuleProperties& cfg = m_ParserRef->m_CFGMap.at(ruleID);
 		auto& productions = cfg.Grammar.GetProductions();
-		for (auto& production : productions)
+		for (const Production& production : productions)
 		{
 			const std::unordered_set<CFGElement>& productionSet = CalculateFirstOfProduction(production);
-			for (auto& element : productionSet)
+			for (const CFGElement& element : productionSet)
 			{
 				set.insert(element);
 			}
@@ -372,54 +295,21 @@ namespace Parsy
 		return set;
 	}
 
-	void CLR1::GenerateFirstSets()
-	{
-		for (auto& [ruleID, cfg] : m_ParserRef->m_CFGMap)
-		{
-			CalculateFirstOfRule(ruleID);
-		}
-	}
-
-	void CLR1::GenerateFollowSets()
-	{
-
-	}
-
-	const std::unordered_set<CFGElement>& CLR1::GetFirstSet(const CFGElement& element)
-	{
-		if (element.Type != CFGElementType::NonTerminal)
-		{
-			return {element};
-		}
-
-		return m_RulesSets.at(element.ID).FirstSet;
-	}
-
-	const std::unordered_set<CFGElement>& CLR1::GetFollowSet(const CFGElement& element)
-	{
-		if (element.Type != CFGElementType::NonTerminal)
-		{
-			return {};
-		}
-
-		return  m_RulesSets.at(element.ID).FollowSet;
-	}
-
-	void CLR1::GenerateLookAheadSymbols(std::unordered_set<CFGElement>& lookaheadSymbols,
-		CLR1StateCFG& expandedRule)
+	void LR1::GenerateLookAheadSymbols(std::unordered_set<CFGElement>& lookaheadSymbols,
+		BottomUpStateProduction& expandedRule)
 	{
 		auto& productions = m_ParserRef->m_CFGMap.at(expandedRule.Rule).Grammar.GetProductions();
-		auto& production = productions.at(expandedRule.Production);
+		const Production& production = productions.at(expandedRule.Production);
 
 		for (int32_t i = expandedRule.DotPosition + 1; i < production.size(); i++)
 		{
-			auto& element = production.at(i);
+			const CFGElement& element = production.at(i);
 			switch (element.Type)
 			{
 			case CFGElementType::NonTerminal:
 			{
 				auto& set = m_RulesSets.at(element.ID).FirstSet;
-				for (auto& element : set)
+				for (const CFGElement& element : set)
 				{
 					lookaheadSymbols.insert(element);
 				}
@@ -458,14 +348,14 @@ namespace Parsy
 		}
 		if (lookaheadSymbols.empty() || hasEpsilon)
 		{
-			for (auto& element : expandedRule.LookAheadSymbols)
+			for (const CFGElement& element : expandedRule.LookAheadSymbols)
 			{
 				lookaheadSymbols.insert(element);
 			}
 		}
 	}
 
-	void CLR1::ExpandNonTerminals(CLR1State& state)
+	void LR1::ExpandNonTerminals(BottomUpState& state)
 	{
 		size_t index = 0;
 		std::unordered_set<int32_t> calculatedProductions;
@@ -473,7 +363,7 @@ namespace Parsy
 		{
 			auto& element = state.CFGSet.at(index);
 			auto& productions = m_ParserRef->m_CFGMap.at(element.Rule).Grammar.GetProductions();
-			auto& production = productions.at(element.Production);
+			const Production& production = productions.at(element.Production);
 			if (element.DotPosition >= production.size())
 			{
 				index++;

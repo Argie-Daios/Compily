@@ -102,6 +102,16 @@ namespace Parsy
 
 		void Print() const;
 
+		CFGElement& operator=(const CFGElement& other)
+		{
+			if (this == &other) return *this;
+
+			Type = other.Type;
+			ID = other.ID;
+
+			return *this;
+		}
+
 		bool operator==(const CFGElement& other) const
 		{
 			if (&other == this) return true;
