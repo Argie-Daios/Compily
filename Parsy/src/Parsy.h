@@ -1,3 +1,4 @@
 #pragma once
 
-#include "Parsy/Parser.h"
+#include "Parsy/Parsers/CLRParser.h"
+#include "Parsy/Parsers/GLRParser.h"

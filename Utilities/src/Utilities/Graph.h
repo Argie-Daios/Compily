@@ -31,10 +31,12 @@ namespace Utilities
 			s_CopyCount++;
 		}
 
-		int32_t PushVertex(const VertexDataType& data)
+		template<typename ... Args>
+		int32_t PushVertex(Args&& ... args)
 		{
-			int32_t id = (int32_t)m_Vertices.size();
-			m_Vertices.emplace(id, data);
+			int32_t id = static_cast<int32_t>(m_Vertices.size());
+			VertexDataType vertexData(std::forward<Args>(args)...);
+			m_Vertices.emplace(id, std::move(vertexData));
 			return id;
 		}
 

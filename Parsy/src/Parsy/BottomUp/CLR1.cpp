@@ -1,6 +1,6 @@
 #include "CLR1.h"
 
-#include "Parsy/Parser.h"
+#include "Parsy/Parsers/Parser.h"
 
 namespace Parsy
 {

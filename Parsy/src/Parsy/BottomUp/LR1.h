@@ -3,12 +3,9 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
-
 #include <Utilities.h>
 
 #include "Parsy/CFG.h"
-
-#define BIT(x) 1 << x
 
 namespace Parsy
 {
@@ -78,6 +75,30 @@ namespace Parsy
 			return Rule == other.Rule && Production == other.Production
 				&& DotPosition == other.DotPosition && LookAheadSymbols == other.LookAheadSymbols;
 		}
+
+		BottomUpStateProduction& operator=(const BottomUpStateProduction& other)
+		{
+			if (this == &other) return *this;
+
+			Rule = other.Rule;
+			Production = other.Production;
+			DotPosition = other.DotPosition;
+			LookAheadSymbols = other.LookAheadSymbols;
+			IsAccept = other.IsAccept;
+			return *this;
+		}
+
+		BottomUpStateProduction& operator=(BottomUpStateProduction&& other)
+		{
+			if (this == &other) return *this;
+
+			Rule = other.Rule;
+			Production = other.Production;
+			DotPosition = other.DotPosition;
+			LookAheadSymbols = std::move(other.LookAheadSymbols);
+			IsAccept = other.IsAccept;
+			return *this;
+		}
 	};
 
 	struct BottomUpState
@@ -88,6 +109,24 @@ namespace Parsy
 		BottomUpState() = default;
 		BottomUpState(const BottomUpState&) = default;
 		BottomUpState(BottomUpState&&) = default;
+
+		BottomUpState& operator=(const BottomUpState& other)
+		{
+			if (this == &other) return *this;
+
+			CFGSet = other.CFGSet;
+			IsAccept = other.IsAccept;
+			return *this;
+		}
+
+		BottomUpState& operator=(BottomUpState&& other)
+		{
+			if (this == &other) return *this;
+
+			CFGSet = std::move(other.CFGSet);
+			IsAccept = other.IsAccept;
+			return *this;
+		}
 	};
 
 	using StateGraph = Utilities::Graph<BottomUpState, CFGElement>;
