@@ -14,34 +14,47 @@ namespace Parsy
 		Empty,
 		Shift,
 		Reduce,
-		ShiftReduce,
-		ReduceReduce,
+		Conflict,
 		Accept,
 		Error
 	};
 
 	struct BottomUpActionData
 	{
+		BottomUpActionType Type;
 		int32_t RuleID = -1;
 		int32_t ReducedProduction = -1;
 
 		BottomUpActionData() = default;
-		BottomUpActionData(int32_t ruleID)
-			: RuleID(ruleID)
+		BottomUpActionData(const BottomUpActionType& type, int32_t ruleID, int32_t reducedProduction = -1)
+			: Type(type), RuleID(ruleID), ReducedProduction(reducedProduction)
 		{
 
 		}
-		BottomUpActionData(int32_t ruleID, int32_t reducedProduction)
-			: RuleID(ruleID), ReducedProduction(reducedProduction)
-		{
 
+		bool operator==(const BottomUpActionData& other) const
+		{
+			if (this == &other) return true;
+			return Type == other.Type && RuleID == other.RuleID &&
+				ReducedProduction == other.ReducedProduction;
+		}
+	};
+
+	struct BottomUpActionDataHash
+	{
+		size_t operator()(const BottomUpActionData& data) const
+		{
+			size_t h1 = std::hash<int32_t>{}(static_cast<int32_t>(data.Type));
+			size_t h2 = std::hash<int32_t>{}(data.RuleID);
+			size_t h3 = std::hash<int32_t>{}(data.ReducedProduction);
+			return h1 ^ (h2 << 1) ^ (h3 << 2);
 		}
 	};
 
 	struct BottomUpAction
 	{
 		BottomUpActionType Type;
-		std::unordered_map<BottomUpActionType, BottomUpActionData> ActionData;
+		std::unordered_set<BottomUpActionData, BottomUpActionDataHash> ActionData;
 
 		BottomUpAction() = default;
 		BottomUpAction(BottomUpActionType type)
@@ -49,6 +62,9 @@ namespace Parsy
 		}
 		BottomUpAction(const BottomUpAction&) = default;
 		BottomUpAction(BottomUpAction&&) = default;
+
+		const BottomUpActionData* GetActionData(const BottomUpActionType& type) const;
+		std::vector<const BottomUpActionData*> GetActionDataMultiple(const BottomUpActionType& type) const;
 	};
 
 	struct BottomUpStateProduction
@@ -88,7 +104,7 @@ namespace Parsy
 			return *this;
 		}
 
-		BottomUpStateProduction& operator=(BottomUpStateProduction&& other)
+		BottomUpStateProduction& operator=(BottomUpStateProduction&& other) noexcept
 		{
 			if (this == &other) return *this;
 
@@ -98,6 +114,17 @@ namespace Parsy
 			LookAheadSymbols = std::move(other.LookAheadSymbols);
 			IsAccept = other.IsAccept;
 			return *this;
+		}
+	};
+
+	struct BottomUpStateProductionHash
+	{
+		size_t operator()(const BottomUpStateProduction& data) const
+		{
+			size_t h1 = std::hash<int32_t>{}(static_cast<int32_t>(data.Rule));
+			size_t h2 = std::hash<int32_t>{}(data.Production);
+			size_t h3 = std::hash<int32_t>{}(data.DotPosition + (int32_t)data.LookAheadSymbols.size());
+			return h1 ^ (h2 << 1) ^ (h3 << 2);
 		}
 	};
 
@@ -119,7 +146,7 @@ namespace Parsy
 			return *this;
 		}
 
-		BottomUpState& operator=(BottomUpState&& other)
+		BottomUpState& operator=(BottomUpState&& other) noexcept
 		{
 			if (this == &other) return *this;
 
@@ -140,6 +167,13 @@ namespace Parsy
 
 		BottomUpAction& GetAction(int32_t state, const CFGElement& symbol);
 		int32_t& GetGotoState(int32_t state, const CFGElement& nonTerminal);
+
+		inline const BottomUpAction& GetAction(int32_t index) { return m_ActionTable.at(index); }
+		inline size_t GetTotalSymbols() const { return m_Symbols.size(); }
+		inline size_t GetTotalNonTerminals() const { return m_NonTerminals.size(); }
+
+		void PrintStateGraph();
+		void PrintTable();
 
 		const std::unordered_set<CFGElement>& GetFirstSet(const CFGElement& element);
 		const std::unordered_set<CFGElement>& GetFollowSet(const CFGElement& element);
@@ -177,21 +211,5 @@ namespace Parsy
 		std::vector<int32_t> m_GotoTable;
 		std::unordered_set<CFGElement> m_Symbols;
 		std::unordered_set<CFGElement> m_NonTerminals;
-	};
-}
-
-namespace std
-{
-	template<>
-	struct hash<Parsy::BottomUpStateProduction>
-	{
-		std::size_t operator()(const Parsy::BottomUpStateProduction& elem) const
-		{
-			std::size_t h1 = std::hash<int32_t>{}(elem.Rule);
-			std::size_t h2 = std::hash<int32_t>{}(elem.Production);
-			std::size_t h3 = std::hash<int32_t>{}(elem.DotPosition +
-				(int32_t)elem.LookAheadSymbols.size());
-			return h1 ^ (h2 << h3);
-		}
 	};
 }

@@ -40,9 +40,16 @@ namespace Lexy
 
 			}
 		};
+		
+		struct OfflineToken
+		{
+			Token TokenData;
+			std::any DefaultVaue;
+		};
+
 	public:
 		Lexer(const std::ifstream& inputStream);
-		void Tokenize();
+		std::vector<OfflineToken> Tokenize();
 		Token NextToken();
 		TokenID_t CreateRule(const std::string& regex, const RuleCallback& callback =
 			[]() { return IGNORE; });

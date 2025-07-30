@@ -35,8 +35,7 @@ namespace Utilities
 		int32_t PushVertex(Args&& ... args)
 		{
 			int32_t id = static_cast<int32_t>(m_Vertices.size());
-			VertexDataType vertexData(std::forward<Args>(args)...);
-			m_Vertices.emplace(id, std::move(vertexData));
+			m_Vertices.emplace(id, VertexDataType(std::forward<Args>(args)...));
 			return id;
 		}
 

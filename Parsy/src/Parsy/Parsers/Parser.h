@@ -75,11 +75,10 @@ namespace Parsy
 			TypeCallback TokenTypeConstructCallback = [](std::any& any) { any.reset(); };
 		};
 	private:
-		virtual void Shift(const BottomUpAction& action,
-			const Lexy::Lexer::Token& token) = 0;
-		virtual void Reduce(const BottomUpAction & action) = 0;
 		CFGElement GetNextTokenElement();
 		CFGElement GetTokenElement(const Lexy::Lexer::Token& token);
+		ParseEntryData ConstructEntry(RuleID_t ruleID, int32_t production);
+		ParseEntryData InvokeCallbacks(RuleID_t ruleID, int32_t production);
 		ParseEntryData ConstructEntryAndInvokeCallbacks(RuleID_t ruleID, int32_t production);
 	protected:
 		Lexy::Lexer* m_Lexer = nullptr;

@@ -3,7 +3,7 @@
 #include "Parser.h"
 
 namespace Parsy
-{
+{ 
 	struct ParseTree
 	{
 		std::vector<ParseEntryData> Stack;
@@ -20,9 +20,9 @@ namespace Parsy
 		virtual bool Parse() override;
 		virtual std::any& Get(int32_t offset) override;
 	private:
-		virtual void Shift(const BottomUpAction& action,
-			const Lexy::Lexer::Token& token) override;
-		virtual void Reduce(const BottomUpAction& action) override;
+		void Shift(const BottomUpAction& action,
+			const Lexy::Lexer::Token& token);
+		void Reduce(const BottomUpAction& action);
 	private:
 		ParseTree m_InputStack;
 		int32_t m_Elements = -1;

@@ -52,6 +52,7 @@ namespace Parsy
                 std::cout << "Accepted" << std::endl;
                 return true;
             }
+            case BottomUpActionType::Conflict:
             case BottomUpActionType::Empty:
             case BottomUpActionType::Error:
             {
@@ -74,7 +75,7 @@ namespace Parsy
 		const Lexy::Lexer::Token& token)
 	{
         auto& inputStack = m_InputStack.Stack;
-        inputStack.push_back({ action.ActionData.at(BottomUpActionType::Shift).RuleID,
+        inputStack.push_back({ action.GetActionData(BottomUpActionType::Shift)->RuleID,
             {CFGElementType::Symbol, token.TokenID} });
 
         auto& defaultTokenValue = m_Lexer->GetDefaultTokenValue();
@@ -90,16 +91,16 @@ namespace Parsy
 
 	void CLRParser::Reduce(const BottomUpAction& action)
 	{
+        const BottomUpActionData* reduceData = action.GetActionData(BottomUpActionType::Reduce);
         auto& inputStack = m_InputStack.Stack;
-        auto& productions = m_CFGMap.at(action.ActionData.at(BottomUpActionType::Reduce).RuleID)
+        auto& productions = m_CFGMap.at(reduceData->RuleID)
             .Grammar.GetProductions();
-        const BottomUpActionData& bottomActionData = action.ActionData.at(BottomUpActionType::Reduce);
         const Production& production = productions
-            .at(bottomActionData.ReducedProduction);
+            .at(reduceData->ReducedProduction);
         m_Elements = production.size();
 
         ParseEntryData& entry = 
-            ConstructEntryAndInvokeCallbacks(bottomActionData.RuleID, bottomActionData.ReducedProduction);
+            ConstructEntryAndInvokeCallbacks(reduceData->RuleID, reduceData->ReducedProduction);
 
         for (int32_t i = 0; i < m_Elements; i++)
         {
@@ -109,7 +110,7 @@ namespace Parsy
 
         ParseEntryData& newParseEntry = inputStack.back();
         int32_t gotoID = m_LR1->GetGotoState(newParseEntry.State,
-            { CFGElementType::NonTerminal, action.ActionData.at(BottomUpActionType::Reduce).RuleID });
+            { CFGElementType::NonTerminal, reduceData->RuleID });
         entry.State = gotoID;
         inputStack.push_back(entry);
 	}

@@ -7,6 +7,33 @@ namespace Parsy
 	static BottomUpAction s_ErrorAction(BottomUpActionType::Error);
 	static const std::unordered_set<CFGElement> s_EmptySet;
 
+	/////BottomUpActionData/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	const BottomUpActionData* BottomUpAction::GetActionData(const BottomUpActionType& type) const
+	{
+		for (const BottomUpActionData& data : ActionData)
+		{
+			if (data.Type == type)
+				return &data;
+		}
+
+		return nullptr;
+	}
+
+	std::vector<const BottomUpActionData*> BottomUpAction::GetActionDataMultiple(const BottomUpActionType& type) const
+	{
+		std::vector<const BottomUpActionData*> actionData;
+		actionData.reserve(ActionData.size());
+		for (const BottomUpActionData& data : ActionData)
+		{
+			if (data.Type == type)
+				actionData.push_back(&data);
+		}
+		return actionData;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	LR1::LR1(Parser* parserRef)
 		: m_ParserRef(parserRef)
 	{
@@ -56,6 +83,93 @@ namespace Parsy
 		return m_GotoTable.at(index);
 	}
 
+	void LR1::PrintStateGraph()
+	{
+		auto& vertices = m_StateGraph.GetVertices();
+		for (auto& [id, vertex] : vertices)
+		{
+			std::cout << "[State " << id << "]" << std::endl;
+			auto& edges = m_StateGraph.GetEdgesOfVertex(id);
+			for (auto& edge : edges)
+			{
+				std::cout << "Edge to " << edge.Destination << " with ";
+				edge.Data.Print();
+				std::cout << std::endl;
+			}
+			for (auto& element : vertex.Data.CFGSet)
+			{
+				std::cout << "\tRule: " << element.Rule << ", Production: " << element.Production
+					<< ", DotPosition: " << element.DotPosition << ", IsAccept: " <<
+					(element.IsAccept ? "true" : "false");
+				std::cout << " | [ ";
+				for (auto& symbol : element.LookAheadSymbols)
+				{
+					symbol.Print();
+					std::cout << " ";
+				}
+				std::cout << "]" << std::endl;
+			}
+		}
+	}
+
+	static const char* ActionTypeToString(const BottomUpActionType& type)
+	{
+		switch (type)
+		{
+		case BottomUpActionType::Accept: return "Accept";
+		case BottomUpActionType::Shift: return "Shift";
+		case BottomUpActionType::Reduce: return "Reduce";
+		case BottomUpActionType::Conflict: return "Conflict";
+		case BottomUpActionType::Error: return "Error";
+		}
+
+		return "InvalidType";
+	}
+
+	void LR1::PrintTable()
+	{
+		std::cout << "Actions" << std::endl;
+		std::cout << "===========================" << std::endl;
+		std::cout << "[State 0]" << std::endl;
+		for (int32_t i = 0; i < m_ActionTable.size(); i++)
+		{
+			if (i % m_Symbols.size() == 0) std::cout << std::endl <<
+				"[State " << i / m_Symbols.size() << "]" << std::endl;
+			BottomUpAction& action = m_ActionTable.at(i);
+			int32_t index = i % (int32_t)m_Symbols.size();
+			auto& setIt = m_Symbols.begin();
+			std::advance(setIt, index);
+			std::cout << "Element { State: " << i % m_Symbols.size() << ", Symbol: ";
+			setIt->Print();
+			std::cout << " }" << ": [ ";
+			std::cout << "Type: " << ActionTypeToString(action.Type);
+			std::cout << "{ ";
+			for (auto& data : action.ActionData)
+			{
+				std::cout << "[ Type: " << ActionTypeToString(data.Type) << ", ID: " << data.RuleID;
+				std::cout << ", Production: " << data.ReducedProduction;
+				std::cout << " ], ";
+			}
+			std::cout << "}" << std::endl;
+			
+			std::cout << " ]" << std::endl;
+		}
+
+		std::cout << std::endl;
+		std::cout << "GOTO" << std::endl;
+		std::cout << "===========================" << std::endl;
+		for (int32_t i = 0; i < m_GotoTable.size(); i++)
+		{
+			if (i % m_NonTerminals.size() == 0) std::cout << std::endl <<
+				"[State " << i / m_NonTerminals.size() << "]" << std::endl;
+			int32_t stateID = m_GotoTable.at(i);
+			int32_t index = i % (int32_t)m_NonTerminals.size();
+			auto& it = m_NonTerminals.begin();
+			std::advance(it, index);
+			std::cout << "Rule(" << it->ID << "): " << stateID << std::endl;
+		}
+	}
+
 	const std::unordered_set<CFGElement>& LR1::GetFirstSet(const CFGElement& element)
 	{
 		if (element.Type != CFGElementType::NonTerminal) return s_EmptySet;
@@ -91,7 +205,7 @@ namespace Parsy
 		ExpandNonTerminals(stateRef);
 
 		std::vector<int32_t> vertexStack = { id };
-		std::unordered_map<BottomUpStateProduction, int32_t> stateMemo;
+		std::unordered_map<BottomUpStateProduction, int32_t, BottomUpStateProductionHash> stateMemo;
 		while (!vertexStack.empty())
 		{
 			int32_t top = vertexStack.back();
@@ -159,12 +273,6 @@ namespace Parsy
 		for (int32_t i = 0; i < totalVertices; i++)
 		{
 			auto& vertexState = m_StateGraph.GetVertex(i).Data;
-			if (vertexState.IsAccept)
-			{
-				BottomUpAction& action = GetAction(i, { CFGElementType::Dollar, -1 });
-				action.Type = BottomUpActionType::Accept;
-				continue;
-			}
 			auto& edges = m_StateGraph.GetEdgesOfVertex(i);
 			for (auto& edge : edges)
 			{
@@ -185,16 +293,10 @@ namespace Parsy
 				default:
 				{
 					BottomUpAction& action = GetAction(i, element);
-					action.ActionData.emplace(BottomUpActionType::Shift,
-						BottomUpActionData(edge.Destination));
-					if (action.Type == BottomUpActionType::Reduce)
-					{
-						action.Type = BottomUpActionType::ShiftReduce;
-					}
-					else
-					{
-						action.Type = BottomUpActionType::Shift;
-					}
+					action.Type = BottomUpActionType::Shift;
+					action.ActionData.insert(BottomUpActionData(BottomUpActionType::Shift, edge.Destination));
+					if (action.ActionData.size() > 1)
+						action.Type = BottomUpActionType::Conflict;
 					break;
 				}
 				}
@@ -208,22 +310,19 @@ namespace Parsy
 					for (auto& lookAheadSymbol : stateCFG.LookAheadSymbols)
 					{
 						BottomUpAction& action = GetAction(i, lookAheadSymbol);
-						action.ActionData.emplace(BottomUpActionType::Reduce,
-							BottomUpActionData(stateCFG.Rule, stateCFG.Production));
-						if (action.Type == BottomUpActionType::Shift)
-						{
-							action.Type = BottomUpActionType::ShiftReduce;
-						}
-						else if (action.Type == BottomUpActionType::Reduce)
-						{
-							action.Type = BottomUpActionType::ReduceReduce;
-						}
-						else
-						{
-							action.Type = BottomUpActionType::Reduce;
-						}
+						action.Type = BottomUpActionType::Reduce;
+						action.ActionData.insert(BottomUpActionData(BottomUpActionType::Reduce, 
+							stateCFG.Rule, stateCFG.Production));
+						if (action.ActionData.size() > 1)
+							action.Type = BottomUpActionType::Conflict;
 					}
 				}
+			}
+
+			if (vertexState.IsAccept)
+			{
+				BottomUpAction& action = GetAction(i, { CFGElementType::Dollar, -1 });
+				action.Type = BottomUpActionType::Accept;
 			}
 		}
 	}

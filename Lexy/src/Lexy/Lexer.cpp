@@ -18,13 +18,16 @@ namespace Lexy
 		m_Rules.reserve(INITIAL_RULE_SLOTS);
 	}
 
-	void Lexer::Tokenize()
+    std::vector<Lexer::OfflineToken> Lexer::Tokenize()
 	{
         Lexy::Lexer::Token token;
+        std::vector<OfflineToken> tokenStream;
         while ((token = Lexy::Lexer::NextToken()).State == Lexy::Lexer::TokenState::Success)
         {
-
+            tokenStream.push_back({ token, std::move(m_DefaultTokenValue) });
         }
+        tokenStream.push_back({ Lexy::Lexer::Token(Lexy::Lexer::TokenState::End, -1) });
+        return tokenStream;
 	}
 
     Lexer::Token Lexer::NextToken()

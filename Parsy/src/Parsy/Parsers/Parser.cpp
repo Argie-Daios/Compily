@@ -92,8 +92,8 @@ namespace Parsy
             m_TokenMap.emplace(element.ID, TokenProperties());
         }
         RuleProperties& ruleProps = m_CFGMap.at(m_BoundRule);
-        size_t totalProductions = ruleProps.Grammar.GetProductionCount();
         ruleProps.Grammar.AddElement(element);
+        size_t totalProductions = ruleProps.Grammar.GetProductionCount();
 
         switch (element.Type)
         {
@@ -175,6 +175,34 @@ namespace Parsy
         }
         }
         return tokenElement;
+    }
+
+    ParseEntryData Parser::ConstructEntry(RuleID_t ruleID, int32_t production)
+    {
+        ParseEntryData parseEntry;
+        parseEntry.State = -1;
+        parseEntry.Symbol = { CFGElementType::NonTerminal,
+            ruleID };
+        m_CFGMap.at(ruleID).
+            RuleTypeConstructCallback(parseEntry.Entry);
+        return parseEntry;
+    }
+
+    ParseEntryData Parser::InvokeCallbacks(RuleID_t ruleID, int32_t production)
+    {
+        ParseEntryData parseEntry;
+        parseEntry.State = -1;
+        parseEntry.Symbol = { CFGElementType::NonTerminal,
+            ruleID };
+        
+        auto& productionCallbacks = m_CFGMap.at(ruleID).RuleProductionCallbacks.
+            at(production);
+        for (auto& function : productionCallbacks)
+        {
+            function(parseEntry.Entry);
+        }
+
+        return parseEntry;
     }
 
     ParseEntryData Parser::ConstructEntryAndInvokeCallbacks(RuleID_t ruleID, int32_t production)
