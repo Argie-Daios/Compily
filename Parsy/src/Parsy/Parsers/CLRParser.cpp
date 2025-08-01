@@ -19,6 +19,8 @@ namespace Parsy
         m_LR1->GenerateStateGraph();
         m_LR1->GenerateTable();
         Print();
+        m_LR1->PrintStateGraph();
+        m_LR1->PrintTable();
 
         m_InputStack.Stack.clear();
         m_InputStack.Stack.push_back({ 0, {CFGElementType::Epsilon, -1} });

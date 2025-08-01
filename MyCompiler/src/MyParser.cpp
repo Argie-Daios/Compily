@@ -23,41 +23,14 @@ struct Operation
 std::unordered_map<std::string, int32_t> s_SymbolTable;
 
 MyParser::MyParser(const std::ifstream& inputStream)
-	: GLRParser(inputStream)
+	: CLRParser(inputStream)
 {
 	m_Lexer = new MyLexer(inputStream);
 
-	DeclareTokenType<std::string>(IDENTIFIER);
-	DeclareTokenType<int32_t>(INTEGER);
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-
-	BeginRule(STATEMENTS, true);
-
-	Add({ Parsy::CFGElementType::NonTerminal, STATEMENTS });
-	Add({ Parsy::CFGElementType::NonTerminal, STATEMENT });
-
-	Union();
-
-	Add({ Parsy::CFGElementType::NonTerminal, STATEMENT });
-
-	EndRule();
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	 
-	BeginRule(STATEMENT);
+	BeginRule<int32_t>(STATEMENT, true);
 
 	Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION });
 	Add({ Parsy::CFGElementType::Symbol, SEMICOLON });
-
-	/*Union();
-
-	Add({ Parsy::CFGElementType::NonTerminal, ASSIGNMENT });
-	Add({ Parsy::CFGElementType::Symbol, SEMICOLON });
-
-	Union();
-
-	Add({ Parsy::CFGElementType::NonTerminal, IF_STATEMENT });*/
 
 	EndRule();
 
@@ -65,26 +38,79 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION });
 	Add({ Parsy::CFGElementType::Symbol, PLUS });
-	Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION }, [this](std::any& any)
-		{
-			int32_t& leftExpressionValue = std::any_cast<int32_t&>(Get(0));
-			int32_t& rightExpressionValue = std::any_cast<int32_t&>(Get(2));
-			std::cout << leftExpressionValue << "+" << rightExpressionValue << std::endl;
-		});
+	Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION });
 
 	Union();
 
-	Add({ Parsy::CFGElementType::Symbol, INTEGER }, [this](std::any& any)
-		{
-			int32_t& expressionValue = std::any_cast<int32_t&>(any);
-			int32_t& integerValue = std::any_cast<int32_t&>(Get(0));
-			expressionValue = integerValue;
-			std::cout << "Expression value: " << expressionValue << std::endl;
-		});
+
+	Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION });
+	Add({ Parsy::CFGElementType::Symbol, MULTIPLY });
+	Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION });
+
+	Union();
+
+	Add({ Parsy::CFGElementType::Symbol, INTEGER });
 
 	EndRule();
-	
-	/////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//DeclareTokenType<std::string>(IDENTIFIER);
+	//DeclareTokenType<int32_t>(INTEGER);
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//BeginRule(STATEMENTS, true);
+
+	//Add({ Parsy::CFGElementType::NonTerminal, STATEMENTS });
+	//Add({ Parsy::CFGElementType::NonTerminal, STATEMENT });
+
+	//Union();
+
+	//Add({ Parsy::CFGElementType::NonTerminal, STATEMENT });
+
+	//EndRule();
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+	// 
+	//BeginRule(STATEMENT);
+
+	//Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION });
+	//Add({ Parsy::CFGElementType::Symbol, SEMICOLON });
+
+	///*Union();
+
+	//Add({ Parsy::CFGElementType::NonTerminal, ASSIGNMENT });
+	//Add({ Parsy::CFGElementType::Symbol, SEMICOLON });
+
+	//Union();
+
+	//Add({ Parsy::CFGElementType::NonTerminal, IF_STATEMENT });*/
+
+	//EndRule();
+
+	//BeginRule<int32_t>(EXPRESSION);
+
+	//Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION });
+	//Add({ Parsy::CFGElementType::Symbol, PLUS });
+	//Add({ Parsy::CFGElementType::NonTerminal, EXPRESSION }, [this](std::any& any)
+	//	{
+	//		int32_t& leftExpressionValue = std::any_cast<int32_t&>(Get(0));
+	//		int32_t& rightExpressionValue = std::any_cast<int32_t&>(Get(2));
+	//		std::cout << leftExpressionValue << "+" << rightExpressionValue << std::endl;
+	//	});
+
+	//Union();
+
+	//Add({ Parsy::CFGElementType::Symbol, INTEGER }, [this](std::any& any)
+	//	{
+	//		int32_t& expressionValue = std::any_cast<int32_t&>(any);
+	//		int32_t& integerValue = std::any_cast<int32_t&>(Get(0));
+	//		expressionValue = integerValue;
+	//		std::cout << "Expression value: " << expressionValue << std::endl;
+	//	});
+
+	//EndRule();
+	//
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Parse();
 

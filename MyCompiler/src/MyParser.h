@@ -2,7 +2,7 @@
 
 #include "Parsy.h"
 
-class MyParser : public Parsy::GLRParser
+class MyParser : public Parsy::CLRParser
 {
 public:
 	MyParser(const std::ifstream& inputStream);

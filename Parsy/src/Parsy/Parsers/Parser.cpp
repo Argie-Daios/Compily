@@ -13,14 +13,14 @@ namespace Parsy
 
     void Parser::Print()
     { 
-        auto& set = m_LR1->GetFirstSet({ CFGElementType::NonTerminal, 0 });
+        /*auto& set = m_LR1->GetFirstSet({ CFGElementType::NonTerminal, 0 });
         std::cout << "First Set of Rule(0) { ";
         for (auto& element : set)
         {
             element.Print();
             std::cout << " ";
         }
-        std::cout << "}" << std::endl << std::endl;
+        std::cout << "}" << std::endl << std::endl;*/
 
         for (auto& [ruleID, ruleProps] : m_CFGMap)
         {
