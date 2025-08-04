@@ -1,5 +1,7 @@
 #include "CLRParser.h"
 
+#include "Parsy/BottomUp/CLR1.h"
+
 namespace Parsy
 {
 	CLRParser::CLRParser(const std::ifstream& inputStream)
@@ -16,6 +18,7 @@ namespace Parsy
             return false;
         }
         m_LR1->GenerateFirstSets();
+        m_LR1->GenerateFollowSets();
         m_LR1->GenerateStateGraph();
         m_LR1->GenerateTable();
         Print();
@@ -23,7 +26,7 @@ namespace Parsy
         m_LR1->PrintTable();
 
         m_InputStack.Stack.clear();
-        m_InputStack.Stack.push_back({ 0, {CFGElementType::Epsilon, -1} });
+        m_InputStack.Stack.push_back({ 0, {CFGElementType::Dollar, -1} });
         Lexy::Lexer::Token token;
         bool keepToken = false;
         while (true)
@@ -55,6 +58,49 @@ namespace Parsy
                 return true;
             }
             case BottomUpActionType::Conflict:
+            {
+                CFGElement* lastTerminal = nullptr;
+                for (auto it = m_InputStack.Stack.rbegin(); it != m_InputStack.Stack.rend(); it++)
+                {
+                    if (it->Symbol.Type == CFGElementType::Symbol || it->Symbol.Type == CFGElementType::Dollar)
+                    {
+                        lastTerminal = &it->Symbol;
+                        break;
+                    }
+                }
+
+                if (lastTerminal == nullptr)
+                {
+                    std::cout << "FATAL ERROR" << std::endl;
+                    return false;
+                }
+
+                int32_t leftElementPriority = m_TokenMap.at(lastTerminal->ID).Priority;
+                int32_t rightElementPriority = m_TokenMap.at(tokenElement.ID).Priority;
+                if (leftElementPriority < rightElementPriority)
+                {
+                    const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
+                    if (shiftAction == nullptr)
+                    {
+                        std::cout << "FATAL ERROR" << std::endl;
+                        return false;
+                    }
+                    Shift(action, token);
+                }
+                else
+                {
+                    const BottomUpActionData* reduceAction = action.GetActionData(BottomUpActionType::Reduce);
+                    if (reduceAction == nullptr)
+                    {
+                        std::cout << "FATAL ERROR" << std::endl;
+                        return false;
+                    }
+                    Reduce(action);
+                    keepToken = true;
+                }
+
+                break;
+            }
             case BottomUpActionType::Empty:
             case BottomUpActionType::Error:
             {

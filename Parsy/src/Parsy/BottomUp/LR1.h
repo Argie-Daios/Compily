@@ -182,7 +182,7 @@ namespace Parsy
 		void GenerateFollowSets();
 		virtual void GenerateStateGraph();
 		virtual void GenerateTable();
-	private:
+	protected:
 		struct RuleSets
 		{
 			std::unordered_set<CFGElement> FirstSet;
@@ -192,15 +192,23 @@ namespace Parsy
 			RuleSets(const RuleSets&) = default;
 			RuleSets(RuleSets&&) = default;
 		};
-	private:
+	protected:
 		void AdvanceIfEpsilon(const Production& production, BottomUpStateProduction& stateCFG);
+
 		const std::unordered_set<CFGElement> CalculateFirstOfElement(const CFGElement& element);
 		const std::unordered_set<CFGElement> CalculateFirstOfProduction(const Production& production);
 		const std::unordered_set<CFGElement>& CalculateFirstOfRule(int32_t ruleID);
 		void GenerateLookAheadSymbols(std::unordered_set<CFGElement>& lookaheadSymbols,
 			BottomUpStateProduction& expandedRule);
+
+		const std::unordered_set<CFGElement> CalculateFollowOfElement(const CFGElement& element);
+		const std::unordered_set<CFGElement> CalculateFollowOfProduction(const Production& production);
+		const std::unordered_set<CFGElement>& CalculateFollowOfRule(int32_t ruleID);
+
 		void ExpandNonTerminals(BottomUpState& state);
-	private:
+
+		virtual void HandleReduceTable(int32_t state, const BottomUpStateProduction& production);
+	protected:
 		class Parser* m_ParserRef;
 
 		StateGraph m_StateGraph;

@@ -192,7 +192,10 @@ namespace Parsy
 
 	void LR1::GenerateFollowSets()
 	{
-
+		for (auto& [ruleID, cfg] : m_ParserRef->m_CFGMap)
+		{
+			CalculateFollowOfRule(ruleID);
+		}
 	}
 
 	void LR1::GenerateStateGraph()
@@ -307,15 +310,7 @@ namespace Parsy
 				auto& production = productions.at(stateCFG.Production);
 				if (stateCFG.DotPosition >= production.size())
 				{
-					for (auto& lookAheadSymbol : stateCFG.LookAheadSymbols)
-					{
-						BottomUpAction& action = GetAction(i, lookAheadSymbol);
-						action.Type = BottomUpActionType::Reduce;
-						action.ActionData.insert(BottomUpActionData(BottomUpActionType::Reduce, 
-							stateCFG.Rule, stateCFG.Production));
-						if (action.ActionData.size() > 1)
-							action.Type = BottomUpActionType::Conflict;
-					}
+					HandleReduceTable(i, stateCFG);
 				}
 			}
 
@@ -454,6 +449,83 @@ namespace Parsy
 		}
 	}
 
+	const std::unordered_set<CFGElement> LR1::CalculateFollowOfElement(const CFGElement& element)
+	{
+		return std::unordered_set<CFGElement>();
+	}
+
+	const std::unordered_set<CFGElement> LR1::CalculateFollowOfProduction(const Production& production)
+	{
+		return std::unordered_set<CFGElement>();
+	}
+
+	const std::unordered_set<CFGElement>& LR1::CalculateFollowOfRule(int32_t ruleID)
+	{
+		auto& cfg = m_ParserRef->m_CFGMap.at(ruleID);
+		auto& ruleSet = m_RulesSets[ruleID];
+		auto& followSet = ruleSet.FollowSet;
+
+		if (ruleID == m_ParserRef->m_StartingRule)
+			followSet.insert({ CFGElementType::Dollar, -1 });
+
+		bool updated = true;
+		while (updated)
+		{
+			updated = false;
+
+			for (auto& [rid, ruleProps] : m_ParserRef->m_CFGMap)
+			{
+				for (const auto& production : ruleProps.Grammar.GetProductions())
+				{
+					for (size_t i = 0; i < production.size(); ++i)
+					{
+						const CFGElement& B = production[i];
+						if (B.Type != CFGElementType::NonTerminal) continue;
+
+						std::unordered_set<CFGElement> trailer;
+						bool addFollowOfLHS = false;
+
+						if (i + 1 < production.size())
+						{
+							Production beta(production.begin() + i + 1, production.end());
+							auto betaFirst = CalculateFirstOfProduction(beta);
+							for (const auto& sym : betaFirst)
+							{
+								if (sym.Type != CFGElementType::Epsilon)
+									trailer.insert(sym);
+							}
+							if (betaFirst.find({ CFGElementType::Epsilon, -1 }) != betaFirst.end())
+								addFollowOfLHS = true;
+						}
+						else
+						{
+							addFollowOfLHS = true;
+						}
+
+						auto& targetSet = m_RulesSets[B.ID].FollowSet;
+						for (const auto& sym : trailer)
+						{
+							if (targetSet.insert(sym).second)
+								updated = true;
+						}
+
+						if (addFollowOfLHS)
+						{
+							auto& lhsFollow = m_RulesSets[rid].FollowSet;
+							for (const auto& sym : lhsFollow)
+							{
+								if (m_RulesSets[B.ID].FollowSet.insert(sym).second)
+									updated = true;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return m_RulesSets[ruleID].FollowSet;
+	}
+
 	void LR1::ExpandNonTerminals(BottomUpState& state)
 	{
 		size_t index = 0;
@@ -487,6 +559,19 @@ namespace Parsy
 				calculatedProductions.insert(dotElement.ID);
 			}
 			index++;
+		}
+	}
+
+	void LR1::HandleReduceTable(int32_t state, const BottomUpStateProduction& production)
+	{
+		for (auto& lookAheadSymbol : production.LookAheadSymbols)
+		{
+			BottomUpAction& action = GetAction(state, lookAheadSymbol);
+			action.Type = BottomUpActionType::Reduce;
+			action.ActionData.insert(BottomUpActionData(BottomUpActionType::Reduce,
+				production.Rule, production.Production));
+			if (action.ActionData.size() > 1)
+				action.Type = BottomUpActionType::Conflict;
 		}
 	}
 }

@@ -3,7 +3,7 @@
 #include "Lexy.h"
 
 #include "Parsy/CFG.h"
-#include "Parsy/BottomUp/CLR1.h"
+#include "Parsy/BottomUp/LR1.h"
 #include "Parsy/ParseStructs.h"
 
 #include <memory>
@@ -25,8 +25,14 @@ namespace Parsy
 		template<typename Type>
 		void DeclareTokenType(Lexy::TokenID_t token)
 		{
-			m_TokenMap.emplace(token, TokenProperties());
+			m_TokenMap.try_emplace(token);
 			m_TokenMap.at(token).TokenTypeConstructCallback = [](std::any& any) { any = Type(); };
+		}
+
+		void DeclarePrecedence(Lexy::TokenID_t token)
+		{
+			m_TokenMap.try_emplace(token);
+			m_TokenMap.at(token).Priority = ++m_HighestPriority;
 		}
 
 		void BeginRule(RuleID_t rule, bool startRule = false);
@@ -72,6 +78,7 @@ namespace Parsy
 
 		struct TokenProperties
 		{
+			int32_t Priority = 0;
 			TypeCallback TokenTypeConstructCallback = [](std::any& any) { any.reset(); };
 		};
 	private:
@@ -90,10 +97,13 @@ namespace Parsy
 		std::unique_ptr<LR1> m_LR1;
 
 		RuleID_t m_BoundRule = -1;
+		int32_t m_HighestPriority = 0;
 	
 		friend class CLR1;
 		friend class LR1;
+		friend class OperatorPrecedenceTable;
 		friend class CLRParser;
+		friend class SLRParser;
 		friend class GLRParser;
 	};
 }

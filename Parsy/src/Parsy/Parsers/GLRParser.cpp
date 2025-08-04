@@ -1,5 +1,7 @@
 #include "GLRParser.h"
 
+#include "Parsy/BottomUp/CLR1.h"
+
 namespace Parsy
 {
 	GLRParser::GLRParser(const std::ifstream& inputStream)
