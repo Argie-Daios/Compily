@@ -111,6 +111,7 @@ namespace Parsy
 			int32_t tokenIndex);
 		void ExtractMinimumSpanningStack();
 		bool ExecuteSemanticAnalysis();
+		CFGElement GetLastPushedTerminal(int32_t currentIndex);
 
 		/////GSS/////////////////////////////////////////////////////////////////////////////////////
 
@@ -231,6 +232,8 @@ namespace Parsy
 
 			return currentLayer;
 		}
+
+		int32_t GetStateBefore(int32_t state);
 
 		/////////////////////////////////////////////////////////////////////////////////////////////
 	private:

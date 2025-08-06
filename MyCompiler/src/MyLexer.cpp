@@ -47,7 +47,11 @@ MyLexer::MyLexer(const std::ifstream& inputStream)
 
 	CreateRule(s_Punctuation);
 
-	CreateRule(R"(\".*\")", []() { return STRING; });
+	CreateRule(R"(\"[^"\n]*\")", [this]() {  // Needs fix it takes hole thing
+		auto& defaultValue = GetDefaultTokenValue();
+		defaultValue = GetTokenContent();
+		return STRING; 
+		});
 
 	CreateRule(R"([A-Za-z][A-Za-z0-9\_]*)", [this]() { 
 		auto& defaultValue = GetDefaultTokenValue();

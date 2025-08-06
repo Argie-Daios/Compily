@@ -4,162 +4,64 @@
 
 namespace Parsy
 {
-	CLRParser::CLRParser(const std::ifstream& inputStream)
-		: Parser(inputStream)
+	CLRParser::CLRParser(const std::ifstream& inputStream, int32_t flags)
+		: LRParser(inputStream), m_Flags(flags)
 	{
         m_LR1 = std::make_unique<CLR1>(this);
 	}
 
-	bool CLRParser::Parse()
+	bool CLRParser::OnShift(int32_t state, const BottomUpAction& action, const Lexy::Lexer::Token& token)
 	{
-        if (m_Lexer == nullptr)
-        {
-            std::cout << "Null" << std::endl;
-            return false;
-        }
-        m_LR1->GenerateFirstSets();
-        m_LR1->GenerateFollowSets();
-        m_LR1->GenerateStateGraph();
-        m_LR1->GenerateTable();
-        Print();
-        m_LR1->PrintStateGraph();
-        m_LR1->PrintTable();
+		int32_t rightOperatorPriority = m_TokenMap.at(token.TokenID).Priority;
+		if (m_Flags & CLRParserFlags_ForcePrecedence && rightOperatorPriority > 0)
+		{
+			CFGElement* lastTerminal = GetLastTerminal();
+			if (lastTerminal == nullptr) return LRParser::OnShift(state, action, token);
+			int32_t leftOperatorPriority = m_TokenMap.at(lastTerminal->ID).Priority;
+			if (leftOperatorPriority == 0 || leftOperatorPriority >= rightOperatorPriority)
+			{
+				BottomUpAction* dollarAction = nullptr;
+				const auto& symbols = m_LR1->GetSymbols();
+				for (const CFGElement& element : symbols)
+				{
+					BottomUpAction& action = m_LR1->GetAction(state, element);
+					if (action.Type == BottomUpActionType::Reduce)
+					{
+						dollarAction = &action;
+						break;
+					}
+				}
+				if (dollarAction == nullptr) return LRParser::OnShift(state, action, token);
+				OnReduce(state, *dollarAction);
+				return true;
+			}
+		}
 
-        m_InputStack.Stack.clear();
-        m_InputStack.Stack.push_back({ 0, {CFGElementType::Dollar, -1} });
-        Lexy::Lexer::Token token;
-        bool keepToken = false;
-        while (true)
-        {
-            if (!keepToken)
-                token = m_Lexer->NextToken();
-            keepToken = false;
-            ParseEntryData& topState = m_InputStack.Stack.back();
-            CFGElement& tokenElement = GetTokenElement(token);
-
-            BottomUpAction& action = m_LR1->GetAction(topState.State, tokenElement);
-            switch (action.Type)
-            {
-            case BottomUpActionType::Shift:
-            {
-                Shift(action, token);
-                break;
-            }
-            case BottomUpActionType::Reduce:
-            {
-                Reduce(action);
-                keepToken = true;
-
-                break;
-            }
-            case BottomUpActionType::Accept:
-            {
-                std::cout << "Accepted" << std::endl;
-                return true;
-            }
-            case BottomUpActionType::Conflict:
-            {
-                CFGElement* lastTerminal = nullptr;
-                for (auto it = m_InputStack.Stack.rbegin(); it != m_InputStack.Stack.rend(); it++)
-                {
-                    if (it->Symbol.Type == CFGElementType::Symbol || it->Symbol.Type == CFGElementType::Dollar)
-                    {
-                        lastTerminal = &it->Symbol;
-                        break;
-                    }
-                }
-
-                if (lastTerminal == nullptr)
-                {
-                    std::cout << "FATAL ERROR" << std::endl;
-                    return false;
-                }
-
-                int32_t leftElementPriority = m_TokenMap.at(lastTerminal->ID).Priority;
-                int32_t rightElementPriority = m_TokenMap.at(tokenElement.ID).Priority;
-                if (leftElementPriority < rightElementPriority)
-                {
-                    const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
-                    if (shiftAction == nullptr)
-                    {
-                        std::cout << "FATAL ERROR" << std::endl;
-                        return false;
-                    }
-                    Shift(action, token);
-                }
-                else
-                {
-                    const BottomUpActionData* reduceAction = action.GetActionData(BottomUpActionType::Reduce);
-                    if (reduceAction == nullptr)
-                    {
-                        std::cout << "FATAL ERROR" << std::endl;
-                        return false;
-                    }
-                    Reduce(action);
-                    keepToken = true;
-                }
-
-                break;
-            }
-            case BottomUpActionType::Empty:
-            case BottomUpActionType::Error:
-            {
-                std::cout << "ERROR" << std::endl;
-                return false;
-            }
-            }
-        }
-
-        std::cout << "Not Accepted" << std::endl;
-        return false;
+		return LRParser::OnShift(state, action, token);
 	}
 
-    std::any& CLRParser::Get(int32_t offset)
-    {
-        return m_InputStack.Stack.at(m_InputStack.Stack.size() - m_Elements + offset).Entry;
-    }
-
-	void CLRParser::Shift(const BottomUpAction& action,
-		const Lexy::Lexer::Token& token)
+	bool CLRParser::OnEmpty(int32_t state, const BottomUpAction& action, const Lexy::Lexer::Token& token)
 	{
-        auto& inputStack = m_InputStack.Stack;
-        inputStack.push_back({ action.GetActionData(BottomUpActionType::Shift)->RuleID,
-            {CFGElementType::Symbol, token.TokenID} });
+		if (m_Flags & CLRParserFlags_ForceReduce)
+		{
+			CFGElement* lastTerminal = GetLastTerminal();
+			if(lastTerminal == nullptr) return LRParser::OnEmpty(state, action, token);
+			BottomUpAction* dollarAction = nullptr;
+			const auto& symbols = m_LR1->GetSymbols();
+			for (const CFGElement& element : symbols)
+			{
+				BottomUpAction& action = m_LR1->GetAction(state, element);
+				if (action.Type == BottomUpActionType::Reduce)
+				{
+					dollarAction = &action;
+					break;
+				}
+			}
+			if (dollarAction == nullptr) return LRParser::OnEmpty(state, action, token);
+			OnReduce(state, *dollarAction);
+			return true;
+		}
 
-        auto& defaultTokenValue = m_Lexer->GetDefaultTokenValue();
-        if (defaultTokenValue.has_value())
-        {
-            inputStack.back().Entry = std::move(defaultTokenValue);
-        }
-        else
-        {
-            m_TokenMap.at(token.TokenID).TokenTypeConstructCallback(inputStack.back().Entry);
-        }
-	}
-
-	void CLRParser::Reduce(const BottomUpAction& action)
-	{
-        const BottomUpActionData* reduceData = action.GetActionData(BottomUpActionType::Reduce);
-        auto& inputStack = m_InputStack.Stack;
-        auto& productions = m_CFGMap.at(reduceData->RuleID)
-            .Grammar.GetProductions();
-        const Production& production = productions
-            .at(reduceData->ReducedProduction);
-        m_Elements = production.size();
-
-        ParseEntryData& entry = 
-            ConstructEntryAndInvokeCallbacks(reduceData->RuleID, reduceData->ReducedProduction);
-
-        for (int32_t i = 0; i < m_Elements; i++)
-        {
-            if (production.at(i).Type == CFGElementType::Epsilon) continue;
-            inputStack.pop_back();
-        }
-
-        ParseEntryData& newParseEntry = inputStack.back();
-        int32_t gotoID = m_LR1->GetGotoState(newParseEntry.State,
-            { CFGElementType::NonTerminal, reduceData->RuleID });
-        entry.State = gotoID;
-        inputStack.push_back(entry);
+		return LRParser::OnEmpty(state, action, token);
 	}
 }

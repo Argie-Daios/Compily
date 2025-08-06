@@ -19,7 +19,7 @@ namespace Lexy
 			auto& edges = m_Graph.GetEdgesOfVertex(stateID);
 			for (const auto& edge : edges)
 			{
-				if (edge.Data == EPSILON && visited.find(edge.Destination) == visited.end())
+				if (edge.Data.empty() && visited.find(edge.Destination) == visited.end())
 				{
 					visited.insert(edge.Destination);
 					stack.push_back(edge.Destination);
@@ -29,6 +29,25 @@ namespace Lexy
 		}
 	}
 
+	CharacterData NFA::CharacterToCharacterData(const std::string& string, int32_t& index)
+	{
+		if (string.at(index) != '\\') return { string.at(index), false };
+
+		index++;
+		switch (string.at(index))
+		{
+		case 'n': return { '\n', true };
+		case 't': return { '\t', true };
+		case 'r': return { '\r', true };
+		case '\\': return { '\\', true };
+		case '"': return { '\"', true };
+		case '\'': return { '\'', true };
+		}
+
+		std::cout << "Unsupported escaped character" << std::endl;
+		return { EOF, false };
+	}
+
 	bool NFA::IsAccepting(const std::string& string)
 	{
 		auto& vertices = m_Graph.GetVertices();
@@ -36,8 +55,9 @@ namespace Lexy
 		std::vector<int32_t> currentStates = { m_Start };
 		ExpandEpsilonClosure(currentStates);
 
-		for (char character : string)
+		for (int32_t i = 0; i < string.length(); i++)
 		{
+			char character = string.at(i);
 			std::vector<int32_t> nextStates;
 
 			for (int32_t stateID : currentStates)
@@ -45,7 +65,8 @@ namespace Lexy
 				auto& edges = m_Graph.GetEdgesOfVertex(stateID);
 				for (const auto& edge : edges)
 				{
-					if (edge.Data == WILDCARD || edge.Data == character)
+					CharacterData& data = CharacterToCharacterData(string, i);
+					if (edge.Data.find(data) != edge.Data.end())
 					{
 						nextStates.push_back(edge.Destination);
 					}
@@ -80,6 +101,7 @@ namespace Lexy
 		for (int i = start; i < input.length(); ++i) 
 		{
 			char character = input[i];
+			CharacterData& data = CharacterToCharacterData(input, i);
 			std::vector<int32_t> nextStates;
 
 			for (int32_t stateID : currentStates) 
@@ -87,7 +109,7 @@ namespace Lexy
 				auto& edges = m_Graph.GetEdgesOfVertex(stateID);
 				for (const auto& edge : edges) 
 				{
-					if (edge.Data == WILDCARD || edge.Data == character) 
+					if (edge.Data.find(data) != edge.Data.end())
 					{
 						nextStates.push_back(edge.Destination);
 					}

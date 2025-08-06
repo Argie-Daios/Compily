@@ -5,6 +5,9 @@
 #include <functional>
 #include <regex>
 
+#define WRAPPER '\xFF'
+#define ESCAPE '\xFE'
+
 namespace Lexy
 {
 	static RegexElementType TryParseOperator(char character)
@@ -72,6 +75,7 @@ namespace Lexy
 		{
 		case '\\': return RegexElementType::BACKSLASH;
 		case '.': return RegexElementType::DOT;
+		case WRAPPER: return RegexElementType::WRAP;
 		}
 
 		return RegexElementType::CHARACTER;
@@ -81,10 +85,10 @@ namespace Lexy
 	{
 		if (elementLeft.Type == RegexElementType::UNDEFINED ||
 			elementRight.Type == RegexElementType::UNDEFINED) return false;
-		if (TryParseOperator(elementRight.Character) != RegexElementType::UNDEFINED &&
+		if (TryParseOperator(elementRight.Character.Character) != RegexElementType::UNDEFINED &&
 			elementRight.Type != RegexElementType::OPENING_PARENTHESIS) return false;
 
-		bool isLeftElementOperator = TryParseOperator(elementLeft.Character)
+		bool isLeftElementOperator = TryParseOperator(elementLeft.Character.Character)
 			!= RegexElementType::UNDEFINED;
 		if (isLeftElementOperator && IsOperatorUnary(elementLeft.Type)) return true;
 
@@ -96,46 +100,48 @@ namespace Lexy
 	{
 		std::string result;
 		bool isNegated = !content.empty() && content[0] == '^';
-		std::unordered_set<char> negatedChars;
+		std::unordered_set<CharacterData, CharacterDataHash> negatedChars;
 
 		size_t i = isNegated ? 1 : 0;
-		auto parseEscapedChar = [](const std::string& str, size_t& i) -> char {
-			if (i >= str.size()) return '\0';
-			if (str[i] != '\\') return str[i];
+		auto parseEscapedChar = [](const std::string& str, size_t& i) -> CharacterData {
+			if (i >= str.size()) return { '\0', false };
+			if (str[i] != '\\') return { str[i], false};
 
 			i++; // skip '\'
-			if (i >= str.size()) return '\\';
+			if (i >= str.size()) return { '\\', false};
 
 			switch (str[i]) {
-			case 'n': return '\n';
-			case 't': return '\t';
-			case 'r': return '\r';
-			case '\\': return '\\';
-			case '"': return '\"';
-			case '\'': return '\'';
-			default: return str[i]; // unknown escape, return as is
+			case 'n': return { '\n', false };
+			case 't': return { '\t', false };
+			case 'r': return { '\r', false };
+			case '\\': return { '\\', true };
+			case '"': return { '\"', true };
+			case '\'': return { '\'', true };
+			default: return { str[i], false }; // unknown escape, return as is
 			}
 			};
 
+		if (!isNegated)
+			result += WRAPPER;
+
 		while (i < content.size())
 		{
-			char start = parseEscapedChar(content, i);
+			CharacterData start = parseEscapedChar(content, i);
 			i++;
 			if (i + 1 < content.size() && content[i] == '-')
 			{
 				i++;
-				char end = parseEscapedChar(content, i);
+				CharacterData end = parseEscapedChar(content, i);
 				i++;
 
-				if (start <= end)
+				if (start.Character <= end.Character)
 				{
-					for (char c = start; c <= end; ++c)
+					for (char c = start.Character; c <= end.Character; ++c)
 					{
-						if (isNegated) negatedChars.insert(c);
+						if (isNegated) negatedChars.insert({c, false});
 						else
 						{
 							result += c;
-							result += '|';
 						}
 					}
 				}
@@ -148,10 +154,8 @@ namespace Lexy
 					}
 					else
 					{
-						result += start;
-						result += '|';
-						result += end;
-						result += '|';
+						result += start.Character;
+						result += end.Character;
 					}
 				}
 			}
@@ -163,30 +167,29 @@ namespace Lexy
 				}
 				else
 				{
-					result += start;
-					result += '|';
+					if (start.IsEscaped) result += ESCAPE;
+					result += start.Character;
 				}
 			}
 		}
 
 		if (isNegated)
 		{
-			for (char c = 32; c <= 126; ++c)
+			result += WRAPPER;
+			for (char c = 0; c < 127; ++c)
 			{
-				if (negatedChars.find(c) == negatedChars.end())
+				if (negatedChars.find({ c , true }) == negatedChars.end())
 				{
-					if (IsOperator(TryParseOperator(c)))
-					{
-						result += '\\';
-					}
+					result += ESCAPE;
 					result += c;
-					result += '|';
+				}
+				if (negatedChars.find({ c , false }) == negatedChars.end())
+				{
+					result += c;
 				}
 			}
 		}
-
-		if (!result.empty() && result.back() == '|')
-			result.pop_back();
+		result += WRAPPER;
 
 		return result;
 	}
@@ -258,7 +261,7 @@ namespace Lexy
 			}
 			else
 			{
-				SymbolToNFA(regexElement.Character);
+				SymbolToNFA(regexElement);
 			}
 		}
 
@@ -315,7 +318,7 @@ namespace Lexy
 			const char character = m_RegexExpression[i];
 
 			RegexElement element;
-			element.Character = character;
+			element.Character.Character = character;
 			element.Type = TryParseOperator(character);
 			if (element.Type != RegexElementType::UNDEFINED)
 			{
@@ -330,14 +333,41 @@ namespace Lexy
 				{
 					if (i + 1 < length)
 					{
-						element.Character = m_RegexExpression[i + 1];
+						element.Character.Character = m_RegexExpression[i + 1];
 						i++;
 					}
 					break;
 				}
 				case RegexElementType::DOT:
 				{
-					element.Character = WILDCARD;
+					for (char c = 0; c < 127; ++c)
+					{
+						element.Characters.insert({ c, true });
+						element.Characters.insert({ c, false});
+					}
+					break;
+				}
+				case RegexElementType::WRAP:
+				{
+					while (m_RegexExpression[++i] != WRAPPER)
+					{
+						if (m_RegexExpression[i] == ESCAPE)
+						{
+							element.Characters.insert({ m_RegexExpression[++i], true });
+						}
+						else
+						{
+							element.Characters.insert({ m_RegexExpression[i], false });
+						}
+					}
+					break;
+				}
+				default:
+				{
+					if (m_RegexExpression[i] == ESCAPE)
+					{
+						element.Character.Character = m_RegexExpression[++i];
+					}
 					break;
 				}
 				}
@@ -348,7 +378,7 @@ namespace Lexy
 			if (!regexSequence.empty() && CanConcatenante(regexSequence.back(), element))
 			{
 				RegexElementType type = RegexElementType::CONCATENATION;
-				regexSequence.push_back({ '&', type, GetOperatorPriority(type) });
+				regexSequence.push_back({ {'&', false}, {}, type, GetOperatorPriority(type) });
 			}
 			regexSequence.push_back(element);
 			i++;
@@ -396,7 +426,7 @@ namespace Lexy
 		}
 	}
 
-	void ThompsonCalculator::SymbolToNFA(char symbol)
+	void ThompsonCalculator::SymbolToNFA(const RegexElement& regexElement)
 	{
 		m_NFAStack.emplace_back();
 		NFA& nfa = m_NFAStack.back();
@@ -408,7 +438,10 @@ namespace Lexy
 		int32_t acceptingState = fa.PushVertex(" ");
 		nfa.SetAccepting(acceptingState);
 
-		fa.PushEdge(startState, acceptingState, symbol);
+		if(regexElement.Characters.empty())
+			fa.PushEdge(startState, acceptingState, { regexElement.Character });
+		else
+			fa.PushEdge(startState, acceptingState, regexElement.Characters);
 	}
 
 	void ThompsonCalculator::ConcatenateNFA()

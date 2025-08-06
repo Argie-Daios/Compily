@@ -4,7 +4,7 @@
 
 #include <string>
 
-#define EPSILON '\0'
+#define EPSILON {}
 
 namespace Lexy
 {
@@ -27,6 +27,6 @@ namespace Lexy
 		NFA& QuestionMark();
 	private:
 		void ExpandEpsilonClosure(std::vector<int32_t>& states);
-
+		CharacterData CharacterToCharacterData(const std::string& string, int32_t& index);
 	};
 }

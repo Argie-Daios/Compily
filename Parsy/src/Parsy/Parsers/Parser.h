@@ -29,17 +29,26 @@ namespace Parsy
 			m_TokenMap.at(token).TokenTypeConstructCallback = [](std::any& any) { any = Type(); };
 		}
 
-		void DeclarePrecedence(Lexy::TokenID_t token)
+		template<typename ... Args>
+		void DeclarePrecedence(Args&& ... token)
 		{
-			m_TokenMap.try_emplace(token);
-			m_TokenMap.at(token).Priority = ++m_HighestPriority;
+			static_assert((std::is_convertible_v<Args, int32_t> && ...),
+				"All arguments must be convertible to int32_t");
+
+			++m_HighestPriority;
+			([&]()
+				{
+					m_TokenMap.try_emplace(token);
+					m_TokenMap.at(token).Priority = m_HighestPriority;
+				}(), ...);
 		}
 
-		void BeginRule(RuleID_t rule, bool startRule = false);
+		void StartRule(RuleID_t rule);
+		void BeginRule(RuleID_t rule);
 		template<typename Type>
-		void BeginRule(RuleID_t rule, bool startRule = false)
+		void BeginRule(RuleID_t rule)
 		{
-			BeginRule(rule, startRule);
+			BeginRule(rule);
 			if constexpr (std::is_pointer<Type>::value)
 			{
 				m_CFGMap.at(rule).RuleTypeConstructCallback = [](std::any& any) { any = Type(); };
@@ -64,10 +73,13 @@ namespace Parsy
 					}
 				};
 		}
-		void Add(const CFGElement& element, const TypeCallback& callback = [](std::any& any) {});
+		void Add(const CFGElementType& type, int32_t id, const TypeCallback& callback = [](std::any& any) {});
 		void Union();
 		virtual std::any& Get(int32_t offset) = 0;
 		void EndRule();
+	protected:
+		virtual const std::string RuleToStr(RuleID_t ruleID);
+		virtual const std::string TokenToStr(Lexy::TokenID_t tokenID);
 	private:
 		struct RuleProperties
 		{
@@ -91,7 +103,7 @@ namespace Parsy
 		Lexy::Lexer* m_Lexer = nullptr;
 
 	private:
-		RuleID_t m_StartingRule = -100;
+		RuleID_t m_StartingRule = INT_MIN;
 		std::unordered_map<RuleID_t, RuleProperties> m_CFGMap;
 		std::unordered_map<Lexy::TokenID_t, TokenProperties> m_TokenMap;
 		std::unique_ptr<LR1> m_LR1;
@@ -101,7 +113,7 @@ namespace Parsy
 	
 		friend class CLR1;
 		friend class LR1;
-		friend class OperatorPrecedenceTable;
+		friend class LRParser;
 		friend class CLRParser;
 		friend class SLRParser;
 		friend class GLRParser;

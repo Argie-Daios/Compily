@@ -1,10 +1,10 @@
 #pragma once
 
-#include "CLRParser.h"
+#include "LRParser.h"
 
 namespace Parsy
 {
-	class SLRParser : public CLRParser
+	class SLRParser : public LRParser
 	{
 	public:
 		SLRParser(const std::ifstream& inputStream);

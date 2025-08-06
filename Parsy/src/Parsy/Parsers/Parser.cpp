@@ -9,6 +9,7 @@ namespace Parsy
     {
         m_CFGMap.emplace(m_StartingRule, RuleProperties());
         m_CFGMap.at(m_StartingRule).Grammar.AddElement({});
+        m_TokenMap.try_emplace(-1);
     }
 
     void Parser::Print()
@@ -24,9 +25,15 @@ namespace Parsy
 
         for (auto& [ruleID, ruleProps] : m_CFGMap)
         {
-            std::cout << "Rule(" << ruleID << ") ===> ";
-            for (auto& elementList : ruleProps.Grammar.GetProductions())
+            if (ruleID == m_StartingRule)
+                std::cout << "Start";
+            else
+                std::cout << RuleToStr(ruleID);
+            std::cout << " ===> ";
+            auto& productions = ruleProps.Grammar.GetProductions();
+            for (int32_t i = 0; i < productions.size(); i++)
             {
+                auto& elementList = productions.at(i);
                 for (auto& element : elementList)
                 {
                     std::any any;
@@ -34,13 +41,13 @@ namespace Parsy
                     {
                     case CFGElementType::Symbol:
                     {
-                        std::cout << "Token(" << element.ID << ")";
+                        std::cout << TokenToStr(element.ID);
                         m_TokenMap.at(element.ID).TokenTypeConstructCallback(any);
                         break;
                     }
                     case CFGElementType::NonTerminal:
                     {
-                        std::cout << "Rule(" << element.ID << ")";
+                        std::cout << RuleToStr(element.ID);
                         m_CFGMap.at(element.ID).RuleTypeConstructCallback(any);
                         break;
                     }
@@ -54,17 +61,18 @@ namespace Parsy
                         std::cout << "Dollar";
                     }
                     }
-                    if (any.has_value())
+                    /*if (any.has_value())
                     {
                         std::cout << "[Type: " << any.type().name() << "]";
                     }
                     else
                     {
                         std::cout << "[Type: NaN]";
-                    }
+                    }*/
                     std::cout << " ";
                 }
-                std::cout << " | ";
+                if(i < productions.size() - 1)
+                    std::cout << " | ";
             }
             std::cout << std::endl;
         }
@@ -72,21 +80,23 @@ namespace Parsy
         std::cout << std::endl;
     }
 
-    void Parser::BeginRule(RuleID_t rule, bool startRule)
+    void Parser::StartRule(RuleID_t rule)
+    {
+        auto& grammar = m_CFGMap.at(m_StartingRule).Grammar;
+        grammar.m_Elements.at(grammar.m_ProductionCount - 1).at(0).Type = CFGElementType::NonTerminal;
+        grammar.m_Elements.at(grammar.m_ProductionCount - 1).at(0).ID = rule;
+    }
+
+    void Parser::BeginRule(RuleID_t rule)
     {
         m_CFGMap.emplace(rule, RuleProperties());
         m_LR1->RegisterNonTerminal(CFGElement(CFGElementType::NonTerminal, rule));
-        if (startRule)
-        {
-            auto& grammar = m_CFGMap.at(m_StartingRule).Grammar;
-            grammar.m_Elements.at(grammar.m_ProductionCount - 1).at(0).Type = CFGElementType::NonTerminal;
-            grammar.m_Elements.at(grammar.m_ProductionCount - 1).at(0).ID = rule;
-        }
         m_BoundRule = rule;
     }
 
-    void Parser::Add(const CFGElement& element, const TypeCallback& callback)
+    void Parser::Add(const CFGElementType& type, int32_t id, const TypeCallback& callback)
     {
+        CFGElement element(type, id);
         if (element.Type == CFGElementType::Symbol && m_TokenMap.find(element.ID) == m_TokenMap.end())
         {
             m_TokenMap.emplace(element.ID, TokenProperties());
@@ -122,6 +132,16 @@ namespace Parsy
     void Parser::EndRule()
     {
         m_BoundRule = -1;
+    }
+
+    const std::string Parser::RuleToStr(RuleID_t ruleID)
+    {
+        return std::to_string(ruleID);
+    }
+
+    const std::string Parser::TokenToStr(Lexy::TokenID_t tokenID)
+    {
+        return std::to_string(tokenID);
     }
 
     CFGElement Parser::GetNextTokenElement()

@@ -1,13 +1,37 @@
 #pragma once
 
 #include <Utilities.h>
-
-#define WILDCARD '\xFF'
+#include <unordered_set>
 
 namespace Lexy
 {
-	using FAGraph = Utilities::Graph<bool, char>;
+	struct CharacterData
+	{
+		char Character;
+		bool IsEscaped = false;
 
+		CharacterData() = default;
+		CharacterData(const CharacterData&) = default;
+		CharacterData(CharacterData&&) = default;
+		bool operator==(const CharacterData& other) const
+		{
+			if (this == &other) return true;
+			return Character == other.Character && IsEscaped == other.IsEscaped;
+		}
+	};
+
+
+	struct CharacterDataHash
+	{
+		size_t operator()(const CharacterData& data) const
+		{
+			size_t h1 = std::hash<int32_t>{}(static_cast<int32_t>(data.Character));
+			size_t h2 = std::hash<bool>{}(data.IsEscaped);
+			return h1 ^ (h2 << 1);
+		}
+	};
+
+	using FAGraph = Utilities::Graph<bool, std::unordered_set<CharacterData, CharacterDataHash>>;
 	class FA
 	{
 	public:

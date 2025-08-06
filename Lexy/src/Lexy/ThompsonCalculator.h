@@ -19,12 +19,14 @@ namespace Lexy
 		OPENING_PARENTHESIS,
 		CLOSING_PARENTHESIS,
 		BACKSLASH,
-		DOT
+		DOT,
+		WRAP
 	};
 
 	struct RegexElement
 	{
-		char Character;
+		CharacterData Character;
+		std::unordered_set<CharacterData, CharacterDataHash> Characters;
 		RegexElementType Type = RegexElementType::UNDEFINED;
 		int32_t Priority = 0;
 	};
@@ -42,7 +44,7 @@ namespace Lexy
 		NFA& CalculateNFA();
 		void ChangeRegularExpression(const std::string& regexExpression);
 	private:
-		void SymbolToNFA(char symbol);
+		void SymbolToNFA(const RegexElement& regexElement);
 		void ConcatenateNFA();
 		void UnionNFA();
 		void KleeneNFA();

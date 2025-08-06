@@ -2,10 +2,30 @@
 
 #include "Parsy.h"
 
-class MyParser : public Parsy::SLRParser
+enum class ConstantValueType
+{
+	Int,
+	String
+};
+
+struct Constant
+{
+	ConstantValueType Type;
+	int32_t IntVal = 0;
+	std::string StrVal;
+
+	Constant() = default;
+	Constant(const Constant&) = default;
+};
+
+class MyParser : public Parsy::CLRParser
 {
 public:
 	MyParser(const std::ifstream& inputStream);
+protected:
+	virtual const std::string RuleToStr(Parsy::RuleID_t ruleID) override;
+	virtual const std::string TokenToStr(Lexy::TokenID_t tokenID) override;
 private:
-	int32_t ExecuteOperation(int32_t opCode, int32_t leftValue, int32_t rightValue);
+	ConstantValueType ResultValue(const Constant& leftValue, const Constant& rightValue);
+	Constant ExecuteOperation(int32_t opCode, const Constant& leftValue, const Constant& rightValue);
 };

@@ -169,7 +169,9 @@ namespace Parsy
 		int32_t& GetGotoState(int32_t state, const CFGElement& nonTerminal);
 
 		inline const BottomUpAction& GetAction(int32_t index) { return m_ActionTable.at(index); }
+		inline const auto& GetSymbols() const { return m_Symbols; }
 		inline size_t GetTotalSymbols() const { return m_Symbols.size(); }
+		inline const auto& GetNonTerminals() const { return m_NonTerminals; }
 		inline size_t GetTotalNonTerminals() const { return m_NonTerminals.size(); }
 
 		void PrintStateGraph();

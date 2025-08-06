@@ -1,13 +1,13 @@
 #include "GLRParser.h"
 
-#include "Parsy/BottomUp/CLR1.h"
+#include "Parsy/BottomUp/SLR1.h"
 
 namespace Parsy
 {
 	GLRParser::GLRParser(const std::ifstream& inputStream)
 		: Parser(inputStream)
 	{
-		m_LR1 = std::make_unique<CLR1>(this);
+		m_LR1 = std::make_unique<SLR1>(this);
 	}
 
 	bool GLRParser::Parse()
@@ -19,6 +19,7 @@ namespace Parsy
 			return false;
 		}
 		m_LR1->GenerateFirstSets();
+		m_LR1->GenerateFollowSets();
 		m_LR1->GenerateStateGraph();
 		m_LR1->GenerateTable();
 		m_LR1->PrintStateGraph();
@@ -73,6 +74,31 @@ namespace Parsy
 				case BottomUpActionType::Conflict:
 				{
 					std::cout << "Confict" << std::endl;
+					CFGElement& lastToken = GetLastPushedTerminal(i);
+
+					int32_t leftElementPriority = m_TokenMap.at(lastToken.ID).Priority;
+					int32_t rightElementPriority = m_TokenMap.at(tokenElement.ID).Priority;
+					if (leftElementPriority < rightElementPriority)
+					{
+						const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
+						if (shiftAction == nullptr)
+						{
+							std::cout << "FATAL ERROR" << std::endl;
+							return false;
+						}
+						Shift(i, action, entryData.SymbolIndex);
+					}
+					else
+					{
+						const BottomUpActionData* reduceAction = action.GetActionData(BottomUpActionType::Reduce);
+						if (reduceAction == nullptr)
+						{
+							std::cout << "FATAL ERROR" << std::endl;
+							return false;
+						}
+						Reduce(i, *reduceAction, entryData.SymbolIndex);
+					}
+
 					break;
 				}
 				case BottomUpActionType::Empty:
@@ -312,5 +338,44 @@ namespace Parsy
 		}
 
 		return false;
+	}
+
+	CFGElement GLRParser::GetLastPushedTerminal(int32_t currentIndex)
+	{
+		int32_t id = m_GSS.m_CurrentStates.at(currentIndex);
+		id = GetStateBefore(id);
+		while (id != -1)
+		{
+			GLRParseEntryData& entryData = m_GSS.m_GSSGraph.GetVertex(id).Data;
+			if (entryData.ReducedFromState == -1)
+			{
+				Lexy::Lexer::OfflineToken& token = m_TokenStream.at(entryData.SymbolIndex);
+				return { CFGElementType::Symbol, token.TokenData.TokenID };
+			}
+			id = GetStateBefore(id);
+
+		}
+		return { CFGElementType::Dollar, -1 };
+	}
+
+	int32_t GLRParser::GetStateBefore(int32_t state)
+	{
+		GLRParseEntryData& entryData = m_GSS.m_GSSGraph.GetVertex(state).Data;
+		if (entryData.ReducedFromState != -1) return entryData.ReducedFromState;
+
+		auto& edges = m_GSS.m_GSSGraph.GetEdgesOfVertex(state);
+		if (edges.empty()) return -1;
+
+		int32_t minDistance = INT_MAX;
+		int32_t minState = -1;
+		for (auto& edge : edges)
+		{
+			if (edge.Data.Distance < minDistance)
+			{
+				minDistance = edge.Data.Distance;
+				minState = edge.Destination;
+			}
+		}
+		return minState;
 	}
 }
