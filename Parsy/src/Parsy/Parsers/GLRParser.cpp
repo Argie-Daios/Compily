@@ -74,6 +74,8 @@ namespace Parsy
 				case BottomUpActionType::Conflict:
 				{
 					std::cout << "Confict" << std::endl;
+
+					// TODO: Problematic (Current problem leftout parenthesis results cause precedence issues)
 					CFGElement& lastToken = GetLastPushedTerminal(i);
 
 					int32_t leftElementPriority = m_TokenMap.at(lastToken.ID).Priority;
@@ -230,6 +232,7 @@ namespace Parsy
 			int32_t id = PushStateOnGSSIndexed(stateIndex, gotoID, tokenIndex);
 			GLRParseEntryData& entryData = m_GSS.m_GSSGraph.GetVertex(id).Data;
 			entryData.ReducedFromState = reducedOriginState;
+			entryData.Elements = totalElements;
 			auto& edges = m_GSS.m_GSSGraph.GetEdgesOfVertex(id);
 			for (GSSGraph::Edge& edge : edges)
 			{
@@ -278,6 +281,7 @@ namespace Parsy
 	bool GLRParser::ExecuteSemanticAnalysis()
 	{
 		ExtractMinimumSpanningStack();
+		std::cout << "Total vertices: " << m_GSS.m_GSSGraph.GetTotalVertices() << std::endl;
 		std::cout << "Stack" << std::endl;
 		std::cout << "====================================" << std::endl << std::endl;
 		for (auto& elem : m_Stack)
@@ -343,15 +347,18 @@ namespace Parsy
 	CFGElement GLRParser::GetLastPushedTerminal(int32_t currentIndex)
 	{
 		int32_t id = m_GSS.m_CurrentStates.at(currentIndex);
+		int32_t symbolIndex = m_GSS.m_GSSGraph.GetVertex(id).Data.SymbolIndex;
 		id = GetStateBefore(id);
+		int32_t totalReducedTokens = 1;
 		while (id != -1)
 		{
 			GLRParseEntryData& entryData = m_GSS.m_GSSGraph.GetVertex(id).Data;
 			if (entryData.ReducedFromState == -1)
 			{
 				Lexy::Lexer::OfflineToken& token = m_TokenStream.at(entryData.SymbolIndex);
-				return { CFGElementType::Symbol, token.TokenData.TokenID };
+				return { CFGElementType::Symbol, m_TokenStream.at(symbolIndex - totalReducedTokens).TokenData.TokenID };
 			}
+			totalReducedTokens += entryData.Elements;
 			id = GetStateBefore(id);
 
 		}

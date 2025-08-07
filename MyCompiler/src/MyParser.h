@@ -18,7 +18,7 @@ struct Constant
 	Constant(const Constant&) = default;
 };
 
-class MyParser : public Parsy::CLRParser
+class MyParser : public Parsy::SLRParser
 {
 public:
 	MyParser(const std::ifstream& inputStream);

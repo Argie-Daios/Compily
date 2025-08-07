@@ -3,6 +3,8 @@
 #include "TokenType.h"
 #include "MyParser.h"
 
+#include <Utilities.h>
+
 int main()
 {
 	std::ifstream stream("SourceCode.src");

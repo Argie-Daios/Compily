@@ -2,6 +2,8 @@
 
 #include "Parsy/Parsers/Parser.h"
 
+#include <Utilities.h>
+
 namespace Parsy
 {
 	static BottomUpAction s_ErrorAction(BottomUpActionType::Error);
@@ -128,46 +130,134 @@ namespace Parsy
 
 	void LR1::PrintTable()
 	{
-		std::cout << "Actions" << std::endl;
-		std::cout << "===========================" << std::endl;
-		std::cout << "[State 0]" << std::endl;
-		for (int32_t i = 0; i < m_ActionTable.size(); i++)
-		{
-			if (i % m_Symbols.size() == 0) std::cout << std::endl <<
-				"[State " << i / m_Symbols.size() << "]" << std::endl;
-			BottomUpAction& action = m_ActionTable.at(i);
-			int32_t index = i % (int32_t)m_Symbols.size();
-			auto& setIt = m_Symbols.begin();
-			std::advance(setIt, index);
-			std::cout << "Element { State: " << i % m_Symbols.size() << ", Symbol: ";
-			setIt->Print();
-			std::cout << " }" << ": [ ";
-			std::cout << "Type: " << ActionTypeToString(action.Type);
-			std::cout << "{ ";
-			for (auto& data : action.ActionData)
-			{
-				std::cout << "[ Type: " << ActionTypeToString(data.Type) << ", ID: " << data.RuleID;
-				std::cout << ", Production: " << data.ReducedProduction;
-				std::cout << " ], ";
-			}
-			std::cout << "}" << std::endl;
-			
-			std::cout << " ]" << std::endl;
-		}
+		Utilities::TableStream tableStream("Table.txt", Utilities::TableStreamFlags_ColumnsLabel |
+			Utilities::TableStreamFlags_ColumnsSameWidth | Utilities::TableStreamFlags_RowsLabel);
 
-		std::cout << std::endl;
-		std::cout << "GOTO" << std::endl;
-		std::cout << "===========================" << std::endl;
-		for (int32_t i = 0; i < m_GotoTable.size(); i++)
-		{
-			if (i % m_NonTerminals.size() == 0) std::cout << std::endl <<
-				"[State " << i / m_NonTerminals.size() << "]" << std::endl;
-			int32_t stateID = m_GotoTable.at(i);
-			int32_t index = i % (int32_t)m_NonTerminals.size();
-			auto& it = m_NonTerminals.begin();
-			std::advance(it, index);
-			std::cout << "Rule(" << it->ID << "): " << stateID << std::endl;
-		}
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		tableStream.BindGetTotalRowsCallback([&]() -> size_t { 
+			return m_ActionTable.size() / m_Symbols.size(); 
+		});
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		tableStream.BindGetTotalColumnsCallback([&]() -> size_t { 
+			return m_Symbols.size() + m_NonTerminals.size();
+		});
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		tableStream.BindGetColumnLabelCallback([&](size_t col) -> const std::string& {
+			static std::string helperString;
+			helperString.clear();
+			if (col >= m_Symbols.size())
+			{
+				size_t index = (col - m_Symbols.size());
+				auto& it = m_NonTerminals.begin();
+				std::advance(it, index);
+				helperString = m_ParserRef->RuleToStr(it->ID);
+				return helperString;
+			}
+
+			auto& it = m_Symbols.begin();
+			std::advance(it, col);
+
+			if (it->Type == CFGElementType::Dollar)
+			{
+				helperString = "$";
+				return helperString;
+			}
+			helperString = m_ParserRef->TokenToStr(it->ID);
+			return helperString;
+		});
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		tableStream.BindGetRowLabelCallback([&](size_t row) -> const std::string& {
+			static std::string label;
+			label.clear();
+			label = std::to_string(row);
+			return label;
+			});
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		tableStream.BindGetElementStringCallback([&](size_t row, size_t col) -> const std::string& {
+			static std::string helperString;
+			helperString.clear();
+			if (col >= m_Symbols.size())
+			{
+				size_t index = m_NonTerminals.size() * row + (col - m_Symbols.size());
+				int32_t data = m_GotoTable.at(index);
+				if (data == -1)
+					helperString = "-";
+				else
+					helperString = std::to_string(data);
+				return helperString;
+			}
+
+			size_t index = m_Symbols.size() * row + col;
+			BottomUpAction& data = m_ActionTable.at(index);
+			switch (data.Type)
+			{
+			case BottomUpActionType::Shift:
+			{
+				const BottomUpActionData* actionData = data.GetActionData(BottomUpActionType::Shift);
+				helperString = "S[" + std::to_string(actionData->RuleID) + ","
+					+ std::to_string(actionData->ReducedProduction) + "]";
+				break;
+			}
+			case BottomUpActionType::Reduce:
+			{
+				const BottomUpActionData* actionData = data.GetActionData(BottomUpActionType::Reduce);
+				helperString = "R[" + std::to_string(actionData->RuleID) + "]";
+				break;
+			}
+			case BottomUpActionType::Conflict:
+			{
+				for (auto& actionData : data.ActionData)
+				{
+					if (actionData.Type == BottomUpActionType::Shift)
+					{
+						helperString += "S[" + std::to_string(actionData.RuleID) + ","
+							+ std::to_string(actionData.ReducedProduction) + "]";
+					}
+					else
+					{
+						helperString += "R[" + std::to_string(actionData.RuleID) + "]";
+					}
+				}
+				break;
+			}
+			case BottomUpActionType::Empty:
+			{
+				helperString = "Empty";
+				break;
+			}
+			case BottomUpActionType::Error:
+			{
+				helperString = "Error";
+				break;
+			}
+			case BottomUpActionType::Accept:
+			{
+				helperString = "Accept";
+				break;
+			}
+			}
+
+			return helperString;
+		});
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		tableStream.SetHorizontalAlignment(Utilities::HorizontalAlignment::Center);
+		tableStream.SetRowSpacing(4);
+		tableStream.SetColumnSpacing(4);
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		tableStream.Export();
 	}
 
 	const std::unordered_set<CFGElement>& LR1::GetFirstSet(const CFGElement& element)
@@ -272,7 +362,7 @@ namespace Parsy
 	{
 		size_t totalVertices = m_StateGraph.GetTotalVertices();
 		m_ActionTable.resize(m_Symbols.size() * totalVertices, BottomUpAction(BottomUpActionType::Empty));
-		m_GotoTable.resize(m_NonTerminals.size() * totalVertices);
+		m_GotoTable.resize(m_NonTerminals.size() * totalVertices, -1);
 		for (int32_t i = 0; i < totalVertices; i++)
 		{
 			auto& vertexState = m_StateGraph.GetVertex(i).Data;
