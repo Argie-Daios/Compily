@@ -13,7 +13,8 @@ namespace Utilities
 		TableStreamFlags_None = 0,
 		TableStreamFlags_ColumnsSameWidth = BIT(0),
 		TableStreamFlags_RowsLabel = BIT(1),
-		TableStreamFlags_ColumnsLabel = BIT(2)
+		TableStreamFlags_ColumnsLabel = BIT(2),
+		TableStreamFlags_RowSeperator = BIT(3)
 	};
 
 	enum class HorizontalAlignment
@@ -21,6 +22,13 @@ namespace Utilities
 		Left,
 		Center,
 		Right
+	};
+	
+	enum class VericalAlignment
+	{
+		Up,
+		Center,
+		Bottom
 	};
 	
 	class TableStream
@@ -36,8 +44,10 @@ namespace Utilities
 		inline void SetLabelHorizontalAlignment(const HorizontalAlignment& alignment)
 			{ m_LabelHorizontalAlignment = alignment; }
 		inline void SetHorizontalAlignment(const HorizontalAlignment& alignment) { m_HorizontalAlignment = alignment; }
-		inline void SetRowSpacing(int32_t spacing) { m_RowSpacing = spacing; }
-		inline void SetColumnSpacing(int32_t spacing) { m_ColumnSpacing = spacing; }
+		inline void SetVerticalAlignment(const VericalAlignment& alignment) { m_VericalAlignment = alignment; }
+		inline void SetRowHorizontalSpacing(int32_t spacing) { m_RowHorizontalSpacing = spacing; }
+		inline void SetRowVerticalSpacing(int32_t spacing) { m_RowVerticalSpacing = spacing; }
+		inline void SetColumnHorizontalSpacing(int32_t spacing) { m_ColumnHorizontalSpacing = spacing; }
 
 		void BindGetRowLabelCallback(const std::function<const std::string& (size_t row)>& callback);
 		void BindGetColumnLabelCallback(const std::function<const std::string& (size_t col)>& callback);
@@ -47,11 +57,16 @@ namespace Utilities
 		void BindGetTableSizeCallback(const std::function<size_t()>& callback);
 	private:
 		void CalculateMaxRowWidth();
+		void CalculateMaxRowHeight(size_t row);
 		void CalculateMaxColumnWidth();
 		void CalculateMaxColumnWidth(size_t column);
 		void Space(size_t times);
 		size_t PrintColumnElement(size_t column, const std::string& element, size_t maxColumnWidth);
 		size_t CalculateTableWidth(size_t maxRowWidth, size_t maxColumnWidth);
+		size_t CalculateStringHeight(const std::string& string);
+		void QueryStringLineByIndex(const std::string& string, size_t index, size_t& offset, size_t& count);
+		std::string GetStringToDraw(const std::string& string, size_t line);
+		size_t GetStringLineLength(const std::string& string);
 	private:
 		std::ofstream m_OutStream;
 		int32_t m_Flags;
@@ -60,10 +75,13 @@ namespace Utilities
 		HorizontalAlignment m_LabelHorizontalAlignment = HorizontalAlignment::Left;
 
 		HorizontalAlignment m_HorizontalAlignment = HorizontalAlignment::Left;
-		size_t m_RowSpacing = 0;
-		size_t m_ColumnSpacing = 0;
+		VericalAlignment m_VericalAlignment = VericalAlignment::Up;
+		size_t m_RowHorizontalSpacing = 0;
+		size_t m_RowVerticalSpacing = 0;
+		size_t m_ColumnHorizontalSpacing = 0;
 
 		size_t m_MaxRowWidth = 0;
+		size_t m_MaxRowHeight = 0;
 		size_t m_MaxColumnWidth = 0;
 		std::vector<int32_t> m_MaxWidthPerColumn;
 

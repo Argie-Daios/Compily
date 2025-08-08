@@ -54,7 +54,7 @@ namespace Utilities
 
 		if (!m_Label.empty())
 		{
-			int32_t spaceLeft = tableWidth - m_Label.length();
+			int32_t spaceLeft = tableWidth - GetStringLineLength(m_Label);
 			int32_t leftSpaces = spaceLeft / 2;
 			int32_t rightSpaces = spaceLeft - leftSpaces;
 			switch (m_LabelHorizontalAlignment)
@@ -113,45 +113,77 @@ namespace Utilities
 		for (size_t row = 0; row < totalRows; row++)
 		{
 			if (!m_GetElementString) break;
-			// TODO: Print row labels
-			if (m_Flags & TableStreamFlags_RowsLabel)
+			
+			CalculateMaxRowHeight(row);
+			for (size_t line = 0; line < m_MaxRowHeight; line++)
 			{
-				const std::string& rowElement = m_GetRowLabel(row);
-				int32_t spaceLeft = m_MaxRowWidth - rowElement.length();
-				int32_t leftSpaces = spaceLeft / 2;
-				int32_t rightSpaces = spaceLeft - leftSpaces;
-				switch (m_HorizontalAlignment)
+				if (m_Flags & TableStreamFlags_RowsLabel)
 				{
-				case HorizontalAlignment::Left:
-				{
-					m_OutStream << rowElement;
-					Space(spaceLeft);
-					break;
+					const std::string& rowElement = GetStringToDraw(m_GetRowLabel(row), line);
+
+					int32_t spaceLeft = m_MaxRowWidth - GetStringLineLength(rowElement);
+					int32_t leftSpaces = spaceLeft / 2;
+					int32_t rightSpaces = spaceLeft - leftSpaces;
+					switch (m_HorizontalAlignment)
+					{
+					case HorizontalAlignment::Left:
+					{
+						m_OutStream << rowElement;
+						Space(spaceLeft);
+						break;
+					}
+					case HorizontalAlignment::Center:
+					{
+						Space(leftSpaces);
+						m_OutStream << rowElement;
+						Space(rightSpaces);
+						break;
+					}
+					case HorizontalAlignment::Right:
+					{
+						Space(spaceLeft);
+						m_OutStream << rowElement;
+						break;
+					}
+					}
+					m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
 				}
-				case HorizontalAlignment::Center:
+				for (size_t column = 0; column < totalColumns; column++)
 				{
-					Space(leftSpaces);
-					m_OutStream << rowElement;
-					Space(rightSpaces);
-					break;
+					const std::string& elementString = GetStringToDraw(m_GetElementString(row, column), line);
+					PrintColumnElement(column, elementString, maxColumnWidth);
 				}
-				case HorizontalAlignment::Right:
+				m_OutStream << s_VerticalBorderCharacter;
+				if (line < m_MaxRowHeight - 1 || row < totalRows - 1)
+					m_OutStream << '\n';
+				if (line < m_MaxRowHeight - 1)
+					m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+			}
+			if (row < totalRows - 1)
+			{
+				if (m_Flags & TableStreamFlags_RowSeperator)
 				{
-					Space(spaceLeft);
-					m_OutStream << rowElement;
-					break;
-				}
+					m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+					for (int32_t i = 0; i < m_MaxRowWidth; i++)
+					{
+						m_OutStream << s_HorizontalBorderCharacter;
+					}
+					m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+					for (int32_t col = 0; col < totalColumns; col++)
+					{
+						CalculateMaxColumnWidth(col);
+						for (int32_t i = 0; i < m_MaxColumnWidth; i++)
+						{
+							m_OutStream << s_HorizontalBorderCharacter;
+						}
+						m_OutStream << s_VerticalBorderCharacter;
+					}
+
+					m_OutStream << s_VerticalBorderCharacter;
+					m_OutStream << '\n';
 				}
 				m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
 			}
-			for (size_t column = 0; column < totalColumns; column++)
-			{
-				const std::string& elementString = m_GetElementString(row, column);
-				PrintColumnElement(column, elementString, maxColumnWidth);
-			}
-			m_OutStream << s_VerticalBorderCharacter;
-			if (row < totalRows - 1)
-				m_OutStream << '\n' << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
 		}
 
 		m_OutStream << '\n';
@@ -203,9 +235,30 @@ namespace Utilities
 		for (size_t row = 0; row < totalRows; row++)
 		{
 			if (!m_GetRowLabel) break;
-			m_MaxRowWidth = std::max(m_MaxRowWidth, m_GetRowLabel(row).length());
+			m_MaxRowWidth = std::max(m_MaxRowWidth, GetStringLineLength(m_GetRowLabel(row)));
 		}
-		m_MaxRowWidth += m_RowSpacing;
+		m_MaxRowWidth += m_RowHorizontalSpacing;
+	}
+
+	void TableStream::CalculateMaxRowHeight(size_t row)
+	{
+		size_t totalRows = m_GetTotalRows();
+		size_t totalColumns = m_GetTotalColumns();
+		m_MaxRowHeight = 0;
+		for (size_t row = 0; row < totalRows; row++)
+		{
+			if (!m_GetRowLabel) break;
+			size_t labelHeight = CalculateStringHeight(m_GetRowLabel(row));
+			m_MaxRowHeight = std::max(m_MaxRowHeight, labelHeight);
+		}
+
+		for (size_t column = 0; column < totalColumns; column++)
+		{
+			if (!m_GetElementString) break;
+			size_t elementHeight = CalculateStringHeight(m_GetElementString(row, column));
+			m_MaxRowHeight = std::max(m_MaxRowHeight, elementHeight);
+		}
+		m_MaxRowHeight += m_RowVerticalSpacing;
 	}
 
 	void TableStream::CalculateMaxColumnWidth()
@@ -216,7 +269,7 @@ namespace Utilities
 		for (size_t column = 0; column < totalColumns; column++)
 		{
 			if (!m_GetColumnLabel) break;
-			m_MaxColumnWidth = std::max(m_MaxColumnWidth, m_GetColumnLabel(column).length());
+			m_MaxColumnWidth = std::max(m_MaxColumnWidth, GetStringLineLength(m_GetColumnLabel(column)));
 		}
 
 		for (size_t row = 0; row < totalRows; row++)
@@ -224,10 +277,10 @@ namespace Utilities
 			if (!m_GetElementString) break;
 			for (size_t column = 0; column < totalColumns; column++)
 			{
-				m_MaxColumnWidth = std::max(m_MaxColumnWidth, m_GetElementString(row, column).length());
+				m_MaxColumnWidth = std::max(m_MaxColumnWidth, GetStringLineLength(m_GetElementString(row, column)));
 			}
 		}
-		m_MaxColumnWidth += m_ColumnSpacing;
+		m_MaxColumnWidth += m_ColumnHorizontalSpacing;
 	}
 
 	void TableStream::CalculateMaxColumnWidth(size_t column)
@@ -235,14 +288,14 @@ namespace Utilities
 		m_MaxColumnWidth = 0;
 		size_t totalRows = m_GetTotalRows();
 		if (m_GetColumnLabel)
-			m_MaxColumnWidth = std::max(m_MaxColumnWidth, m_GetColumnLabel(column).length());
+			m_MaxColumnWidth = std::max(m_MaxColumnWidth, GetStringLineLength(m_GetColumnLabel(column)));
 
 		for (size_t row = 0; row < totalRows; row++)
 		{
 			if (!m_GetElementString) break;
-			m_MaxColumnWidth = std::max(m_MaxColumnWidth, m_GetElementString(row, column).length());
+			m_MaxColumnWidth = std::max(m_MaxColumnWidth, GetStringLineLength(m_GetElementString(row, column)));
 		}
-		m_MaxColumnWidth += m_ColumnSpacing;
+		m_MaxColumnWidth += m_ColumnHorizontalSpacing;
 	}
 
 	void TableStream::Space(size_t times)
@@ -262,7 +315,7 @@ namespace Utilities
 			CalculateMaxColumnWidth(column);
 		size_t columnWidth = m_MaxWidthPerColumn.at(column) = m_MaxColumnWidth;
 
-		size_t labelLength = element.length();
+		size_t labelLength = GetStringLineLength(element);
 		size_t spaceLeft = columnWidth - labelLength;
 		size_t leftSpaces = spaceLeft / 2;
 		size_t rightSpaces = spaceLeft - leftSpaces;
@@ -289,7 +342,7 @@ namespace Utilities
 		}
 		}
 		m_OutStream << s_VerticalBorderCharacter;
-		return element.length() + spaceLeft + 1;
+		return labelLength + spaceLeft + 1;
 	}
 
 	size_t TableStream::CalculateTableWidth(size_t maxRowWidth, size_t maxColumnWidth)
@@ -312,6 +365,107 @@ namespace Utilities
 		}
 
 		return counter + 2;
+	}
+
+	size_t TableStream::CalculateStringHeight(const std::string& string)
+	{
+		size_t height = 1;
+		for (const char character : string)
+		{
+			if (character == '\n')
+				height++;
+		}
+		return height;
+	}
+
+	void TableStream::QueryStringLineByIndex(const std::string& string, size_t index, size_t& offset, size_t& count)
+	{
+		offset = 0;
+
+		if (index == 0)
+		{
+			offset = string.find_first_of('\n', offset);
+			if (offset == std::string::npos)
+			{
+				count = string.length();
+			}
+			else
+			{
+				count = offset;
+			}
+			offset = 0;
+			return;
+		}
+
+		for (size_t i = 0; i < index; i++)
+		{
+			offset = string.find_first_of('\n', offset) + 1;
+		}
+
+		if (offset == std::string::npos)
+		{
+			offset = count = -1;
+			return;
+		}
+
+		size_t lastNewLine = string.find_first_of('\n', offset);
+		if (lastNewLine == std::string::npos)
+		{
+			count = string.length() - offset + 1;
+			return;
+		}
+
+		count = lastNewLine - offset;
+	}
+
+	std::string TableStream::GetStringToDraw(const std::string& string, size_t line)
+	{
+		std::string resultStr;
+		size_t stringHeight = CalculateStringHeight(string);
+		size_t spaceLeft = m_MaxRowHeight - stringHeight;
+		size_t upSpaces = spaceLeft / 2;
+		size_t bottomSpaces = spaceLeft - upSpaces;
+		switch (m_VericalAlignment)
+		{
+		case VericalAlignment::Up:
+		{
+			if (line < stringHeight)
+			{
+				size_t offset, count;
+				QueryStringLineByIndex(string, line, offset, count);
+				return string.substr(offset, count);
+			}
+			break;
+		}
+		case VericalAlignment::Center:
+		{
+			if (line >= upSpaces && line - upSpaces < stringHeight)
+			{
+				size_t offset, count;
+				QueryStringLineByIndex(string, line - upSpaces, offset, count);
+				return string.substr(offset, count);
+			}
+			break;
+		}
+		case VericalAlignment::Bottom:
+		{
+			if (line >= spaceLeft && line - spaceLeft < stringHeight)
+			{
+				size_t offset, count;
+				QueryStringLineByIndex(string, line - spaceLeft, offset, count);
+				return string.substr(offset, count);
+			}
+			break;
+		}
+		}
+		return std::string();
+	}
+
+	size_t TableStream::GetStringLineLength(const std::string& string)
+	{
+		size_t newLineIndex = string.find_first_of('\n');
+		if (newLineIndex == std::string::npos) return string.length();
+		return newLineIndex;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////

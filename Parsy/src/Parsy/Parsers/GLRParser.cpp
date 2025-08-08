@@ -55,22 +55,6 @@ namespace Parsy
 					Reduce(i, *reduceActionData, entryData.SymbolIndex);
 					break;
 				}
-				/*case BottomUpActionType::ShiftReduce:
-				{
-					std::cout << "ShiftReduce" << std::endl;
-					int32_t forkedStateIndex = ForkStateOnGSSIndexed(i);
-					Shift(i, action, entryData.SymbolIndex);
-					Reduce(forkedStateIndex, action, entryData.SymbolIndex);
-					break;
-				}
-				case BottomUpActionType::ReduceReduce:
-				{
-					std::cout << "ReduceReduce" << std::endl;
-					int32_t forkedStateIndex = ForkStateOnGSSIndexed(i);
-					Reduce(i, action, entryData.SymbolIndex);
-					Reduce(forkedStateIndex, action, entryData.SymbolIndex);
-					break;
-				}*/
 				case BottomUpActionType::Conflict:
 				{
 					std::cout << "Confict" << std::endl;

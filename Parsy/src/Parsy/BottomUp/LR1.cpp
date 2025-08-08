@@ -254,8 +254,8 @@ namespace Parsy
 		tableStream.SetLabel("LR Parsing Table");
 		tableStream.SetLabelHorizontalAlignment(Utilities::HorizontalAlignment::Center);
 		tableStream.SetHorizontalAlignment(Utilities::HorizontalAlignment::Center);
-		tableStream.SetRowSpacing(4);
-		tableStream.SetColumnSpacing(4);
+		tableStream.SetRowHorizontalSpacing(4);
+		tableStream.SetColumnHorizontalSpacing(4);
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

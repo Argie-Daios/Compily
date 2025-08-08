@@ -299,7 +299,7 @@ namespace Parsy
     void LRParser::ExportParseStack(std::vector<std::string>& labels, std::vector<std::string>& elements)
     {
         Utilities::TableStream stackTable("ParseStack.txt", std::ios::out, Utilities::TableStreamFlags_ColumnsLabel
-            | Utilities::TableStreamFlags_RowsLabel);
+            | Utilities::TableStreamFlags_RowsLabel | Utilities::TableStreamFlags_RowSeperator);
 
         stackTable.BindGetColumnLabelCallback([&](size_t col) -> const std::string& { return labels.at(col); });
         stackTable.BindGetRowLabelCallback([&](size_t row) -> const std::string& {
@@ -318,8 +318,8 @@ namespace Parsy
         stackTable.SetLabel("Parsing Stack");
         stackTable.SetLabelHorizontalAlignment(Utilities::HorizontalAlignment::Center);
         stackTable.SetHorizontalAlignment(Utilities::HorizontalAlignment::Center);
-        stackTable.SetRowSpacing(4);
-        stackTable.SetColumnSpacing(4);
+        stackTable.SetRowHorizontalSpacing(4);
+        stackTable.SetColumnHorizontalSpacing(4);
 
         stackTable.Export();
     }
