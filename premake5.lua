@@ -108,6 +108,7 @@ group "Dependencies"
 			"Utilities",
 			"Lexy"
 		}
+
 group ""
 
 project "MyCompiler"

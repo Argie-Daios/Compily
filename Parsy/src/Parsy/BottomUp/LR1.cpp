@@ -130,7 +130,7 @@ namespace Parsy
 
 	void LR1::PrintTable()
 	{
-		Utilities::TableStream tableStream("Table.txt", Utilities::TableStreamFlags_ColumnsLabel |
+		Utilities::TableStream tableStream("Table.txt", std::ios::out, Utilities::TableStreamFlags_ColumnsLabel |
 			Utilities::TableStreamFlags_ColumnsSameWidth | Utilities::TableStreamFlags_RowsLabel);
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,6 +251,8 @@ namespace Parsy
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+		tableStream.SetLabel("LR Parsing Table");
+		tableStream.SetLabelHorizontalAlignment(Utilities::HorizontalAlignment::Center);
 		tableStream.SetHorizontalAlignment(Utilities::HorizontalAlignment::Center);
 		tableStream.SetRowSpacing(4);
 		tableStream.SetColumnSpacing(4);

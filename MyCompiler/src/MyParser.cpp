@@ -25,7 +25,7 @@ struct Operation
 std::unordered_map<std::string, int32_t> s_SymbolTable;
 
 MyParser::MyParser(const std::ifstream& inputStream)
-	: SLRParser(inputStream)
+	: CLRParser(inputStream, Parsy::CLRParserFlags_ForcePrecedence)
 {
 	m_Lexer = new MyLexer(inputStream);
 

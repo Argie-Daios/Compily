@@ -26,12 +26,15 @@ namespace Utilities
 	class TableStream
 	{
 	public:
-		TableStream(const std::string& outFilePath, int32_t flags = TableStreamFlags_None);
+		TableStream(const std::string& outFilePath, int32_t streamMode = std::ios::out, int32_t flags = TableStreamFlags_None);
 		TableStream(std::ofstream& outStream, int32_t flags = TableStreamFlags_None);
 		TableStream(FILE* file, int32_t flags = TableStreamFlags_None);
 
 		bool Export();
 
+		inline void SetLabel(const std::string& label) { m_Label = label; }
+		inline void SetLabelHorizontalAlignment(const HorizontalAlignment& alignment)
+			{ m_LabelHorizontalAlignment = alignment; }
 		inline void SetHorizontalAlignment(const HorizontalAlignment& alignment) { m_HorizontalAlignment = alignment; }
 		inline void SetRowSpacing(int32_t spacing) { m_RowSpacing = spacing; }
 		inline void SetColumnSpacing(int32_t spacing) { m_ColumnSpacing = spacing; }
@@ -52,6 +55,9 @@ namespace Utilities
 	private:
 		std::ofstream m_OutStream;
 		int32_t m_Flags;
+
+		std::string m_Label;
+		HorizontalAlignment m_LabelHorizontalAlignment = HorizontalAlignment::Left;
 
 		HorizontalAlignment m_HorizontalAlignment = HorizontalAlignment::Left;
 		size_t m_RowSpacing = 0;

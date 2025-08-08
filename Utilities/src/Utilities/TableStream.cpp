@@ -11,8 +11,8 @@ namespace Utilities
 
 	/////PUBLIC///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	TableStream::TableStream(const std::string& outFilePath, int32_t flags)
-		: m_OutStream(outFilePath), m_Flags(flags)
+	TableStream::TableStream(const std::string& outFilePath, int32_t streamMode, int32_t flags)
+		: m_OutStream(outFilePath, streamMode), m_Flags(flags)
 	{
 		if (m_OutStream.good())
 		{
@@ -51,6 +51,37 @@ namespace Utilities
 		}
 
 		size_t tableWidth = CalculateTableWidth(m_MaxRowWidth, maxColumnWidth) + 1;
+
+		if (!m_Label.empty())
+		{
+			int32_t spaceLeft = tableWidth - m_Label.length();
+			int32_t leftSpaces = spaceLeft / 2;
+			int32_t rightSpaces = spaceLeft - leftSpaces;
+			switch (m_LabelHorizontalAlignment)
+			{
+			case HorizontalAlignment::Left:
+			{
+				m_OutStream << m_Label;
+				Space(spaceLeft);
+				break;
+			}
+			case HorizontalAlignment::Center:
+			{
+				Space(leftSpaces);
+				m_OutStream << m_Label;
+				Space(rightSpaces);
+				break;
+			}
+			case HorizontalAlignment::Right:
+			{
+				Space(spaceLeft);
+				m_OutStream << m_Label;
+				break;
+			}
+			}
+			m_OutStream << '\n';
+		}
+
 		for (int32_t i = 0; i < tableWidth; i++)
 		{
 			m_OutStream << s_HorizontalBorderCharacter;

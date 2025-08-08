@@ -36,7 +36,11 @@ namespace Parsy
 			const Lexy::Lexer::Token& token);
 		CFGElement* GetLastTerminal();
 	private:
+		void ExportParseStack(std::vector<std::string>& labels, std::vector<std::string>& elements);
+		void ExportResult(const std::string& message, std::vector<std::string>& labels, std::vector<std::string>& elements);
+	private:
 		ParseTree m_InputStack;
+		std::string m_ActionString;
 		int32_t m_Elements = -1;
 		bool m_KeepToken = false;
 	};

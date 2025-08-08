@@ -28,6 +28,9 @@ namespace Parsy
         m_InputStack.Stack.clear();
         m_InputStack.Stack.push_back({ 0, {CFGElementType::Dollar, -1} });
         Lexy::Lexer::Token token;
+        std::vector<std::string> labels = { "States", "Stack", "Token", "Action" };
+        std::vector<std::string> elements;
+
         while (true)
         {
             if (!m_KeepToken)
@@ -35,6 +38,44 @@ namespace Parsy
             m_KeepToken = false;
             ParseEntryData& topState = m_InputStack.Stack.back();
             CFGElement& tokenElement = GetTokenElement(token);
+
+            std::string states;
+            std::string stack;
+            std::string tokenStr;
+            for (const ParseEntryData& entry : m_InputStack.Stack)
+            {
+                states += '(' + std::to_string(entry.State) + ')';
+                switch (entry.Symbol.Type)
+                {
+                case CFGElementType::NonTerminal:
+                {
+                    stack += '{' + RuleToStr(entry.Symbol.ID) + '}';
+                    break;
+                }
+                case CFGElementType::Symbol:
+                {
+                    stack += '{' + TokenToStr(entry.Symbol.ID) + '}';
+                    break;
+                }
+                case CFGElementType::Dollar:
+                {
+                    stack += '$';
+                    break;
+                }
+                }
+            }
+            if (tokenElement.Type == CFGElementType::Dollar)
+                tokenStr += '$';
+            else
+                tokenStr += TokenToStr(tokenElement.ID);
+                
+            elements.push_back(states);
+            elements.push_back(stack);
+            elements.push_back(tokenStr);
+            if (m_ActionString.empty())
+                elements.push_back("---");
+            else
+                elements.push_back(m_ActionString);
 
             BottomUpAction& action = m_LR1->GetAction(topState.State, tokenElement);
             switch (action.Type)
@@ -53,30 +94,41 @@ namespace Parsy
             }
             case BottomUpActionType::Accept:
             {
+                ExportResult("Accepted", labels, elements);
                 std::cout << "Accepted" << std::endl;
                 return true;
             }
             case BottomUpActionType::Conflict:
             {
                 std::cout << "Conflict" << std::endl;
-                if (!OnConflict(topState.State, action, token)) return false;
+                if (!OnConflict(topState.State, action, token))
+                {
+                    ExportResult("Error", labels, elements);
+                    return false;
+                }
                 break;
             }
             case BottomUpActionType::Empty:
             {
                 std::cout << "State: " << topState.State << std::endl;
-                if (!OnEmpty(topState.State, action, token)) return false;
+                if (!OnEmpty(topState.State, action, token))
+                {
+                    ExportResult("Error", labels, elements);
+                    return false;
+                }
                 std::cout << "Empty pushed " << m_InputStack.Stack.back().State << std::endl;
                 break;
             }
             case BottomUpActionType::Error:
             {
+                ExportResult("Error", labels, elements);
                 std::cout << "ERROR" << std::endl;
                 return false;
             }
             }
         }
 
+        ExportResult("Not Accepted", labels, elements);
         std::cout << "Not Accepted" << std::endl;
         return false;
     }
@@ -95,7 +147,8 @@ namespace Parsy
     bool LRParser::Shift(int32_t state, const BottomUpAction& action, const Lexy::Lexer::Token& token)
     {
         auto& inputStack = m_InputStack.Stack;
-        inputStack.push_back({ action.GetActionData(BottomUpActionType::Shift)->RuleID,
+        int32_t id = action.GetActionData(BottomUpActionType::Shift)->RuleID;
+        inputStack.push_back({ id,
             {CFGElementType::Symbol, token.TokenID} });
 
         auto& defaultTokenValue = m_Lexer->GetDefaultTokenValue();
@@ -108,6 +161,7 @@ namespace Parsy
             m_TokenMap.at(token.TokenID).TokenTypeConstructCallback(inputStack.back().Entry);
         }
 
+        m_ActionString = "Shift(" + std::to_string(id) + ')';
         return true;
     }
 
@@ -141,6 +195,39 @@ namespace Parsy
         entry.State = gotoID;
         inputStack.push_back(entry);
         m_KeepToken = true;
+
+        m_ActionString = "Reduce(" + RuleToStr(reduceData->RuleID) + " --> ";
+        for (size_t i = 0; i < production.size(); i++)
+        {
+            const CFGElement& element = production.at(i);
+            switch (element.Type)
+            {
+            case CFGElementType::Symbol:
+            {
+                m_ActionString += TokenToStr(element.ID);
+                break;
+            }
+            case CFGElementType::NonTerminal:
+            {
+                m_ActionString += RuleToStr(element.ID);
+                break;
+            }
+            case CFGElementType::Epsilon:
+            {
+                m_ActionString += "Empty";
+                break;
+            }
+            case CFGElementType::Dollar:
+            {
+                m_ActionString += "Dollar";
+            }
+            }
+            if (i < production.size() - 1)
+                m_ActionString += ' ';
+            else
+                m_ActionString += ')';
+        }
+        
         return true;
     }
 
@@ -207,5 +294,42 @@ namespace Parsy
         }
 
         return lastTerminal;
+    }
+
+    void LRParser::ExportParseStack(std::vector<std::string>& labels, std::vector<std::string>& elements)
+    {
+        Utilities::TableStream stackTable("ParseStack.txt", std::ios::out, Utilities::TableStreamFlags_ColumnsLabel
+            | Utilities::TableStreamFlags_RowsLabel);
+
+        stackTable.BindGetColumnLabelCallback([&](size_t col) -> const std::string& { return labels.at(col); });
+        stackTable.BindGetRowLabelCallback([&](size_t row) -> const std::string& {
+            static std::string helper;
+            helper.clear();
+            helper = std::to_string(row);
+            return helper;
+            });
+        stackTable.BindGetTotalColumnsCallback([&]() { return labels.size(); });
+        stackTable.BindGetTotalRowsCallback([&]() { return elements.size() / labels.size(); });
+        stackTable.BindGetElementStringCallback([&](size_t row, size_t col) -> const std::string& {
+            size_t index = labels.size() * row + col;
+            return elements.at(index);
+            });
+
+        stackTable.SetLabel("Parsing Stack");
+        stackTable.SetLabelHorizontalAlignment(Utilities::HorizontalAlignment::Center);
+        stackTable.SetHorizontalAlignment(Utilities::HorizontalAlignment::Center);
+        stackTable.SetRowSpacing(4);
+        stackTable.SetColumnSpacing(4);
+
+        stackTable.Export();
+    }
+
+    void LRParser::ExportResult(const std::string& message, std::vector<std::string>& labels, std::vector<std::string>& elements)
+    {
+        elements.push_back(message);
+        elements.push_back(message);
+        elements.push_back(message);
+        elements.push_back(message);
+        ExportParseStack(labels, elements);
     }
 }
