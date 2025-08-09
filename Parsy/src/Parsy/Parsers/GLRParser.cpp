@@ -26,13 +26,24 @@ namespace Parsy
 		m_LR1->PrintTable();
 		Print();
 
-		PushStateOnGSS(0, 0);
+		int32_t id = PushStateOnGSS(0, 0);
+		m_GSS.m_GSSGraph.GetVertex(id).Data.Path = "0";
 		m_TokenStream.clear();
 		m_TokenStream = m_Lexer->Tokenize();
+		std::vector<std::string> labels = { "Active Path", "Token", "Action" };
+		std::vector<std::string> elements;
 		while (true)
 		{
 			size_t size = m_GSS.m_CurrentStates.size();
 			std::vector<int32_t> deletionQueue;
+
+			elements.push_back(" ");
+			elements.push_back(" ");
+			elements.push_back(" ");
+			std::string* activePathStr = &elements[elements.size() - 3];
+			std::string* tokenStr = &elements[elements.size() - 2];
+			std::string* actionStr = &elements[elements.size() - 1];
+
 			for (int32_t i = 0; i < size; i++)
 			{
 				int32_t vertexID = m_GSS.m_CurrentStates.at(i);
@@ -40,6 +51,25 @@ namespace Parsy
 				Lexy::Lexer::Token& token = m_TokenStream.at(entryData.SymbolIndex).TokenData;
 				CFGElement& tokenElement = GetTokenElement(token);
 				BottomUpAction& action = m_LR1->GetAction(entryData.State, tokenElement);
+
+				if(i < size - 1)
+					*activePathStr += entryData.Path + '\n';
+				else
+					*activePathStr += entryData.Path;
+
+				if (tokenElement.Type == CFGElementType::Dollar)
+					*tokenStr += '$';
+				else
+					*tokenStr += TokenToStr(tokenElement.ID);
+
+				if (i < size - 1)
+					*tokenStr += '\n';
+
+				if (i < size - 1)
+					*actionStr += "---\n";
+				else
+					*actionStr += "---";
+
 				switch (action.Type)
 				{
 				case BottomUpActionType::Shift:
@@ -70,6 +100,7 @@ namespace Parsy
 						if (shiftAction == nullptr)
 						{
 							std::cout << "FATAL ERROR" << std::endl;
+							ExportParseStack(labels, elements);
 							return false;
 						}
 						Shift(i, action, entryData.SymbolIndex);
@@ -80,6 +111,7 @@ namespace Parsy
 						if (reduceAction == nullptr)
 						{
 							std::cout << "FATAL ERROR" << std::endl;
+							ExportParseStack(labels, elements);
 							return false;
 						}
 						Reduce(i, *reduceAction, entryData.SymbolIndex);
@@ -130,29 +162,9 @@ namespace Parsy
 			}
 			if (m_GSS.m_CurrentStates.empty())
 				break;
-
-			std::cout << "================================================================" << std::endl;
-
-			std::cout << "Current state count: " << m_GSS.m_CurrentStates.size() << std::endl;
-			auto& vertices = m_GSS.m_GSSGraph.GetVertices();
-			for (const auto& [vertexID, vertex] : vertices)
-			{
-				std::cout << "Vertex " << vertexID << " | State: " << vertex.Data.State
-					<< " | TokenIndex: " << vertex.Data.SymbolIndex << " | Elements: " << vertex.Data.Elements <<
-					" | ReducedFrom: " << vertex.Data.ReducedFromState << std::endl;
-				auto& edges = m_GSS.m_GSSGraph.GetEdgesOfVertex(vertexID);
-				for (const auto& edge : edges)
-				{
-					std::cout << "Edge to " << edge.Destination << " with distance " << 
-						edge.Data.Distance << std::endl;
-				}
-			}
-
-			std::cout << "================================================================" << std::endl
-				<< std::endl;
-
-			//std::cin.get();
 		}
+
+		ExportParseStack(labels, elements);
 
 		// Now we have the gss, need to get the minimum spanning stack on the gss and extract semantic tokens
 		ExecuteSemanticAnalysis();
@@ -178,6 +190,7 @@ namespace Parsy
 	void GLRParser::Shift(int32_t currentStateIndex, const BottomUpAction& action,
 		int32_t tokenIndex)
 	{
+		std::string& prevPath = m_GSS.m_GSSGraph.GetVertex(m_GSS.m_CurrentStates.at(currentStateIndex)).Data.Path;
 		uint32_t minDistance = GetMinimumDistanceToState(currentStateIndex);
 		int32_t id = PushStateOnGSSIndexed(currentStateIndex, action.GetActionData(BottomUpActionType::Shift)->RuleID,
 			tokenIndex + 1);
@@ -186,6 +199,9 @@ namespace Parsy
 		{
 			edge.Data.Distance = minDistance + 1;
 		}
+		int32_t state = m_GSS.m_GSSGraph.GetVertex(id).Data.State;
+		std::string& path = m_GSS.m_GSSGraph.GetVertex(id).Data.Path;
+		path = prevPath + " -> " + std::to_string(state);
 	}
 
 	void GLRParser::Reduce(int32_t currentStateIndex, const BottomUpActionData& actionData,
@@ -215,6 +231,7 @@ namespace Parsy
 				{ CFGElementType::NonTerminal, actionData.RuleID });
 			int32_t id = PushStateOnGSSIndexed(stateIndex, gotoID, tokenIndex);
 			GLRParseEntryData& entryData = m_GSS.m_GSSGraph.GetVertex(id).Data;
+			entryData.Path = stateEntry.Path + " -> " + std::to_string(entryData.State);
 			entryData.ReducedFromState = reducedOriginState;
 			entryData.Elements = totalElements;
 			auto& edges = m_GSS.m_GSSGraph.GetEdgesOfVertex(id);
@@ -326,6 +343,34 @@ namespace Parsy
 		}
 
 		return false;
+	}
+
+	void GLRParser::ExportParseStack(std::vector<std::string>& labels, std::vector<std::string>& elements)
+	{
+		Utilities::TableStream stackTable("ParseStack.txt", std::ios::out, Utilities::TableStreamFlags_ColumnsLabel
+			| Utilities::TableStreamFlags_RowsLabel | Utilities::TableStreamFlags_RowSeperator);
+
+		stackTable.BindGetColumnLabelCallback([&](size_t col) -> const std::string& { return labels.at(col); });
+		stackTable.BindGetRowLabelCallback([&](size_t row) -> const std::string& {
+			static std::string helper;
+			helper.clear();
+			helper = std::to_string(row);
+			return helper;
+			});
+		stackTable.BindGetTotalColumnsCallback([&]() { return labels.size(); });
+		stackTable.BindGetTotalRowsCallback([&]() { return elements.size() / labels.size(); });
+		stackTable.BindGetElementStringCallback([&](size_t row, size_t col) -> const std::string& {
+			size_t index = labels.size() * row + col;
+			return elements.at(index);
+			});
+
+		stackTable.SetLabel("GLR GSS");
+		stackTable.SetLabelHorizontalAlignment(Utilities::HorizontalAlignment::Center);
+		stackTable.SetHorizontalAlignment(Utilities::HorizontalAlignment::Center);
+		stackTable.SetRowHorizontalSpacing(4);
+		stackTable.SetColumnHorizontalSpacing(4);
+
+		stackTable.Export();
 	}
 
 	CFGElement GLRParser::GetLastPushedTerminal(int32_t currentIndex)

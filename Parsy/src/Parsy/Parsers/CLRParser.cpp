@@ -18,7 +18,7 @@ namespace Parsy
 			CFGElement* lastTerminal = GetLastTerminal();
 			if (lastTerminal == nullptr) return LRParser::OnShift(state, action, token);
 			int32_t leftOperatorPriority = m_TokenMap.at(lastTerminal->ID).Priority;
-			if (leftOperatorPriority == 0 || leftOperatorPriority >= rightOperatorPriority)
+			if (leftOperatorPriority == 0)
 			{
 				BottomUpAction* dollarAction = nullptr;
 				const auto& symbols = m_LR1->GetSymbols();
@@ -34,6 +34,71 @@ namespace Parsy
 				if (dollarAction == nullptr) return LRParser::OnShift(state, action, token);
 				OnReduce(state, *dollarAction);
 				return true;
+			}
+			else if (leftOperatorPriority > rightOperatorPriority)
+			{
+				BottomUpAction* dollarAction = nullptr;
+				const auto& symbols = m_LR1->GetSymbols();
+				for (const CFGElement& element : symbols)
+				{
+					BottomUpAction& action = m_LR1->GetAction(state, element);
+					if (action.Type == BottomUpActionType::Reduce)
+					{
+						dollarAction = &action;
+						break;
+					}
+				}
+				if (dollarAction == nullptr) return false;
+				OnReduce(state, *dollarAction);
+				return true;
+			}
+			else if (leftOperatorPriority < rightOperatorPriority)
+			{
+				return LRParser::OnShift(state, action, token);
+			}
+			else
+			{
+				const PrecedenceAssociativity& leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
+				const PrecedenceAssociativity& rightElementAssociativity = m_TokenMap.at(token.TokenID).Associativity;
+				if (leftElementAssociativity != rightElementAssociativity)
+				{
+					std::cout << "FATAL ERROR" << std::endl;
+					return false;
+				}
+
+				switch (leftElementAssociativity)
+				{
+				case PrecedenceAssociativity::Left:
+				{
+					BottomUpAction* dollarAction = nullptr;
+					const auto& symbols = m_LR1->GetSymbols();
+					for (const CFGElement& element : symbols)
+					{
+						BottomUpAction& action = m_LR1->GetAction(state, element);
+						if (action.Type == BottomUpActionType::Reduce)
+						{
+							dollarAction = &action;
+							break;
+						}
+					}
+					if (dollarAction == nullptr)
+					{
+						return false;
+					}
+					OnReduce(state, *dollarAction);
+					return true;
+				}
+				case PrecedenceAssociativity::Right:
+				{
+					std::cout << "Reudejfmcis" << std::endl;
+					return LRParser::OnShift(state, action, token);
+				}
+				case PrecedenceAssociativity::NonAssociate:
+				{
+					std::cout << "Non-Associate Error" << std::endl;
+					return false;
+				}
+				}
 			}
 		}
 

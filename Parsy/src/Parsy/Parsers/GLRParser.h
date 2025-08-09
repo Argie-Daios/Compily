@@ -6,6 +6,7 @@ namespace Parsy
 {
 	struct GLRParseEntryData : public ParseEntryData
 	{
+		std::string Path;
 		int32_t SymbolIndex = -1;
 		int32_t ReducedFromState = -1;
 		int32_t Elements = -1;
@@ -112,6 +113,7 @@ namespace Parsy
 		void ExtractMinimumSpanningStack();
 		bool ExecuteSemanticAnalysis();
 		CFGElement GetLastPushedTerminal(int32_t currentIndex);
+		void ExportParseStack(std::vector<std::string>& labels, std::vector<std::string>& elements);
 
 		/////GSS/////////////////////////////////////////////////////////////////////////////////////
 
@@ -238,6 +240,7 @@ namespace Parsy
 		/////////////////////////////////////////////////////////////////////////////////////////////
 	private:
 		GLRGSS m_GSS;
+		std::vector<std::string>* m_ElementVector = nullptr;
 		std::vector<Lexy::Lexer::OfflineToken> m_TokenStream;
 		std::vector<ActionData> m_Stack;
 		int32_t m_Elements = -1;

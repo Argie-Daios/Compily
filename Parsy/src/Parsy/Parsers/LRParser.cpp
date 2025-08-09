@@ -258,7 +258,7 @@ namespace Parsy
             }
             Shift(state, action, token);
         }
-        else
+        else if (leftElementPriority > rightElementPriority)
         {
             const BottomUpActionData* reduceAction = action.GetActionData(BottomUpActionType::Reduce);
             if (reduceAction == nullptr)
@@ -267,6 +267,48 @@ namespace Parsy
                 return false;
             }
             Reduce(state, action);
+        }
+        else
+        {
+            const PrecedenceAssociativity& leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
+            const PrecedenceAssociativity& rightElementAssociativity = m_TokenMap.at(tokenElement.ID).Associativity;
+            if (leftElementAssociativity != rightElementAssociativity)
+            {
+                std::cout << "FATAL ERROR" << std::endl;
+                return false;
+            }
+
+            switch (leftElementAssociativity)
+            {
+            case PrecedenceAssociativity::Left:
+            {
+                const BottomUpActionData* reduceAction = action.GetActionData(BottomUpActionType::Reduce);
+                if (reduceAction == nullptr)
+                {
+                    std::cout << "FATAL ERROR" << std::endl;
+                    return false;
+                }
+                Reduce(state, action);
+                break;
+            }
+            case PrecedenceAssociativity::Right:
+            {
+                const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
+                if (shiftAction == nullptr)
+                {
+                    std::cout << "FATAL ERROR" << std::endl;
+                    return false;
+                }
+                Shift(state, action, token);
+                break;
+            }
+            case PrecedenceAssociativity::NonAssociate:
+            {
+                std::cout << "Non-Associate Error" << std::endl;
+                return false;
+                break;
+            }
+            }
         }
     }
 

@@ -48,6 +48,11 @@ namespace Utilities
 		inline void SetRowHorizontalSpacing(int32_t spacing) { m_RowHorizontalSpacing = spacing; }
 		inline void SetRowVerticalSpacing(int32_t spacing) { m_RowVerticalSpacing = spacing; }
 		inline void SetColumnHorizontalSpacing(int32_t spacing) { m_ColumnHorizontalSpacing = spacing; }
+		inline void SetHorizontalBorderSymbol(char symbol) { m_HorizontalBorderSymbol = symbol; }
+		inline void SetVerticalBorderSymbol(char symbol) { m_VerticalBorderSymbol1 = m_VerticalBorderSymbol2 = symbol; }
+		inline void SetVerticalBorderSymbol(char symbol1, char symbol2) { 
+			m_VerticalBorderSymbol1 = symbol1; m_VerticalBorderSymbol2 = symbol2;
+		}
 
 		void BindGetRowLabelCallback(const std::function<const std::string& (size_t row)>& callback);
 		void BindGetColumnLabelCallback(const std::function<const std::string& (size_t col)>& callback);
@@ -71,6 +76,8 @@ namespace Utilities
 		std::ofstream m_OutStream;
 		int32_t m_Flags;
 
+		/////STYLE////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		std::string m_Label;
 		HorizontalAlignment m_LabelHorizontalAlignment = HorizontalAlignment::Left;
 
@@ -79,6 +86,12 @@ namespace Utilities
 		size_t m_RowHorizontalSpacing = 0;
 		size_t m_RowVerticalSpacing = 0;
 		size_t m_ColumnHorizontalSpacing = 0;
+
+		char m_HorizontalBorderSymbol = '-';
+		char m_VerticalBorderSymbol1 = '|';
+		char m_VerticalBorderSymbol2 = '|';
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		size_t m_MaxRowWidth = 0;
 		size_t m_MaxRowHeight = 0;

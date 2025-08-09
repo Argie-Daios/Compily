@@ -14,11 +14,11 @@ int main()
 
 	/*std::vector<std::string> labels = { "State", "Stack", "Rofl" };
 	std::vector<std::string> elements = { 
-		"0\nputas\nxd\nrofl", "#", "a" ,
-		"01\n", "##", "ab" ,
-		"012\n", "###", "abc" ,
-		"0123\n", "####", "abcd" ,
-		"01234\n", "#####", "abcde"
+		"0\nputas\nxd\nrofl", "#\n#\n#", "a" ,
+		"01\n", "##\n", "ab" ,
+		"012\n", "###\n", "abc" ,
+		"0123\n", "####\n", "abcd" ,
+		"01234\n", "#####\n", "abcde"
 	};
 
 	Utilities::TableStream tableStream("Test.txt", std::ios::out, Utilities::TableStreamFlags_ColumnsLabel |

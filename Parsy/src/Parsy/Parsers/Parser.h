@@ -14,6 +14,14 @@ namespace Parsy
 	using RuleID_t = int32_t;
 	using TypeCallback = std::function<void(std::any&)>;
 
+	enum class PrecedenceAssociativity
+	{
+		None,
+		Left,
+		Right,
+		NonAssociate
+	};
+
 	class Parser
 	{
 	public:
@@ -30,7 +38,7 @@ namespace Parsy
 		}
 
 		template<typename ... Args>
-		void DeclarePrecedence(Args&& ... token)
+		void DeclarePrecedence(const PrecedenceAssociativity& associativity, Args&& ... token)
 		{
 			static_assert((std::is_convertible_v<Args, int32_t> && ...),
 				"All arguments must be convertible to int32_t");
@@ -40,6 +48,7 @@ namespace Parsy
 				{
 					m_TokenMap.try_emplace(token);
 					m_TokenMap.at(token).Priority = m_HighestPriority;
+					m_TokenMap.at(token).Associativity = associativity;
 				}(), ...);
 		}
 
@@ -91,6 +100,7 @@ namespace Parsy
 		struct TokenProperties
 		{
 			int32_t Priority = 0;
+			PrecedenceAssociativity Associativity = PrecedenceAssociativity::None;
 			TypeCallback TokenTypeConstructCallback = [](std::any& any) { any.reset(); };
 		};
 	private:

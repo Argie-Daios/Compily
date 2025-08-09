@@ -4,11 +4,6 @@
 
 namespace Utilities
 {
-	/////STATIC///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	static const char s_HorizontalBorderCharacter = '-';
-	static const char s_VerticalBorderCharacter = '|';
-
 	/////PUBLIC///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	TableStream::TableStream(const std::string& outFilePath, int32_t streamMode, int32_t flags)
@@ -84,15 +79,15 @@ namespace Utilities
 
 		for (int32_t i = 0; i < tableWidth; i++)
 		{
-			m_OutStream << s_HorizontalBorderCharacter;
+			m_OutStream << m_HorizontalBorderSymbol;
 		}
 		m_OutStream << '\n';
 
-		m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+		m_OutStream << m_VerticalBorderSymbol1 << m_VerticalBorderSymbol2;
 		if (m_Flags & TableStreamFlags_RowsLabel && m_Flags & TableStreamFlags_ColumnsLabel)
 		{
 			Space(m_MaxRowWidth);
-			m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+			m_OutStream << m_VerticalBorderSymbol1 << m_VerticalBorderSymbol2;
 		}
 
 		// TODO: Print column labels
@@ -102,12 +97,12 @@ namespace Utilities
 			{
 				PrintColumnElement(column, m_GetColumnLabel(column), maxColumnWidth);
 			}
-			m_OutStream << s_VerticalBorderCharacter << '\n';
+			m_OutStream << m_VerticalBorderSymbol2 << '\n';
 			for (int32_t i = 0; i < tableWidth; i++)
 			{
-				m_OutStream << s_HorizontalBorderCharacter;
+				m_OutStream << m_HorizontalBorderSymbol;
 			}
-			m_OutStream << '\n' << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+			m_OutStream << '\n' << m_VerticalBorderSymbol1 << m_VerticalBorderSymbol2;
 		}
 
 		for (size_t row = 0; row < totalRows; row++)
@@ -146,50 +141,53 @@ namespace Utilities
 						break;
 					}
 					}
-					m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+					m_OutStream << m_VerticalBorderSymbol1 << m_VerticalBorderSymbol2;
 				}
 				for (size_t column = 0; column < totalColumns; column++)
 				{
 					const std::string& elementString = GetStringToDraw(m_GetElementString(row, column), line);
 					PrintColumnElement(column, elementString, maxColumnWidth);
 				}
-				m_OutStream << s_VerticalBorderCharacter;
+				m_OutStream << m_VerticalBorderSymbol2;
 				if (line < m_MaxRowHeight - 1 || row < totalRows - 1)
 					m_OutStream << '\n';
 				if (line < m_MaxRowHeight - 1)
-					m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+					m_OutStream << m_VerticalBorderSymbol1 << m_VerticalBorderSymbol2;
 			}
 			if (row < totalRows - 1)
 			{
 				if (m_Flags & TableStreamFlags_RowSeperator)
 				{
-					m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+					m_OutStream << m_VerticalBorderSymbol1 << m_VerticalBorderSymbol2;
 					for (int32_t i = 0; i < m_MaxRowWidth; i++)
 					{
-						m_OutStream << s_HorizontalBorderCharacter;
+						m_OutStream << m_HorizontalBorderSymbol;
 					}
-					m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+					m_OutStream << m_VerticalBorderSymbol1 << m_VerticalBorderSymbol2;
 					for (int32_t col = 0; col < totalColumns; col++)
 					{
-						CalculateMaxColumnWidth(col);
+						if (m_Flags & TableStreamFlags_ColumnsSameWidth)
+							m_MaxColumnWidth = maxColumnWidth;
+						else
+							CalculateMaxColumnWidth(col);
 						for (int32_t i = 0; i < m_MaxColumnWidth; i++)
 						{
-							m_OutStream << s_HorizontalBorderCharacter;
+							m_OutStream << m_HorizontalBorderSymbol;
 						}
-						m_OutStream << s_VerticalBorderCharacter;
+						m_OutStream << m_VerticalBorderSymbol1;
 					}
 
-					m_OutStream << s_VerticalBorderCharacter;
+					m_OutStream << m_VerticalBorderSymbol2;
 					m_OutStream << '\n';
 				}
-				m_OutStream << s_VerticalBorderCharacter << s_VerticalBorderCharacter;
+				m_OutStream << m_VerticalBorderSymbol1 << m_VerticalBorderSymbol2;
 			}
 		}
 
 		m_OutStream << '\n';
 		for (int32_t i = 0; i < tableWidth; i++)
 		{
-			m_OutStream << s_HorizontalBorderCharacter;
+			m_OutStream << m_HorizontalBorderSymbol;
 		}
 
 		return true;
@@ -341,7 +339,7 @@ namespace Utilities
 			break;
 		}
 		}
-		m_OutStream << s_VerticalBorderCharacter;
+		m_OutStream << m_VerticalBorderSymbol1;
 		return labelLength + spaceLeft + 1;
 	}
 

@@ -36,8 +36,9 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	DeclarePrecedence(PLUS, MINUS);
-	DeclarePrecedence(MULTIPLY, DIVIDE);
+	DeclarePrecedence(Parsy::PrecedenceAssociativity::Left, PLUS, MINUS);
+	DeclarePrecedence(Parsy::PrecedenceAssociativity::Left, MULTIPLY, DIVIDE);
+	DeclarePrecedence(Parsy::PrecedenceAssociativity::Right, POWER);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -89,6 +90,18 @@ MyParser::MyParser(const std::ifstream& inputStream)
 		Constant& leftExpressionValue = std::any_cast<Constant&>(Get(0));
 		Constant& rightExpressionValue = std::any_cast<Constant&>(Get(2));
 		expressionValue = ExecuteOperation(1, leftExpressionValue, rightExpressionValue);
+		std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
+		});
+
+	Union();
+
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+	Add(Parsy::CFGElementType::Symbol, POWER);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](std::any& any) {
+		Constant& expressionValue = std::any_cast<Constant&>(any);
+		Constant& leftExpressionValue = std::any_cast<Constant&>(Get(0));
+		Constant& rightExpressionValue = std::any_cast<Constant&>(Get(2));
+		expressionValue = ExecuteOperation(2, leftExpressionValue, rightExpressionValue);
 		std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
 		});
 
@@ -171,6 +184,7 @@ const std::string MyParser::TokenToStr(Lexy::TokenID_t tokenID)
 	case MULTIPLY: return "Multiply";
 	case DIVIDE: return "Divide";
 	case MOD: return "Mod";
+	case POWER: return "Power";
 	case EQUAL: return "Equal";
 	case EQUAL_EQUAL: return "EqualEqual";
 	case NOT_EQUAL: return "NotEqual";
@@ -187,7 +201,7 @@ const std::string MyParser::TokenToStr(Lexy::TokenID_t tokenID)
 	case SEMICOLON: return "Semicolon";
 	}
 
-	return TokenToStr(tokenID);
+	return Parser::TokenToStr(tokenID);
 }
 
 ConstantValueType MyParser::ResultValue(const Constant& leftValue, const Constant& rightValue)
@@ -247,6 +261,28 @@ Constant MyParser::ExecuteOperation(int32_t opCode, const Constant& leftValue, c
 		case ConstantValueType::String:
 		{
 			std::cout << "Cannot multiply with string" << std::endl;
+			exit(1);
+		}
+		}
+		break;
+	}
+	case 2:
+	{
+		switch (resultType)
+		{
+		case ConstantValueType::Int:
+		{
+			int32_t leftValueInt = (leftValue.Type == ConstantValueType::Int ? leftValue.IntVal :
+				std::stoi(leftValue.StrVal));
+			int32_t rightValueInt = (rightValue.Type == ConstantValueType::Int ? rightValue.IntVal :
+				std::stoi(rightValue.StrVal));
+			constant.Type = ConstantValueType::Int;
+			constant.IntVal = pow(leftValueInt, rightValueInt);
+			break;
+		}
+		case ConstantValueType::String:
+		{
+			std::cout << "Cannot perform power with string" << std::endl;
 			exit(1);
 		}
 		}
