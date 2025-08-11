@@ -85,11 +85,10 @@ namespace Lexy
 	{
 		if (elementLeft.Type == RegexElementType::UNDEFINED ||
 			elementRight.Type == RegexElementType::UNDEFINED) return false;
-		if (TryParseOperator(elementRight.Character.Character) != RegexElementType::UNDEFINED &&
+		if (IsOperator(elementRight.Type) &&
 			elementRight.Type != RegexElementType::OPENING_PARENTHESIS) return false;
 
-		bool isLeftElementOperator = TryParseOperator(elementLeft.Character.Character)
-			!= RegexElementType::UNDEFINED;
+		bool isLeftElementOperator = IsOperator(elementLeft.Type);
 		if (isLeftElementOperator && IsOperatorUnary(elementLeft.Type)) return true;
 
 		return !isLeftElementOperator || elementLeft.Type == RegexElementType::CLOSING_PARENTHESIS;

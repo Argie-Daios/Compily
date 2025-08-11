@@ -19,7 +19,7 @@ namespace Lexy
 	public:
 		using RuleBufferCallback = std::function<void(TokenID_t)>;
 		using RuleCallback = std::function<TokenID_t()>;
-		using RuleBuffer = std::unordered_map<TokenID_t, std::string>;
+		using RuleBuffer = std::vector<std::pair<TokenID_t, std::string>>;
 
 		enum class TokenState
 		{

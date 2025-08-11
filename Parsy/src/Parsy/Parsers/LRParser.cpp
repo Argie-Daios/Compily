@@ -31,6 +31,8 @@ namespace Parsy
         std::vector<std::string> labels = { "States", "Stack", "Token", "Action" };
         std::vector<std::string> elements;
 
+       // auto& tokens = m_Lexer->Tokenize();
+
         while (true)
         {
             if (!m_KeepToken)

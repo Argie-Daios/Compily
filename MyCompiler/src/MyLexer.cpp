@@ -15,7 +15,7 @@ static Lexy::Lexer::RuleBuffer s_Operators = {
 	{MULTIPLY, R"(\*)"},
 	{DIVIDE, R"(\/)"},
 	{MOD, R"(\%)"},
-	{POWER, R"(\^)"}
+	{POWER, R"(\*\*)"}
 };
 
 static Lexy::Lexer::RuleBuffer s_Punctuation = {
