@@ -12,7 +12,16 @@
 namespace Parsy
 {
 	using RuleID_t = int32_t;
-	using TypeCallback = std::function<void(std::any&)>;
+	using TypeCallback = std::function<void(EntryValue&)>;
+
+	enum ParserFlags
+	{
+		CLRParserFlags_None = 0,
+		CLRParserFlags_ForceReduce = BIT(0),
+		// Forces precedence even on empty/non-conflict cells of the parsing table
+		CLRParserFlags_ForcePrecedence = BIT(1) | CLRParserFlags_ForceReduce,
+		LRParserFlags_IncludeDollarLookAhead = BIT(2)
+	};
 
 	enum class PrecedenceAssociativity
 	{
@@ -25,7 +34,7 @@ namespace Parsy
 	class Parser
 	{
 	public:
-		Parser(const std::ifstream& inputStream);
+		Parser(const std::ifstream& inputStream, int32_t flags = 0);
 
 		virtual bool Parse() = 0;
 		void Print();
@@ -34,7 +43,7 @@ namespace Parsy
 		void DeclareTokenType(Lexy::TokenID_t token)
 		{
 			m_TokenMap.try_emplace(token);
-			m_TokenMap.at(token).TokenTypeConstructCallback = [](std::any& any) { any = Type(); };
+			m_TokenMap.at(token).TokenTypeConstructCallback = [](EntryValue& entry) { entry = Type(); };
 		}
 
 		template<typename ... Args>
@@ -52,7 +61,7 @@ namespace Parsy
 				}(), ...);
 		}
 
-		void StartRule(RuleID_t rule);
+		void DeclareRootRule(RuleID_t rule);
 		void BeginRule(RuleID_t rule);
 		template<typename Type>
 		void BeginRule(RuleID_t rule)
@@ -60,40 +69,54 @@ namespace Parsy
 			BeginRule(rule);
 			if constexpr (std::is_pointer<Type>::value)
 			{
-				m_CFGMap.at(rule).RuleTypeConstructCallback = [](std::any& any) { any = Type(); };
+				m_CFGMap.at(rule).RuleTypeConstructCallback = [](EntryValue& entry) { entry = Type(); };
 			}
 			else
 			{
-				m_CFGMap.at(rule).RuleTypeConstructCallback = [](std::any& any) { 
+				m_CFGMap.at(rule).RuleTypeConstructCallback = [](EntryValue& entry) {
 					using PointerType = std::remove_pointer_t<Type>;
-					any = new PointerType();
+					entry = new PointerType();
 					};
 			}
-			m_CFGMap.at(rule).RuleTypeConstructCallback = [](std::any& any)
+			m_CFGMap.at(rule).RuleTypeConstructCallback = [](EntryValue& entry)
 				{
 					if constexpr (std::is_pointer<Type>::value)
 					{
 						using Pointee = std::remove_pointer_t<Type>;
-						any = new Pointee{};
+						entry = new Pointee{};
 					}
 					else
 					{
-						any = Type{};
+						entry = Type{};
 					}
 				};
 		}
-		void Add(const CFGElementType& type, int32_t id, const TypeCallback& callback = [](std::any& any) {});
+		void Add(const CFGElementType& type, int32_t id, const TypeCallback& callback = [](EntryValue& entry) {});
+		void Add(const CFGElementType& type, const TypeCallback& callback = [](EntryValue& entry) {});
 		void Union();
-		virtual std::any& Get(int32_t offset) = 0;
 		void EndRule();
+		template<typename Type>
+		Type& Get(int32_t index)
+		{
+			return std::any_cast<Type&>(GetValue(index));
+		}
+		template<typename Type>
+		Type& Get(EntryValue& entryValue)
+		{
+			return std::any_cast<Type&>(entryValue);
+		}
 	protected:
-		virtual const std::string RuleToStr(RuleID_t ruleID);
-		virtual const std::string TokenToStr(Lexy::TokenID_t tokenID);
+		virtual EntryValue& GetValue(int32_t offset) = 0;
+		virtual const std::string RuleToStr(RuleID_t ruleID) const;
+		virtual const std::string TokenToStr(Lexy::TokenID_t tokenID) const;
+		const std::string CFGElementToStr(const CFGElement& element) const;
+
+		virtual void SyntaxErrorHandler();
 	private:
 		struct RuleProperties
 		{
 			CFG Grammar;
-			TypeCallback RuleTypeConstructCallback = [](std::any& any) { any.reset(); };
+			TypeCallback RuleTypeConstructCallback = [](EntryValue& entry) { entry.reset(); };
 			std::unordered_map<int32_t, std::vector<TypeCallback>> RuleProductionCallbacks;
 		};
 
@@ -101,7 +124,7 @@ namespace Parsy
 		{
 			int32_t Priority = 0;
 			PrecedenceAssociativity Associativity = PrecedenceAssociativity::None;
-			TypeCallback TokenTypeConstructCallback = [](std::any& any) { any.reset(); };
+			TypeCallback TokenTypeConstructCallback = [](EntryValue& entry) { entry.reset(); };
 		};
 	private:
 		CFGElement GetNextTokenElement();
@@ -111,6 +134,7 @@ namespace Parsy
 		ParseEntryData ConstructEntryAndInvokeCallbacks(RuleID_t ruleID, int32_t production);
 	protected:
 		Lexy::Lexer* m_Lexer = nullptr;
+		int32_t m_Flags = 0;
 
 	private:
 		RuleID_t m_StartingRule = INT_MIN;

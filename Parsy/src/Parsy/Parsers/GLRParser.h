@@ -104,8 +104,8 @@ namespace Parsy
 		GLRParser(const std::ifstream& inputStream);
 
 		virtual bool Parse() override;
-		virtual std::any& Get(int32_t offset) override;
 	private:
+		virtual std::any& GetValue(int32_t offset) override;
 		void Shift(int32_t currentStateIndex, const BottomUpAction& action,
 			int32_t tokenIndex);
 		void Reduce(int32_t currentStateIndex, const BottomUpActionData& actionData,

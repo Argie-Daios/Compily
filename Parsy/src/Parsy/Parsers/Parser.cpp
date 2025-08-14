@@ -4,8 +4,8 @@
 
 namespace Parsy
 {
-    Parser::Parser(const std::ifstream& inputStream)
-        : m_LR1(nullptr)
+    Parser::Parser(const std::ifstream& inputStream, int32_t flags)
+        : m_LR1(nullptr), m_Flags(flags)
     {
         m_CFGMap.emplace(m_StartingRule, RuleProperties());
         m_CFGMap.at(m_StartingRule).Grammar.AddElement({});
@@ -36,19 +36,19 @@ namespace Parsy
                 auto& elementList = productions.at(i);
                 for (auto& element : elementList)
                 {
-                    std::any any;
+                    EntryValue entry;
                     switch (element.Type)
                     {
                     case CFGElementType::Symbol:
                     {
                         std::cout << TokenToStr(element.ID);
-                        m_TokenMap.at(element.ID).TokenTypeConstructCallback(any);
+                        m_TokenMap.at(element.ID).TokenTypeConstructCallback(entry);
                         break;
                     }
                     case CFGElementType::NonTerminal:
                     {
                         std::cout << RuleToStr(element.ID);
-                        m_CFGMap.at(element.ID).RuleTypeConstructCallback(any);
+                        m_CFGMap.at(element.ID).RuleTypeConstructCallback(entry);
                         break;
                     }
                     case CFGElementType::Epsilon:
@@ -61,14 +61,6 @@ namespace Parsy
                         std::cout << "Dollar";
                     }
                     }
-                    /*if (any.has_value())
-                    {
-                        std::cout << "[Type: " << any.type().name() << "]";
-                    }
-                    else
-                    {
-                        std::cout << "[Type: NaN]";
-                    }*/
                     std::cout << " ";
                 }
                 if(i < productions.size() - 1)
@@ -80,7 +72,7 @@ namespace Parsy
         std::cout << std::endl;
     }
 
-    void Parser::StartRule(RuleID_t rule)
+    void Parser::DeclareRootRule(RuleID_t rule)
     {
         auto& grammar = m_CFGMap.at(m_StartingRule).Grammar;
         grammar.m_Elements.at(grammar.m_ProductionCount - 1).at(0).Type = CFGElementType::NonTerminal;
@@ -123,6 +115,11 @@ namespace Parsy
         ruleProps.RuleProductionCallbacks.at(totalProductions - 1).push_back(std::move(callback));
     }
 
+    void Parser::Add(const CFGElementType& type, const TypeCallback& callback)
+    {
+        Add(type, -1, callback);
+    }
+
     void Parser::Union()
     {
         RuleProperties& ruleProps = m_CFGMap.at(m_BoundRule);
@@ -134,14 +131,34 @@ namespace Parsy
         m_BoundRule = -1;
     }
 
-    const std::string Parser::RuleToStr(RuleID_t ruleID)
+    const std::string Parser::RuleToStr(RuleID_t ruleID) const
     {
         return std::to_string(ruleID);
     }
 
-    const std::string Parser::TokenToStr(Lexy::TokenID_t tokenID)
+    const std::string Parser::TokenToStr(Lexy::TokenID_t tokenID) const
     {
         return std::to_string(tokenID);
+    }
+
+    const std::string Parser::CFGElementToStr(const CFGElement& element) const
+    {
+        switch (element.Type)
+        {
+        case CFGElementType::Epsilon: return "Epsilon";
+        case CFGElementType::Dollar: return "Dollar";
+        case CFGElementType::Symbol: return TokenToStr(element.ID);
+        case CFGElementType::NonTerminal: return RuleToStr(element.ID);
+        case CFGElementType::Error: return "Error";
+        }
+
+        return "INVALID_CFG_ELEMENT";
+    }
+
+    void Parser::SyntaxErrorHandler()
+    {
+        std::cout << "Syntax Error" << std::endl;
+        exit(1);
     }
 
     CFGElement Parser::GetNextTokenElement()

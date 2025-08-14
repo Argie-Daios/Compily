@@ -4,8 +4,8 @@
 
 namespace Parsy
 {
-    LRParser::LRParser(const std::ifstream& inputStream)
-        : Parser(inputStream)
+    LRParser::LRParser(const std::ifstream& inputStream, int32_t flags)
+        : Parser(inputStream, flags)
     {
         
     }
@@ -28,10 +28,8 @@ namespace Parsy
         m_InputStack.Stack.clear();
         m_InputStack.Stack.push_back({ 0, {CFGElementType::Dollar, -1} });
         Lexy::Lexer::Token token;
-        std::vector<std::string> labels = { "States", "Stack", "Token", "Action" };
+        std::vector<std::string> labels = { "States", "Stack", "Token", "Action", "String Range"};
         std::vector<std::string> elements;
-
-       // auto& tokens = m_Lexer->Tokenize();
 
         while (true)
         {
@@ -44,24 +42,38 @@ namespace Parsy
             std::string states;
             std::string stack;
             std::string tokenStr;
-            for (const ParseEntryData& entry : m_InputStack.Stack)
+            std::string stringRange = "---";
+            size_t count = 0;
+            for (int32_t i = 0; i < m_InputStack.Stack.size(); i++)
             {
+                const ParseEntryData& entry = m_InputStack.Stack.at(i);
+                count += entry.Token.StringCount;
+
+                if (i == 1)
+                {
+                    stringRange = std::to_string(entry.Token.StringOffset);
+                }
+                if (count > 0 && i == m_InputStack.Stack.size() - 1)
+                {
+                    stringRange += " - " + std::to_string(count);
+                }
+
                 states += '(' + std::to_string(entry.State) + ')';
                 switch (entry.Symbol.Type)
                 {
                 case CFGElementType::NonTerminal:
                 {
-                    stack += '{' + RuleToStr(entry.Symbol.ID) + '}';
+                    stack += '{' + CFGElementToStr(entry.Symbol) + '}';
                     break;
                 }
                 case CFGElementType::Symbol:
                 {
-                    stack += '{' + TokenToStr(entry.Symbol.ID) + '}';
+                    stack += '{' + CFGElementToStr(entry.Symbol) + '}';
                     break;
                 }
-                case CFGElementType::Dollar:
+                default:
                 {
-                    stack += '$';
+                    stack += CFGElementToStr(entry.Symbol);
                     break;
                 }
                 }
@@ -78,80 +90,116 @@ namespace Parsy
                 elements.push_back("---");
             else
                 elements.push_back(m_ActionString);
+            elements.push_back(stringRange);
 
             BottomUpAction& action = m_LR1->GetAction(topState.State, tokenElement);
             switch (action.Type)
             {
             case BottomUpActionType::Shift:
             {
-                OnShift(topState.State, action, token);
-                std::cout << "Shift pushed " << m_InputStack.Stack.back().State << std::endl;
+                OnShift(topState.State, action, CFGElementType::Symbol, token);
                 break;
             }
             case BottomUpActionType::Reduce:
             {
                 OnReduce(topState.State, action);
-                std::cout << "Reduce pushed " << m_InputStack.Stack.back().State << std::endl;
                 break;
             }
             case BottomUpActionType::Accept:
             {
                 ExportResult("Accepted", labels, elements);
-                std::cout << "Accepted" << std::endl;
                 return true;
             }
             case BottomUpActionType::Conflict:
             {
-                std::cout << "Conflict" << std::endl;
                 if (!OnConflict(topState.State, action, token))
                 {
                     ExportResult("Error", labels, elements);
-                    return false;
+                    auto& errorAction = m_LR1->GetAction(topState.State, CFGElement(CFGElementType::Error, -1));
+                    if (errorAction.Type == BottomUpActionType::Empty)
+                    {
+                        SyntaxErrorHandler();
+                    }
+                    Shift(topState.State, errorAction, CFGElementType::Error, token);
+                    m_KeepToken = true;
                 }
                 break;
             }
             case BottomUpActionType::Empty:
             {
-                std::cout << "State: " << topState.State << std::endl;
+                if (topState.Symbol.Type == CFGElementType::Error)
+                {
+                    SyntaxErrorHandler();
+                }
                 if (!OnEmpty(topState.State, action, token))
                 {
-                    ExportResult("Error", labels, elements);
-                    return false;
+                    auto& errorAction = m_LR1->GetAction(topState.State, CFGElement(CFGElementType::Error, -1));
+                    if (errorAction.Type == BottomUpActionType::Empty)
+                    {
+                        ExportResult("Error", labels, elements);
+                        SyntaxErrorHandler();
+                    }
+                    switch (errorAction.Type)
+                    {
+                    case BottomUpActionType::Empty:
+                    {
+                        ExportResult("Error", labels, elements);
+                        SyntaxErrorHandler();
+                        break;
+                    }
+                    case BottomUpActionType::Shift:
+                    {
+                        Shift(topState.State, errorAction, CFGElementType::Error, token);
+                        break;
+                    }
+                    case BottomUpActionType::Reduce:
+                    {
+                        Reduce(topState.State, errorAction);
+                        break;
+                    }
+                    }
+                    m_KeepToken = true;
                 }
-                std::cout << "Empty pushed " << m_InputStack.Stack.back().State << std::endl;
                 break;
             }
             case BottomUpActionType::Error:
             {
                 ExportResult("Error", labels, elements);
-                std::cout << "ERROR" << std::endl;
-                return false;
+
+                auto& errorAction = m_LR1->GetAction(topState.State, CFGElement(CFGElementType::Error, -1));
+                if (errorAction.Type == BottomUpActionType::Empty)
+                {
+                    SyntaxErrorHandler();
+                }
+                Shift(topState.State, errorAction, CFGElementType::Error, token);
+                m_KeepToken = true;
             }
             }
         }
 
         ExportResult("Not Accepted", labels, elements);
-        std::cout << "Not Accepted" << std::endl;
         return false;
     }
 
-    std::any& LRParser::Get(int32_t offset)
+    std::any& LRParser::GetValue(int32_t offset)
     {
         return m_InputStack.Stack.at(m_InputStack.Stack.size() - m_Elements + offset).Entry;
     }
 
-    bool LRParser::OnShift(int32_t state, const BottomUpAction& action,
+    bool LRParser::OnShift(int32_t state, const BottomUpAction& action, const CFGElementType& type,
         const Lexy::Lexer::Token& token)
     {
-        return Shift(state, action, token);
+        return Shift(state, action, type, token);
     }
 
-    bool LRParser::Shift(int32_t state, const BottomUpAction& action, const Lexy::Lexer::Token& token)
+    bool LRParser::Shift(int32_t state, const BottomUpAction& action, const CFGElementType& type,
+        const Lexy::Lexer::Token& token)
     {
         auto& inputStack = m_InputStack.Stack;
         int32_t id = action.GetActionData(BottomUpActionType::Shift)->RuleID;
         inputStack.push_back({ id,
-            {CFGElementType::Symbol, token.TokenID} });
+            {type, token.TokenID} });
+        inputStack.back().Token = token;
 
         auto& defaultTokenValue = m_Lexer->GetDefaultTokenValue();
         if (defaultTokenValue.has_value())
@@ -185,9 +233,16 @@ namespace Parsy
         ParseEntryData& entry =
             ConstructEntryAndInvokeCallbacks(reduceData->RuleID, reduceData->ReducedProduction);
 
+        Lexy::Lexer::Token startToken;
+        size_t count = 0;
         for (int32_t i = 0; i < m_Elements; i++)
         {
             if (production.at(i).Type == CFGElementType::Epsilon) continue;
+
+            if(i == m_Elements - 1)
+                startToken = inputStack.back().Token;
+            count += inputStack.back().Token.StringCount;
+
             inputStack.pop_back();
         }
 
@@ -195,6 +250,7 @@ namespace Parsy
         int32_t gotoID = m_LR1->GetGotoState(newParseEntry.State,
             { CFGElementType::NonTerminal, reduceData->RuleID });
         entry.State = gotoID;
+        entry.Token = Lexy::Lexer::Token(Lexy::Lexer::TokenState::Success, -1, startToken.StringOffset, count);
         inputStack.push_back(entry);
         m_KeepToken = true;
 
@@ -202,28 +258,7 @@ namespace Parsy
         for (size_t i = 0; i < production.size(); i++)
         {
             const CFGElement& element = production.at(i);
-            switch (element.Type)
-            {
-            case CFGElementType::Symbol:
-            {
-                m_ActionString += TokenToStr(element.ID);
-                break;
-            }
-            case CFGElementType::NonTerminal:
-            {
-                m_ActionString += RuleToStr(element.ID);
-                break;
-            }
-            case CFGElementType::Epsilon:
-            {
-                m_ActionString += "Empty";
-                break;
-            }
-            case CFGElementType::Dollar:
-            {
-                m_ActionString += "Dollar";
-            }
-            }
+            m_ActionString += CFGElementToStr(element);
             if (i < production.size() - 1)
                 m_ActionString += ' ';
             else
@@ -258,7 +293,7 @@ namespace Parsy
                 std::cout << "FATAL ERROR" << std::endl;
                 return false;
             }
-            Shift(state, action, token);
+            Shift(state, action, CFGElementType::Symbol, token);
         }
         else if (leftElementPriority > rightElementPriority)
         {
@@ -301,7 +336,7 @@ namespace Parsy
                     std::cout << "FATAL ERROR" << std::endl;
                     return false;
                 }
-                Shift(state, action, token);
+                Shift(state, action, CFGElementType::Symbol, token);
                 break;
             }
             case PrecedenceAssociativity::NonAssociate:
@@ -321,7 +356,6 @@ namespace Parsy
 
     bool LRParser::Empty(int32_t state, const BottomUpAction& action, const Lexy::Lexer::Token& token)
     {
-        std::cout << "ERROR" << std::endl;
         return false;
     }
 
@@ -370,6 +404,7 @@ namespace Parsy
 
     void LRParser::ExportResult(const std::string& message, std::vector<std::string>& labels, std::vector<std::string>& elements)
     {
+        elements.push_back(message);
         elements.push_back(message);
         elements.push_back(message);
         elements.push_back(message);

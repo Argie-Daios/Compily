@@ -56,6 +56,7 @@ namespace Lexy
             return Token(TokenState::Failure, -1);
         }
         
+        int32_t offset = m_InputOffset;
         m_TokenContent = m_Input.substr(m_InputOffset, maxLength);
         m_InputOffset += maxLength;
 
@@ -67,7 +68,7 @@ namespace Lexy
             return NextToken();
         }
 
-        return Token(TokenState::Success, tokenType);
+        return Token(TokenState::Success, tokenType, offset, maxLength);
 	}
 
     TokenID_t Lexer::CreateRule(const std::string& regex, const RuleCallback& callback)

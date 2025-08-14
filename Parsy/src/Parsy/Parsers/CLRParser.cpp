@@ -5,18 +5,19 @@
 namespace Parsy
 {
 	CLRParser::CLRParser(const std::ifstream& inputStream, int32_t flags)
-		: LRParser(inputStream), m_Flags(flags)
+		: LRParser(inputStream, flags)
 	{
         m_LR1 = std::make_unique<CLR1>(this);
 	}
 
-	bool CLRParser::OnShift(int32_t state, const BottomUpAction& action, const Lexy::Lexer::Token& token)
+	bool CLRParser::OnShift(int32_t state, const BottomUpAction& action, const CFGElementType& type,
+		const Lexy::Lexer::Token& token)
 	{
 		int32_t rightOperatorPriority = m_TokenMap.at(token.TokenID).Priority;
 		if (m_Flags & CLRParserFlags_ForcePrecedence && rightOperatorPriority > 0)
 		{
 			CFGElement* lastTerminal = GetLastTerminal();
-			if (lastTerminal == nullptr) return LRParser::OnShift(state, action, token);
+			if (lastTerminal == nullptr) return LRParser::OnShift(state, action, type, token);
 			int32_t leftOperatorPriority = m_TokenMap.at(lastTerminal->ID).Priority;
 			if (leftOperatorPriority == 0)
 			{
@@ -31,7 +32,7 @@ namespace Parsy
 						break;
 					}
 				}
-				if (dollarAction == nullptr) return LRParser::OnShift(state, action, token);
+				if (dollarAction == nullptr) return LRParser::OnShift(state, action, type, token);
 				OnReduce(state, *dollarAction);
 				return true;
 			}
@@ -54,7 +55,7 @@ namespace Parsy
 			}
 			else if (leftOperatorPriority < rightOperatorPriority)
 			{
-				return LRParser::OnShift(state, action, token);
+				return LRParser::OnShift(state, action, type, token);
 			}
 			else
 			{
@@ -91,7 +92,7 @@ namespace Parsy
 				case PrecedenceAssociativity::Right:
 				{
 					std::cout << "Reudejfmcis" << std::endl;
-					return LRParser::OnShift(state, action, token);
+					return LRParser::OnShift(state, action, type, token);
 				}
 				case PrecedenceAssociativity::NonAssociate:
 				{
@@ -102,7 +103,7 @@ namespace Parsy
 			}
 		}
 
-		return LRParser::OnShift(state, action, token);
+		return LRParser::OnShift(state, action, type, token);
 	}
 
 	bool CLRParser::OnEmpty(int32_t state, const BottomUpAction& action, const Lexy::Lexer::Token& token)

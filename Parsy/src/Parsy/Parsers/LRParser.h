@@ -16,13 +16,13 @@ namespace Parsy
 	{
 	public:
 		virtual bool Parse() override;
-		virtual std::any& Get(int32_t offset) override;
 	protected:
-		LRParser(const std::ifstream& inputStream);
+		LRParser(const std::ifstream& inputStream, int32_t flags = 0);
 
-		virtual bool OnShift(int32_t state, const BottomUpAction& action,
+		virtual std::any& GetValue(int32_t offset) override;
+		virtual bool OnShift(int32_t state, const BottomUpAction& action, const CFGElementType& type,
 			const Lexy::Lexer::Token& token);
-		bool Shift(int32_t state, const BottomUpAction& action,
+		bool Shift(int32_t state, const BottomUpAction& action, const CFGElementType& type,
 			const Lexy::Lexer::Token& token);
 		virtual bool OnReduce(int32_t state, const BottomUpAction& action);
 		bool Reduce(int32_t state, const BottomUpAction& action);

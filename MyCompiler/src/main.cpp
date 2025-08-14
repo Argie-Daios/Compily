@@ -8,9 +8,22 @@
 int main()
 {
 	std::ifstream stream("SourceCode.src");
+	std::ifstream stream2("SourceCode2.src");
 	//MyLexer lexer(stream);
 
+	std::cout << "Pasring 1st file" << std::endl;
+	std::cout << "===============================" << std::endl;
+
 	MyParser parser(stream);
+
+	std::cout << "===============================" << std::endl << std::endl;
+
+	std::cout << "Pasring 2nd file" << std::endl;
+	std::cout << "===============================" << std::endl;
+
+	MyParser parser2(stream2);
+
+	std::cout << "===============================" << std::endl << std::endl;
 
 	/*std::vector<std::string> labels = { "State", "Stack", "Rofl" };
 	std::vector<std::string> elements = { 

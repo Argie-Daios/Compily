@@ -40,6 +40,7 @@ namespace Parsy
 		: m_ParserRef(parserRef)
 	{
 		m_Symbols.insert({ CFGElementType::Dollar, -1 });
+		m_Symbols.insert({ CFGElementType::Error, -1 });
 	}
 
 	void LR1::RegisterToken(const CFGElement& element)
@@ -87,31 +88,88 @@ namespace Parsy
 
 	void LR1::PrintStateGraph()
 	{
+		std::ofstream stream("StateGraph.txt");
+
 		auto& vertices = m_StateGraph.GetVertices();
-		for (auto& [id, vertex] : vertices)
+		for (const auto& [vertexID, vertexData] : vertices)
 		{
-			std::cout << "[State " << id << "]" << std::endl;
-			auto& edges = m_StateGraph.GetEdgesOfVertex(id);
-			for (auto& edge : edges)
+			stream << "[I" << vertexID << "]\n";
+			stream << "Edges = { ";
+			const auto& edges = m_StateGraph.GetEdgesOfVertex(vertexID);
+			for (size_t i = 0; i < edges.size(); i++)
 			{
-				std::cout << "Edge to " << edge.Destination << " with ";
-				edge.Data.Print();
-				std::cout << std::endl;
-			}
-			for (auto& element : vertex.Data.CFGSet)
-			{
-				std::cout << "\tRule: " << element.Rule << ", Production: " << element.Production
-					<< ", DotPosition: " << element.DotPosition << ", IsAccept: " <<
-					(element.IsAccept ? "true" : "false");
-				std::cout << " | [ ";
-				for (auto& symbol : element.LookAheadSymbols)
+				const StateGraph::Edge& edge = edges.at(i);
+				stream << "I" << edge.Destination << "[";
+				switch (edge.Data.Type)
 				{
-					symbol.Print();
-					std::cout << " ";
+				case CFGElementType::Epsilon:
+				{
+					stream << "Epsilon";
+					break;
 				}
-				std::cout << "]" << std::endl;
+				case CFGElementType::Dollar:
+				{
+					stream << "$";
+					break;
+				}
+				case CFGElementType::Error:
+				{
+					stream << "Error";
+					break;
+				}
+				case CFGElementType::NonTerminal:
+				{
+					stream << m_ParserRef->RuleToStr(edge.Data.ID);
+					break;
+				}
+				case CFGElementType::Symbol:
+				{
+					stream << m_ParserRef->TokenToStr(edge.Data.ID);
+					break;
+				}
+				}
+				stream << "]";
+				if (i < edges.size() - 1)
+					stream << ", ";
 			}
+			stream << " }\n";
+			for (const BottomUpStateProduction& bottomUpProduction : vertexData.Data.CFGSet)
+			{
+				stream << '\t' << (bottomUpProduction.Rule == m_ParserRef->m_StartingRule ?
+					"StartRule" : m_ParserRef->RuleToStr(bottomUpProduction.Rule)) << " --> ";
+				auto& productions = m_ParserRef->m_CFGMap.at(bottomUpProduction.Rule).Grammar.GetProductions();
+				auto& production = productions.at(bottomUpProduction.Production);
+				bool dotAdded = false;
+				for (size_t i = 0; i < production.size(); i++)
+				{
+					const CFGElement& element = production.at(i);
+					if (bottomUpProduction.DotPosition == i)
+					{
+						stream << '.';
+						dotAdded = true;
+					}
+					stream << '[' << m_ParserRef->CFGElementToStr(element) << ']';
+				}
+				if (!dotAdded)
+					stream << '.';
+				stream << ", { ";
+
+				for (size_t i = 0; i < bottomUpProduction.LookAheadSymbols.size(); i++)
+				{
+					auto& it = bottomUpProduction.LookAheadSymbols.begin();
+					std::advance(it, i);
+					const CFGElement& element = *it;
+					stream << m_ParserRef->CFGElementToStr(element);
+					if (i < bottomUpProduction.LookAheadSymbols.size() - 1)
+						stream << ", ";
+				}
+				stream << " }";
+				stream << '\n';
+			}
+			stream << '\n';
 		}
+
+		stream.close();
 	}
 
 	static const char* ActionTypeToString(const BottomUpActionType& type)
@@ -162,13 +220,7 @@ namespace Parsy
 
 			auto& it = m_Symbols.begin();
 			std::advance(it, col);
-
-			if (it->Type == CFGElementType::Dollar)
-			{
-				helperString = "$";
-				return helperString;
-			}
-			helperString = m_ParserRef->TokenToStr(it->ID);
+			helperString = m_ParserRef->CFGElementToStr(*it);
 			return helperString;
 		});
 
@@ -292,6 +344,19 @@ namespace Parsy
 		}
 	}
 
+	struct VectorHash 
+	{
+		size_t operator()(const std::vector<BottomUpStateProduction>& vector) const 
+		{
+			size_t h = 0;
+			for (const BottomUpStateProduction& bottomUpProduction : vector)
+			{
+				h ^= BottomUpStateProductionHash{}(bottomUpProduction);
+			}
+			return h;
+		}
+	};
+
 	void LR1::GenerateStateGraph()
 	{
 		BottomUpState state;
@@ -302,14 +367,14 @@ namespace Parsy
 		ExpandNonTerminals(stateRef);
 
 		std::vector<int32_t> vertexStack = { id };
-		std::unordered_map<BottomUpStateProduction, int32_t, BottomUpStateProductionHash> stateMemo;
+		std::unordered_map<std::vector<BottomUpStateProduction>, int32_t, VectorHash> stateMemo;
 		while (!vertexStack.empty())
 		{
 			int32_t top = vertexStack.back();
 			vertexStack.pop_back();
 
 			auto& state = m_StateGraph.GetVertex(top).Data;
-			std::unordered_map<CFGElement, int32_t> elementMemo;
+			std::unordered_map<CFGElement, std::vector<BottomUpStateProduction>> edgeCollection;
 			for (auto& element : state.CFGSet)
 			{
 				auto& productions = m_ParserRef->m_CFGMap.at(element.Rule).Grammar.GetProductions();
@@ -319,45 +384,52 @@ namespace Parsy
 				{
 					if (element.IsAccept)
 					{
-						auto& state = m_StateGraph.GetVertex(top).Data;
+						BottomUpState& state = m_StateGraph.GetVertex(top).Data;
 						state.IsAccept = true;
 					}
 					continue;
 				}
 
-				auto& dotElement = production.at(element.DotPosition);
-
-				auto& it = stateMemo.find(element);
-				if (it != stateMemo.end())
+				const CFGElement& dotElement = production.at(element.DotPosition);
+				if (edgeCollection.find(dotElement) == edgeCollection.end())
 				{
-					m_StateGraph.PushEdge(top, it->second, dotElement);
-					continue;
+					edgeCollection.emplace(dotElement, std::vector<BottomUpStateProduction>());
 				}
-
-				if (elementMemo.find(dotElement) == elementMemo.end())
-				{
-					int32_t id = m_StateGraph.PushVertex(BottomUpState());
-					m_StateGraph.PushEdge(top, id, dotElement);
-					vertexStack.push_back(id);
-					stateMemo.emplace(element, id);
-					elementMemo.emplace(dotElement, id);
-				}
-
-				int32_t matchStateIndex = elementMemo.at(dotElement);
-				auto& matchState = m_StateGraph.GetVertex(matchStateIndex).Data;
-				matchState.CFGSet.emplace_back(element.Rule, element.Production, element.DotPosition + 1,
-					element.IsAccept);
-				for (auto& element : element.LookAheadSymbols)
-				{
-					matchState.CFGSet.back().LookAheadSymbols.insert(element);
-				}
-				AdvanceIfEpsilon(production, matchState.CFGSet.back());
+				edgeCollection[dotElement].push_back(element);
 			}
 
-			for (auto& [element, vertexID] : elementMemo)
+			for (auto& [element, bottomUpProductions] : edgeCollection)
 			{
-				auto& vertex = m_StateGraph.GetVertex(vertexID).Data;
-				ExpandNonTerminals(vertex);
+				auto& it = stateMemo.find(bottomUpProductions);
+				if (it != stateMemo.end())
+				{
+					m_StateGraph.PushEdge(top, it->second, element);
+					continue;
+				}
+				int32_t id = m_StateGraph.PushVertex(BottomUpState());
+				vertexStack.push_back(id);
+				StateGraph::Vertex& vertex = m_StateGraph.GetVertex(id);
+				m_StateGraph.PushEdge(top, id, element);
+				stateMemo.emplace(bottomUpProductions, id);
+				std::unordered_set<CFGElement> elementMemo;
+				for (BottomUpStateProduction& bottomUpProduction : bottomUpProductions)
+				{
+					auto& productions = m_ParserRef->m_CFGMap.at(bottomUpProduction.Rule).Grammar.GetProductions();
+					auto& production = productions.at(bottomUpProduction.Production);
+					const CFGElement& dotElement = production.at(bottomUpProduction.DotPosition);
+					vertex.Data.CFGSet.emplace_back(bottomUpProduction.Rule, bottomUpProduction.Production,
+						bottomUpProduction.DotPosition + 1, bottomUpProduction.IsAccept);
+					for (auto& element : bottomUpProduction.LookAheadSymbols)
+					{
+						vertex.Data.CFGSet.back().LookAheadSymbols.insert(element);
+					}
+					AdvanceIfEpsilon(production, vertex.Data.CFGSet.back());
+					if (elementMemo.find(dotElement) == elementMemo.end())
+					{
+						ExpandNonTerminals(vertex.Data);
+						elementMemo.insert(dotElement);
+					}
+				}
 			}
 		}
 	}
@@ -488,6 +560,9 @@ namespace Parsy
 	{
 		auto& productions = m_ParserRef->m_CFGMap.at(expandedRule.Rule).Grammar.GetProductions();
 		const Production& production = productions.at(expandedRule.Production);
+
+		if (m_ParserRef->m_Flags & LRParserFlags_IncludeDollarLookAhead)
+			lookaheadSymbols.insert({ CFGElementType::Dollar, -1 });
 
 		for (int32_t i = expandedRule.DotPosition + 1; i < production.size(); i++)
 		{

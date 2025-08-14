@@ -9,10 +9,7 @@ namespace Utilities
 	TableStream::TableStream(const std::string& outFilePath, int32_t streamMode, int32_t flags)
 		: m_OutStream(outFilePath, streamMode), m_Flags(flags)
 	{
-		if (m_OutStream.good())
-		{
-			std::cout << "Good" << std::endl;
-		}
+
 	}
 
 	TableStream::TableStream(std::ofstream& outStream, int32_t flags)

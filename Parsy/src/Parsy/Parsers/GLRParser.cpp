@@ -181,7 +181,7 @@ namespace Parsy
 		return false;
 	}
 
-	std::any& GLRParser::Get(int32_t offset)
+	std::any& GLRParser::GetValue(int32_t offset)
 	{
 		int32_t id = m_Stack.at(m_CurrentAction - m_Elements + offset).State;
 		return m_GSS.m_GSSGraph.GetVertex(id).Data.Entry;

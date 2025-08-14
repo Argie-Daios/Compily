@@ -9,10 +9,7 @@ enum RuleType
 {
 	STATEMENTS,
 	STATEMENT,
-	IF_STATEMENT,
-	ASSIGNMENT,
 	EXPRESSION,
-	NUMBER,
 	CONSTANT
 };
 
@@ -25,13 +22,13 @@ struct Operation
 std::unordered_map<std::string, int32_t> s_SymbolTable;
 
 MyParser::MyParser(const std::ifstream& inputStream)
-	: CLRParser(inputStream, Parsy::CLRParserFlags_ForcePrecedence)
+	: CLRParser(inputStream, Parsy::CLRParserFlags_ForcePrecedence | Parsy::LRParserFlags_IncludeDollarLookAhead)
 {
 	m_Lexer = new MyLexer(inputStream);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	DeclareTokenType<int32_t>(NUMBER);
+	DeclareTokenType<int32_t>(INTEGER);
 	DeclareTokenType<std::string>(STRING);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,13 +39,26 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	StartRule(STATEMENT);
+	DeclareRootRule(STATEMENTS);
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	BeginRule(STATEMENTS);
+
+	Add(Parsy::CFGElementType::NonTerminal, STATEMENT);
+	Add(Parsy::CFGElementType::NonTerminal, STATEMENTS);
+
+	Union();
+
+	Add(Parsy::CFGElementType::NonTerminal, STATEMENT);
+
+	EndRule();
 
 	BeginRule<int32_t>(STATEMENT);
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION );
-	Add(Parsy::CFGElementType::Symbol, SEMICOLON, [this](std::any& any) {
-		Constant& expressionValue = std::any_cast<Constant&>(Get(0));
+	Add(Parsy::CFGElementType::Symbol, SEMICOLON, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(0);
 
 		switch (expressionValue.Type)
 		{
@@ -65,6 +75,11 @@ MyParser::MyParser(const std::ifstream& inputStream)
 		}
 		});
 
+	Union();
+
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+	Add(Parsy::CFGElementType::Error, [](Parsy::EntryValue& any) { std::cout << "Missing ';'" << std::endl; });
+
 	EndRule();
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,10 +88,10 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 	Add(Parsy::CFGElementType::Symbol, PLUS);
-	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](std::any& any) {
-		Constant& expressionValue = std::any_cast<Constant&>(any);
-		Constant& leftExpressionValue = std::any_cast<Constant&>(Get(0));
-		Constant& rightExpressionValue = std::any_cast<Constant&>(Get(2));
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(any);
+		Constant& leftExpressionValue = Get<Constant>(0);
+		Constant& rightExpressionValue = Get<Constant>(2);
 		expressionValue = ExecuteOperation(0, leftExpressionValue, rightExpressionValue);
 		std::cout << leftExpressionValue.IntVal << " + " << rightExpressionValue.IntVal << std::endl;
 		});
@@ -85,10 +100,10 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 	Add(Parsy::CFGElementType::Symbol, MULTIPLY);
-	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](std::any& any) {
-		Constant& expressionValue = std::any_cast<Constant&>(any);
-		Constant& leftExpressionValue = std::any_cast<Constant&>(Get(0));
-		Constant& rightExpressionValue = std::any_cast<Constant&>(Get(2));
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(any);
+		Constant& leftExpressionValue = Get<Constant>(0);
+		Constant& rightExpressionValue = Get<Constant>(2);
 		expressionValue = ExecuteOperation(1, leftExpressionValue, rightExpressionValue);
 		std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
 		});
@@ -97,10 +112,10 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 	Add(Parsy::CFGElementType::Symbol, POWER);
-	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](std::any& any) {
-		Constant& expressionValue = std::any_cast<Constant&>(any);
-		Constant& leftExpressionValue = std::any_cast<Constant&>(Get(0));
-		Constant& rightExpressionValue = std::any_cast<Constant&>(Get(2));
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(any);
+		Constant& leftExpressionValue = Get<Constant>(0);
+		Constant& rightExpressionValue = Get<Constant>(2);
 		expressionValue = ExecuteOperation(2, leftExpressionValue, rightExpressionValue);
 		std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
 		});
@@ -109,17 +124,35 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	Add(Parsy::CFGElementType::Symbol, LEFT_PARENTHESIS);
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS, [this](std::any& any) {
-		Constant& expressionValue = std::any_cast<Constant&>(any);
-		Constant& innerExpressionValue = std::any_cast<Constant&>(Get(1));
+	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(any);
+		Constant& innerExpressionValue = Get<Constant>(1);
 		expressionValue = innerExpressionValue;
 		});
 
 	Union();
 
-	Add(Parsy::CFGElementType::NonTerminal, CONSTANT, [this](std::any& any) {
-		Constant& expressionValue = std::any_cast<Constant&>(any);
-		Constant& innerExpressionValue = std::any_cast<Constant&>(Get(0));
+	Add(Parsy::CFGElementType::Symbol, LEFT_PARENTHESIS);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+	Add(Parsy::CFGElementType::Error, [](Parsy::EntryValue& any) { std::cout << "Missing ')'" << std::endl; });
+
+	Union();
+
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+	Add(Parsy::CFGElementType::Error, [](Parsy::EntryValue& any) { std::cout << "Missing '('" << std::endl; });
+	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS);
+
+	Union();
+
+	Add(Parsy::CFGElementType::Symbol, LEFT_PARENTHESIS);
+	Add(Parsy::CFGElementType::Error, [](Parsy::EntryValue& any) { std::cout << "Empty Parenthesis" << std::endl; });
+	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS);
+
+	Union();
+
+	Add(Parsy::CFGElementType::NonTerminal, CONSTANT, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(any);
+		Constant& innerExpressionValue = Get<Constant>(0);
 		expressionValue = innerExpressionValue;
 		});
 
@@ -129,18 +162,18 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	BeginRule<Constant>(CONSTANT);
 
-	Add(Parsy::CFGElementType::Symbol, INTEGER, [this](std::any& any) {
-		Constant& constantValue = std::any_cast<Constant&>(any);
-		int32_t& integerValue = std::any_cast<int32_t&>(Get(0));
+	Add(Parsy::CFGElementType::Symbol, INTEGER, [this](Parsy::EntryValue& any) {
+		Constant& constantValue = Get<Constant>(any);
+		int32_t& integerValue = Get<int32_t>(0);
 		constantValue.Type = ConstantValueType::Int;
 		constantValue.IntVal = integerValue;
 		});
 
 	Union();
 
-	Add(Parsy::CFGElementType::Symbol, STRING, [this](std::any& any) {
-		Constant& constantValue = std::any_cast<Constant&>(any);
-		std::string& stringValue = std::any_cast<std::string&>(Get(0));
+	Add(Parsy::CFGElementType::Symbol, STRING, [this](Parsy::EntryValue& any) {
+		Constant& constantValue = Get<Constant>(any);
+		std::string& stringValue = Get<std::string>(0);
 		constantValue.Type = ConstantValueType::String;
 		constantValue.StrVal = stringValue;
 		});
@@ -153,7 +186,7 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 }
 
-const std::string MyParser::RuleToStr(Parsy::RuleID_t ruleID)
+const std::string MyParser::RuleToStr(Parsy::RuleID_t ruleID) const
 {
 	switch (ruleID)
 	{
@@ -166,7 +199,7 @@ const std::string MyParser::RuleToStr(Parsy::RuleID_t ruleID)
 	return Parser::RuleToStr(ruleID);
 }
 
-const std::string MyParser::TokenToStr(Lexy::TokenID_t tokenID)
+const std::string MyParser::TokenToStr(Lexy::TokenID_t tokenID) const
 {
 	switch (tokenID)
 	{

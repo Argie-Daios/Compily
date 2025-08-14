@@ -32,10 +32,12 @@ namespace Lexy
 		{
 			TokenState State;
 			TokenID_t TokenID;
+			size_t StringOffset = 0;
+			size_t StringCount = 0;
 
 			Token() = default;
-			Token(const TokenState& state, TokenID_t id)
-				: State(state), TokenID(id)
+			Token(const TokenState& state, TokenID_t id, size_t offset = 0, size_t count = 0)
+				: State(state), TokenID(id), StringOffset(offset), StringCount(count)
 			{
 
 			}
@@ -59,6 +61,7 @@ namespace Lexy
 		inline const std::string& GetTokenContent() { return m_TokenContent; }
 		inline void AdvanceLineCount() { m_LineCount++; }
 		inline uint32_t GetLineCount() { return m_LineCount; }
+		inline const std::string& GetInputString() const { return m_Input; }
 	private:
 		struct Rule
 		{

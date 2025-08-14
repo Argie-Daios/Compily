@@ -121,10 +121,16 @@ namespace Parsy
 	{
 		size_t operator()(const BottomUpStateProduction& data) const
 		{
-			size_t h1 = std::hash<int32_t>{}(static_cast<int32_t>(data.Rule));
+			size_t h1 = std::hash<int32_t>{}(data.Rule);
 			size_t h2 = std::hash<int32_t>{}(data.Production);
-			size_t h3 = std::hash<int32_t>{}(data.DotPosition + (int32_t)data.LookAheadSymbols.size());
-			return h1 ^ (h2 << 1) ^ (h3 << 2);
+			size_t h3 = std::hash<int32_t>{}(data.DotPosition);
+
+			size_t h4 = 0;
+			for (const auto& sym : data.LookAheadSymbols)
+				h4 ^= std::hash<int32_t>{}(static_cast<int32_t>(sym.Type)) + 0x9e3779b9 + (h4 << 6) + (h4 >> 2)
+				^ std::hash<int32_t>{}(sym.ID);
+
+			return h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3);
 		}
 	};
 

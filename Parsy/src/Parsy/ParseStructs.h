@@ -6,11 +6,13 @@
 
 namespace Parsy
 {
+	using EntryValue = std::any;
 	struct ParseEntryData
 	{
 		int32_t State;
 		CFGElement Symbol;
-		std::any Entry;
+		Lexy::Lexer::Token Token;
+		EntryValue Entry;
 		bool IsAccept = false;
 
 		ParseEntryData() = default;
