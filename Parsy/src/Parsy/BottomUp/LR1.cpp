@@ -140,9 +140,9 @@ namespace Parsy
 				auto& productions = m_ParserRef->m_CFGMap.at(bottomUpProduction.Rule).Grammar.GetProductions();
 				auto& production = productions.at(bottomUpProduction.Production);
 				bool dotAdded = false;
-				for (size_t i = 0; i < production.size(); i++)
+				for (size_t i = 0; i < production.Elements.size(); i++)
 				{
-					const CFGElement& element = production.at(i);
+					const CFGElement& element = production.Elements.at(i);
 					if (bottomUpProduction.DotPosition == i)
 					{
 						stream << '.';
@@ -380,7 +380,7 @@ namespace Parsy
 				auto& productions = m_ParserRef->m_CFGMap.at(element.Rule).Grammar.GetProductions();
 				auto& production = productions.at(element.Production);
 
-				if (element.DotPosition >= production.size())
+				if (element.DotPosition >= production.Elements.size())
 				{
 					if (element.IsAccept)
 					{
@@ -390,7 +390,7 @@ namespace Parsy
 					continue;
 				}
 
-				const CFGElement& dotElement = production.at(element.DotPosition);
+				const CFGElement& dotElement = production.Elements.at(element.DotPosition);
 				if (edgeCollection.find(dotElement) == edgeCollection.end())
 				{
 					edgeCollection.emplace(dotElement, std::vector<BottomUpStateProduction>());
@@ -416,14 +416,14 @@ namespace Parsy
 				{
 					auto& productions = m_ParserRef->m_CFGMap.at(bottomUpProduction.Rule).Grammar.GetProductions();
 					auto& production = productions.at(bottomUpProduction.Production);
-					const CFGElement& dotElement = production.at(bottomUpProduction.DotPosition);
+					const CFGElement& dotElement = production.Elements.at(bottomUpProduction.DotPosition);
 					vertex.Data.CFGSet.emplace_back(bottomUpProduction.Rule, bottomUpProduction.Production,
 						bottomUpProduction.DotPosition + 1, bottomUpProduction.IsAccept);
 					for (auto& element : bottomUpProduction.LookAheadSymbols)
 					{
 						vertex.Data.CFGSet.back().LookAheadSymbols.insert(element);
 					}
-					AdvanceIfEpsilon(production, vertex.Data.CFGSet.back());
+					AdvanceIfEpsilon(production.Elements, vertex.Data.CFGSet.back());
 					if (elementMemo.find(dotElement) == elementMemo.end())
 					{
 						ExpandNonTerminals(vertex.Data);
@@ -474,7 +474,7 @@ namespace Parsy
 			{
 				auto& productions = m_ParserRef->m_CFGMap.at(stateCFG.Rule).Grammar.GetProductions();
 				auto& production = productions.at(stateCFG.Production);
-				if (stateCFG.DotPosition >= production.size())
+				if (stateCFG.DotPosition >= production.Elements.size())
 				{
 					HandleReduceTable(i, stateCFG);
 				}
@@ -543,9 +543,9 @@ namespace Parsy
 		auto& set = m_RulesSets.at(ruleID).FirstSet;
 		Parser::RuleProperties& cfg = m_ParserRef->m_CFGMap.at(ruleID);
 		auto& productions = cfg.Grammar.GetProductions();
-		for (const Production& production : productions)
+		for (const ProductionData& production : productions)
 		{
-			const std::unordered_set<CFGElement>& productionSet = CalculateFirstOfProduction(production);
+			const std::unordered_set<CFGElement>& productionSet = CalculateFirstOfProduction(production.Elements);
 			for (const CFGElement& element : productionSet)
 			{
 				set.insert(element);
@@ -559,14 +559,14 @@ namespace Parsy
 		BottomUpStateProduction& expandedRule)
 	{
 		auto& productions = m_ParserRef->m_CFGMap.at(expandedRule.Rule).Grammar.GetProductions();
-		const Production& production = productions.at(expandedRule.Production);
+		const ProductionData& production = productions.at(expandedRule.Production);
 
 		if (m_ParserRef->m_Flags & LRParserFlags_IncludeDollarLookAhead)
 			lookaheadSymbols.insert({ CFGElementType::Dollar, -1 });
 
-		for (int32_t i = expandedRule.DotPosition + 1; i < production.size(); i++)
+		for (int32_t i = expandedRule.DotPosition + 1; i < production.Elements.size(); i++)
 		{
-			const CFGElement& element = production.at(i);
+			const CFGElement& element = production.Elements.at(i);
 			switch (element.Type)
 			{
 			case CFGElementType::NonTerminal:
@@ -581,7 +581,7 @@ namespace Parsy
 				{
 					return;
 				}
-				if (i < production.size() - 1)
+				if (i < production.Elements.size() - 1)
 				{
 					auto& epsilonIT = lookaheadSymbols.find({ CFGElementType::Epsilon, -1 });
 					lookaheadSymbols.erase(epsilonIT);
@@ -590,7 +590,7 @@ namespace Parsy
 			}
 			case CFGElementType::Epsilon:
 			{
-				if (i == production.size() - 1)
+				if (i == production.Elements.size() - 1)
 				{
 					lookaheadSymbols.insert(element);
 				}
@@ -646,17 +646,17 @@ namespace Parsy
 			{
 				for (const auto& production : ruleProps.Grammar.GetProductions())
 				{
-					for (size_t i = 0; i < production.size(); ++i)
+					for (size_t i = 0; i < production.Elements.size(); ++i)
 					{
-						const CFGElement& B = production[i];
+						const CFGElement& B = production.Elements[i];
 						if (B.Type != CFGElementType::NonTerminal) continue;
 
 						std::unordered_set<CFGElement> trailer;
 						bool addFollowOfLHS = false;
 
-						if (i + 1 < production.size())
+						if (i + 1 < production.Elements.size())
 						{
-							Production beta(production.begin() + i + 1, production.end());
+							Production beta(production.Elements.begin() + i + 1, production.Elements.end());
 							auto betaFirst = CalculateFirstOfProduction(beta);
 							for (const auto& sym : betaFirst)
 							{
@@ -703,13 +703,13 @@ namespace Parsy
 		{
 			auto& element = state.CFGSet.at(index);
 			auto& productions = m_ParserRef->m_CFGMap.at(element.Rule).Grammar.GetProductions();
-			const Production& production = productions.at(element.Production);
-			if (element.DotPosition >= production.size())
+			const ProductionData& production = productions.at(element.Production);
+			if (element.DotPosition >= production.Elements.size())
 			{
 				index++;
 				continue;
 			}
-			auto& dotElement = production.at(element.DotPosition);
+			auto& dotElement = production.Elements.at(element.DotPosition);
 
 			if (dotElement.Type == CFGElementType::NonTerminal &&
 				calculatedProductions.find(dotElement.ID) == calculatedProductions.end())
@@ -723,7 +723,7 @@ namespace Parsy
 					GenerateLookAheadSymbols(lookAheadSymbols, element);
 					state.CFGSet.emplace_back(dotElement.ID, i, 0, false);
 					state.CFGSet.back().LookAheadSymbols = std::move(lookAheadSymbols);
-					AdvanceIfEpsilon(nonTerminalProductions.at(i), state.CFGSet.back());
+					AdvanceIfEpsilon(nonTerminalProductions.at(i).Elements, state.CFGSet.back());
 				}
 				calculatedProductions.insert(dotElement.ID);
 			}

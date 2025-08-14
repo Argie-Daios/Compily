@@ -1,423 +1,375 @@
 [I0]
-Edges = { I1[Statements], I2[Statement], I3[Expression], I4[LeftParenthesis], I5[Constant], I6[Integer], I7[String] }
-	StartRule --> .[Statements], { Dollar }
-	Statements --> .[Statement][Statements], { Dollar }
-	Statements --> .[Statement], { Dollar }
-	Statement --> .[Expression][Semicolon], { String, Dollar, LeftParenthesis, Integer }
-	Statement --> .[Expression][Error], { Dollar, String, LeftParenthesis, Integer }
-	Expression --> .[Expression][Plus][Expression], { Dollar, Semicolon }
-	Expression --> .[Expression][Multiply][Expression], { Dollar, Semicolon }
-	Expression --> .[Expression][Power][Expression], { Dollar, Semicolon }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar, Semicolon }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar, Semicolon }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar, Semicolon }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar, Semicolon }
-	Expression --> .[Constant], { Dollar, Semicolon }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
+Edges = { I1[Statements], I2[Statement], I3[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
+	StartRule --> .[Statements], { $ }
+	Statements --> .[Statement][Statements], { $ }
+	Statements --> .[Statement], { $ }
+	Statement --> .[Expression][Semicolon], { LeftParenthesis, Minus, Integer, String }
+	Statement --> .[Expression][Error], { Minus, LeftParenthesis, Integer, String }
+	Expression --> .[Expression][Plus][Expression], { Semicolon }
+	Expression --> .[Expression][Multiply][Expression], { Semicolon }
+	Expression --> .[Expression][Power][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
+	Expression --> .[Minus][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
+	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
+	Expression --> .[Constant], { Semicolon }
+	Constant --> .[Integer], { Semicolon }
+	Constant --> .[String], { Semicolon }
 
 [I1]
 Edges = {  }
-	StartRule --> [Statements]., { Dollar }
+	StartRule --> [Statements]., { $ }
 
 [I2]
-Edges = { I51[Statements], I2[Statement], I3[Expression], I4[LeftParenthesis], I5[Constant], I6[Integer], I7[String] }
-	Statements --> [Statement].[Statements], { Dollar }
-	Statements --> .[Statement][Statements], { Dollar }
-	Statements --> .[Statement], { Dollar }
-	Statement --> .[Expression][Semicolon], { String, Dollar, LeftParenthesis, Integer }
-	Statement --> .[Expression][Error], { Dollar, String, LeftParenthesis, Integer }
-	Expression --> .[Expression][Plus][Expression], { Dollar, Semicolon }
-	Expression --> .[Expression][Multiply][Expression], { Dollar, Semicolon }
-	Expression --> .[Expression][Power][Expression], { Dollar, Semicolon }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar, Semicolon }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar, Semicolon }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar, Semicolon }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar, Semicolon }
-	Expression --> .[Constant], { Dollar, Semicolon }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
-	Statements --> [Statement]., { Dollar }
+Edges = { I44[Statements], I2[Statement], I3[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
+	Statements --> [Statement].[Statements], { $ }
+	Statements --> .[Statement][Statements], { $ }
+	Statements --> .[Statement], { $ }
+	Statement --> .[Expression][Semicolon], { LeftParenthesis, Minus, Integer, String }
+	Statement --> .[Expression][Error], { Minus, LeftParenthesis, Integer, String }
+	Expression --> .[Expression][Plus][Expression], { Semicolon }
+	Expression --> .[Expression][Multiply][Expression], { Semicolon }
+	Expression --> .[Expression][Power][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
+	Expression --> .[Minus][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
+	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
+	Expression --> .[Constant], { Semicolon }
+	Constant --> .[Integer], { Semicolon }
+	Constant --> .[String], { Semicolon }
+	Statements --> [Statement]., { $ }
 
 [I3]
-Edges = { I42[Semicolon], I43[Error], I44[Plus], I45[Multiply], I46[Power] }
-	Statement --> [Expression].[Semicolon], { String, Dollar, LeftParenthesis, Integer }
-	Statement --> [Expression].[Error], { Dollar, String, LeftParenthesis, Integer }
-	Expression --> [Expression].[Plus][Expression], { Dollar, Semicolon }
-	Expression --> [Expression].[Multiply][Expression], { Dollar, Semicolon }
-	Expression --> [Expression].[Power][Expression], { Dollar, Semicolon }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar, Semicolon }
+Edges = { I42[Semicolon], I43[Error], I34[Plus], I35[Multiply], I36[Power] }
+	Statement --> [Expression].[Semicolon], { LeftParenthesis, Minus, Integer, String }
+	Statement --> [Expression].[Error], { Minus, LeftParenthesis, Integer, String }
+	Expression --> [Expression].[Plus][Expression], { Semicolon }
+	Expression --> [Expression].[Multiply][Expression], { Semicolon }
+	Expression --> [Expression].[Power][Expression], { Semicolon }
+	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
 
 [I4]
-Edges = { I8[Expression], I9[LeftParenthesis], I10[Error], I11[Constant], I6[Integer], I7[String] }
-	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { Dollar, Semicolon }
-	Expression --> .[Expression][Plus][Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[Constant], { Dollar, RightParenthesis }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
-	Expression --> [LeftParenthesis].[Expression][Error], { Dollar, Semicolon }
-	Expression --> [LeftParenthesis].[Error][RightParenthesis], { Dollar, Semicolon }
+Edges = { I33[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
+	Expression --> [Minus].[Expression], { Semicolon }
+	Expression --> .[Expression][Plus][Expression], { Semicolon }
+	Expression --> .[Expression][Multiply][Expression], { Semicolon }
+	Expression --> .[Expression][Power][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
+	Expression --> .[Minus][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
+	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
+	Expression --> .[Constant], { Semicolon }
+	Constant --> .[Integer], { Semicolon }
+	Constant --> .[String], { Semicolon }
 
 [I5]
-Edges = {  }
-	Expression --> [Constant]., { Dollar, Semicolon }
+Edges = { I9[Expression], I10[Minus], I11[LeftParenthesis], I12[Error], I13[Constant], I14[Integer], I15[String] }
+	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { Semicolon }
+	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
+	Expression --> .[Minus][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[Constant], { RightParenthesis }
+	Constant --> .[Integer], { RightParenthesis }
+	Constant --> .[String], { RightParenthesis }
+	Expression --> [LeftParenthesis].[Expression][Error], { Semicolon }
+	Expression --> [LeftParenthesis].[Error][RightParenthesis], { Semicolon }
 
 [I6]
 Edges = {  }
-	Constant --> [Integer]., { Dollar }
+	Expression --> [Constant]., { Semicolon }
 
 [I7]
 Edges = {  }
-	Constant --> [String]., { Dollar }
+	Constant --> [Integer]., { Semicolon }
 
 [I8]
-Edges = { I16[Multiply], I40[RightParenthesis], I18[Plus], I19[Power], I41[Error] }
-	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { Dollar, Semicolon }
-	Expression --> [Expression].[Plus][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> [LeftParenthesis][Expression].[Error], { Dollar, Semicolon }
+Edges = {  }
+	Constant --> [String]., { Semicolon }
 
 [I9]
-Edges = { I13[Expression], I9[LeftParenthesis], I14[Error], I11[Constant], I6[Integer], I7[String] }
-	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[Constant], { Dollar, RightParenthesis }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
-	Expression --> [LeftParenthesis].[Expression][Error], { Dollar, RightParenthesis }
-	Expression --> [LeftParenthesis].[Error][RightParenthesis], { Dollar, RightParenthesis }
+Edges = { I20[Multiply], I31[RightParenthesis], I22[Plus], I23[Power], I32[Error] }
+	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { Semicolon }
+	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
+	Expression --> [LeftParenthesis][Expression].[Error], { Semicolon }
 
 [I10]
-Edges = { I12[RightParenthesis] }
-	Expression --> [LeftParenthesis][Error].[RightParenthesis], { Dollar, Semicolon }
+Edges = { I30[Expression], I10[Minus], I11[LeftParenthesis], I13[Constant], I14[Integer], I15[String] }
+	Expression --> [Minus].[Expression], { RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
+	Expression --> .[Minus][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[Constant], { RightParenthesis }
+	Constant --> .[Integer], { RightParenthesis }
+	Constant --> .[String], { RightParenthesis }
 
 [I11]
-Edges = {  }
-	Expression --> [Constant]., { Dollar, RightParenthesis }
+Edges = { I17[Expression], I10[Minus], I11[LeftParenthesis], I18[Error], I13[Constant], I14[Integer], I15[String] }
+	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
+	Expression --> .[Minus][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[Constant], { RightParenthesis }
+	Constant --> .[Integer], { RightParenthesis }
+	Constant --> .[String], { RightParenthesis }
+	Expression --> [LeftParenthesis].[Expression][Error], { RightParenthesis }
+	Expression --> [LeftParenthesis].[Error][RightParenthesis], { RightParenthesis }
 
 [I12]
-Edges = {  }
-	Expression --> [LeftParenthesis][Error][RightParenthesis]., { Dollar, Semicolon }
+Edges = { I16[RightParenthesis] }
+	Expression --> [LeftParenthesis][Error].[RightParenthesis], { Semicolon }
 
 [I13]
-Edges = { I16[Multiply], I17[RightParenthesis], I18[Plus], I19[Power], I20[Error] }
-	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> [LeftParenthesis][Expression].[Error], { Dollar, RightParenthesis }
+Edges = {  }
+	Expression --> [Constant]., { RightParenthesis }
 
 [I14]
-Edges = { I15[RightParenthesis] }
-	Expression --> [LeftParenthesis][Error].[RightParenthesis], { Dollar, RightParenthesis }
+Edges = {  }
+	Constant --> [Integer]., { RightParenthesis }
 
 [I15]
 Edges = {  }
-	Expression --> [LeftParenthesis][Error][RightParenthesis]., { Dollar, RightParenthesis }
+	Constant --> [String]., { RightParenthesis }
 
 [I16]
-Edges = { I39[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Multiply].[Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
+Edges = {  }
+	Expression --> [LeftParenthesis][Error][RightParenthesis]., { Semicolon }
 
 [I17]
-Edges = {  }
-	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { Dollar, RightParenthesis }
+Edges = { I20[Multiply], I21[RightParenthesis], I22[Plus], I23[Power], I24[Error] }
+	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
+	Expression --> [LeftParenthesis][Expression].[Error], { RightParenthesis }
 
 [I18]
-Edges = { I38[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Plus].[Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
+Edges = { I19[RightParenthesis] }
+	Expression --> [LeftParenthesis][Error].[RightParenthesis], { RightParenthesis }
 
 [I19]
-Edges = { I22[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Power].[Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
+Edges = {  }
+	Expression --> [LeftParenthesis][Error][RightParenthesis]., { RightParenthesis }
 
 [I20]
-Edges = { I21[RightParenthesis] }
-	Expression --> [Expression][Error].[RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> [LeftParenthesis][Expression][Error]., { Dollar, RightParenthesis }
+Edges = { I29[Expression], I10[Minus], I11[LeftParenthesis], I13[Constant], I14[Integer], I15[String] }
+	Expression --> [Expression][Multiply].[Expression], { RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
+	Expression --> .[Minus][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[Constant], { RightParenthesis }
+	Constant --> .[Integer], { RightParenthesis }
+	Constant --> .[String], { RightParenthesis }
 
 [I21]
 Edges = {  }
-	Expression --> [Expression][Error][RightParenthesis]., { Dollar, RightParenthesis }
+	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { RightParenthesis }
 
 [I22]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Power][Expression]., { Dollar, RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
+Edges = { I28[Expression], I10[Minus], I11[LeftParenthesis], I13[Constant], I14[Integer], I15[String] }
+	Expression --> [Expression][Plus].[Expression], { RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
+	Expression --> .[Minus][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[Constant], { RightParenthesis }
+	Constant --> .[Integer], { RightParenthesis }
+	Constant --> .[String], { RightParenthesis }
 
 [I23]
-Edges = { I25[Expression], I9[LeftParenthesis], I26[Error], I11[Constant], I6[Integer], I7[String] }
-	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { Dollar }
-	Expression --> .[Expression][Plus][Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar, RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> .[Constant], { Dollar, RightParenthesis }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
-	Expression --> [LeftParenthesis].[Expression][Error], { Dollar }
-	Expression --> [LeftParenthesis].[Error][RightParenthesis], { Dollar }
+Edges = { I26[Expression], I10[Minus], I11[LeftParenthesis], I13[Constant], I14[Integer], I15[String] }
+	Expression --> [Expression][Power].[Expression], { RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
+	Expression --> .[Minus][Expression], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
+	Expression --> .[Constant], { RightParenthesis }
+	Constant --> .[Integer], { RightParenthesis }
+	Constant --> .[String], { RightParenthesis }
 
 [I24]
-Edges = {  }
-	Expression --> [Constant]., { Dollar }
+Edges = { I25[RightParenthesis] }
+	Expression --> [Expression][Error].[RightParenthesis], { RightParenthesis }
+	Expression --> [LeftParenthesis][Expression][Error]., { RightParenthesis }
 
 [I25]
-Edges = { I16[Multiply], I28[RightParenthesis], I18[Plus], I19[Power], I29[Error] }
-	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { Dollar }
-	Expression --> [Expression].[Plus][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { Dollar, RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> [LeftParenthesis][Expression].[Error], { Dollar }
+Edges = {  }
+	Expression --> [Expression][Error][RightParenthesis]., { RightParenthesis }
 
 [I26]
-Edges = { I27[RightParenthesis] }
-	Expression --> [LeftParenthesis][Error].[RightParenthesis], { Dollar }
+Edges = { I22[Plus], I20[Multiply], I23[Power], I27[Error] }
+	Expression --> [Expression][Power][Expression]., { RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
 
 [I27]
-Edges = {  }
-	Expression --> [LeftParenthesis][Error][RightParenthesis]., { Dollar }
+Edges = { I25[RightParenthesis] }
+	Expression --> [Expression][Error].[RightParenthesis], { RightParenthesis }
 
 [I28]
-Edges = {  }
-	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { Dollar }
+Edges = { I22[Plus], I20[Multiply], I23[Power], I27[Error] }
+	Expression --> [Expression][Plus][Expression]., { RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
 
 [I29]
-Edges = { I21[RightParenthesis] }
-	Expression --> [Expression][Error].[RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> [LeftParenthesis][Expression][Error]., { Dollar }
+Edges = { I22[Plus], I20[Multiply], I23[Power], I27[Error] }
+	Expression --> [Expression][Multiply][Expression]., { RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
 
 [I30]
-Edges = { I37[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Plus].[Expression], { Dollar }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
+Edges = { I22[Plus], I20[Multiply], I23[Power], I27[Error] }
+	Expression --> [Minus][Expression]., { RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
 
 [I31]
-Edges = { I36[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Multiply].[Expression], { Dollar }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
+Edges = {  }
+	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { Semicolon }
 
 [I32]
-Edges = { I35[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Power].[Expression], { Dollar }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
+Edges = { I25[RightParenthesis] }
+	Expression --> [Expression][Error].[RightParenthesis], { RightParenthesis }
+	Expression --> [LeftParenthesis][Expression][Error]., { Semicolon }
 
 [I33]
-Edges = { I34[RightParenthesis] }
-	Expression --> [Expression][Error].[RightParenthesis], { Dollar }
+Edges = { I34[Plus], I35[Multiply], I36[Power], I37[Error] }
+	Expression --> [Minus][Expression]., { Semicolon }
+	Expression --> [Expression].[Plus][Expression], { Semicolon }
+	Expression --> [Expression].[Multiply][Expression], { Semicolon }
+	Expression --> [Expression].[Power][Expression], { Semicolon }
+	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
 
 [I34]
-Edges = {  }
-	Expression --> [Expression][Error][RightParenthesis]., { Dollar }
+Edges = { I41[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
+	Expression --> [Expression][Plus].[Expression], { Semicolon }
+	Expression --> .[Expression][Plus][Expression], { Semicolon }
+	Expression --> .[Expression][Multiply][Expression], { Semicolon }
+	Expression --> .[Expression][Power][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
+	Expression --> .[Minus][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
+	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
+	Expression --> .[Constant], { Semicolon }
+	Constant --> .[Integer], { Semicolon }
+	Constant --> .[String], { Semicolon }
 
 [I35]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Power][Expression]., { Dollar }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
+Edges = { I40[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
+	Expression --> [Expression][Multiply].[Expression], { Semicolon }
+	Expression --> .[Expression][Plus][Expression], { Semicolon }
+	Expression --> .[Expression][Multiply][Expression], { Semicolon }
+	Expression --> .[Expression][Power][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
+	Expression --> .[Minus][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
+	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
+	Expression --> .[Constant], { Semicolon }
+	Constant --> .[Integer], { Semicolon }
+	Constant --> .[String], { Semicolon }
 
 [I36]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Multiply][Expression]., { Dollar }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
+Edges = { I39[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
+	Expression --> [Expression][Power].[Expression], { Semicolon }
+	Expression --> .[Expression][Plus][Expression], { Semicolon }
+	Expression --> .[Expression][Multiply][Expression], { Semicolon }
+	Expression --> .[Expression][Power][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
+	Expression --> .[Minus][Expression], { Semicolon }
+	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
+	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
+	Expression --> .[Constant], { Semicolon }
+	Constant --> .[Integer], { Semicolon }
+	Constant --> .[String], { Semicolon }
 
 [I37]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Plus][Expression]., { Dollar }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
+Edges = { I38[RightParenthesis] }
+	Expression --> [Expression][Error].[RightParenthesis], { Semicolon }
 
 [I38]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Plus][Expression]., { Dollar, RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
+Edges = {  }
+	Expression --> [Expression][Error][RightParenthesis]., { Semicolon }
 
 [I39]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Multiply][Expression]., { Dollar, RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
+Edges = { I34[Plus], I35[Multiply], I36[Power], I37[Error] }
+	Expression --> [Expression][Power][Expression]., { Semicolon }
+	Expression --> [Expression].[Plus][Expression], { Semicolon }
+	Expression --> [Expression].[Multiply][Expression], { Semicolon }
+	Expression --> [Expression].[Power][Expression], { Semicolon }
+	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
 
 [I40]
-Edges = {  }
-	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { Dollar, Semicolon }
+Edges = { I34[Plus], I35[Multiply], I36[Power], I37[Error] }
+	Expression --> [Expression][Multiply][Expression]., { Semicolon }
+	Expression --> [Expression].[Plus][Expression], { Semicolon }
+	Expression --> [Expression].[Multiply][Expression], { Semicolon }
+	Expression --> [Expression].[Power][Expression], { Semicolon }
+	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
 
 [I41]
-Edges = { I21[RightParenthesis] }
-	Expression --> [Expression][Error].[RightParenthesis], { Dollar, RightParenthesis }
-	Expression --> [LeftParenthesis][Expression][Error]., { Dollar, Semicolon }
+Edges = { I34[Plus], I35[Multiply], I36[Power], I37[Error] }
+	Expression --> [Expression][Plus][Expression]., { Semicolon }
+	Expression --> [Expression].[Plus][Expression], { Semicolon }
+	Expression --> [Expression].[Multiply][Expression], { Semicolon }
+	Expression --> [Expression].[Power][Expression], { Semicolon }
+	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
 
 [I42]
 Edges = {  }
-	Statement --> [Expression][Semicolon]., { String, Dollar, LeftParenthesis, Integer }
+	Statement --> [Expression][Semicolon]., { LeftParenthesis, Minus, Integer, String }
 
 [I43]
-Edges = { I50[RightParenthesis] }
-	Statement --> [Expression][Error]., { Dollar, String, LeftParenthesis, Integer }
-	Expression --> [Expression][Error].[RightParenthesis], { Dollar, Semicolon }
+Edges = { I38[RightParenthesis] }
+	Statement --> [Expression][Error]., { Minus, LeftParenthesis, Integer, String }
+	Expression --> [Expression][Error].[RightParenthesis], { Semicolon }
 
 [I44]
-Edges = { I49[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Plus].[Expression], { Dollar, Semicolon }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
-
-[I45]
-Edges = { I48[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Multiply].[Expression], { Dollar, Semicolon }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
-
-[I46]
-Edges = { I47[Expression], I23[LeftParenthesis], I24[Constant], I6[Integer], I7[String] }
-	Expression --> [Expression][Power].[Expression], { Dollar, Semicolon }
-	Expression --> .[Expression][Plus][Expression], { Dollar }
-	Expression --> .[Expression][Multiply][Expression], { Dollar }
-	Expression --> .[Expression][Power][Expression], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Expression][Error], { Dollar }
-	Expression --> .[Expression][Error][RightParenthesis], { Dollar }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Dollar }
-	Expression --> .[Constant], { Dollar }
-	Constant --> .[Integer], { Dollar }
-	Constant --> .[String], { Dollar }
-
-[I47]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Power][Expression]., { Dollar, Semicolon }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
-
-[I48]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Multiply][Expression]., { Dollar, Semicolon }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
-
-[I49]
-Edges = { I30[Plus], I31[Multiply], I32[Power], I33[Error] }
-	Expression --> [Expression][Plus][Expression]., { Dollar, Semicolon }
-	Expression --> [Expression].[Plus][Expression], { Dollar }
-	Expression --> [Expression].[Multiply][Expression], { Dollar }
-	Expression --> [Expression].[Power][Expression], { Dollar }
-	Expression --> [Expression].[Error][RightParenthesis], { Dollar }
-
-[I50]
 Edges = {  }
-	Expression --> [Expression][Error][RightParenthesis]., { Dollar, Semicolon }
-
-[I51]
-Edges = {  }
-	Statements --> [Statement][Statements]., { Dollar }
+	Statements --> [Statement][Statements]., { $ }
 

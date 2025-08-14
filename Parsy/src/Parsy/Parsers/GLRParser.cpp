@@ -211,10 +211,10 @@ namespace Parsy
 		int32_t reducedOriginState = m_GSS.m_CurrentStates.at(currentStateIndex);
 		auto& productions = m_CFGMap.at(actionData.RuleID)
 			.Grammar.GetProductions();
-		const Production& production = productions
+		const auto& production = productions
 			.at(actionData.ReducedProduction);
 		size_t totalElements = 0U;
-		for (const auto& element : production)
+		for (const auto& element : production.Elements)
 		{
 			if (element.Type == CFGElementType::Epsilon) continue;
 			totalElements++;
@@ -260,10 +260,10 @@ namespace Parsy
 			{
 				auto& productions = m_CFGMap.at(closestEdge->Data.RuleID)
 					.Grammar.GetProductions();
-				const Production& production = productions
+				const auto& production = productions
 					.at(closestEdge->Data.Production);
 				size_t totalElements = 0U;
-				for (const auto& element : production)
+				for (const auto& element : production.Elements)
 				{
 					if (element.Type == CFGElementType::Epsilon) continue;
 					totalElements++;

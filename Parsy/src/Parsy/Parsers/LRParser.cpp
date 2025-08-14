@@ -226,9 +226,9 @@ namespace Parsy
         auto& inputStack = m_InputStack.Stack;
         auto& productions = m_CFGMap.at(reduceData->RuleID)
             .Grammar.GetProductions();
-        const Production& production = productions
+        const auto& production = productions
             .at(reduceData->ReducedProduction);
-        m_Elements = production.size();
+        m_Elements = production.Elements.size();
 
         ParseEntryData& entry =
             ConstructEntryAndInvokeCallbacks(reduceData->RuleID, reduceData->ReducedProduction);
@@ -237,7 +237,7 @@ namespace Parsy
         size_t count = 0;
         for (int32_t i = 0; i < m_Elements; i++)
         {
-            if (production.at(i).Type == CFGElementType::Epsilon) continue;
+            if (production.Elements.at(i).Type == CFGElementType::Epsilon) continue;
 
             if(i == m_Elements - 1)
                 startToken = inputStack.back().Token;
@@ -255,11 +255,11 @@ namespace Parsy
         m_KeepToken = true;
 
         m_ActionString = "Reduce(" + RuleToStr(reduceData->RuleID) + " --> ";
-        for (size_t i = 0; i < production.size(); i++)
+        for (size_t i = 0; i < production.Elements.size(); i++)
         {
-            const CFGElement& element = production.at(i);
+            const CFGElement& element = production.Elements.at(i);
             m_ActionString += CFGElementToStr(element);
-            if (i < production.size() - 1)
+            if (i < production.Elements.size() - 1)
                 m_ActionString += ' ';
             else
                 m_ActionString += ')';
@@ -284,7 +284,21 @@ namespace Parsy
         }
 
         int32_t leftElementPriority = m_TokenMap.at(lastTerminal->ID).Priority;
+        PrecedenceAssociativity leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
+        const BottomUpActionData* reduceActionData = action.GetActionData(BottomUpActionType::Reduce);
+        if (reduceActionData != nullptr)
+        {
+            const ProductionData& productionData = m_CFGMap.at(reduceActionData->RuleID).Grammar.GetProductions()
+                .at(reduceActionData->ReducedProduction);
+            if (productionData.Associativity != PrecedenceAssociativity::None)
+            {
+                leftElementAssociativity = productionData.Associativity;
+                leftElementPriority = productionData.Priority;
+            }
+        }
+
         int32_t rightElementPriority = m_TokenMap.at(tokenElement.ID).Priority;
+        PrecedenceAssociativity rightElementAssociativity = m_TokenMap.at(tokenElement.ID).Associativity;
         if (leftElementPriority < rightElementPriority)
         {
             const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
@@ -297,8 +311,7 @@ namespace Parsy
         }
         else if (leftElementPriority > rightElementPriority)
         {
-            const BottomUpActionData* reduceAction = action.GetActionData(BottomUpActionType::Reduce);
-            if (reduceAction == nullptr)
+            if (reduceActionData == nullptr)
             {
                 std::cout << "FATAL ERROR" << std::endl;
                 return false;
@@ -307,8 +320,6 @@ namespace Parsy
         }
         else
         {
-            const PrecedenceAssociativity& leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
-            const PrecedenceAssociativity& rightElementAssociativity = m_TokenMap.at(tokenElement.ID).Associativity;
             if (leftElementAssociativity != rightElementAssociativity)
             {
                 std::cout << "FATAL ERROR" << std::endl;

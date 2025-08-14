@@ -14,11 +14,40 @@ namespace Parsy
 		const Lexy::Lexer::Token& token)
 	{
 		int32_t rightOperatorPriority = m_TokenMap.at(token.TokenID).Priority;
+		PrecedenceAssociativity rightElementAssociativity = m_TokenMap.at(token.TokenID).Associativity;
+
 		if (m_Flags & CLRParserFlags_ForcePrecedence && rightOperatorPriority > 0)
 		{
 			CFGElement* lastTerminal = GetLastTerminal();
 			if (lastTerminal == nullptr) return LRParser::OnShift(state, action, type, token);
+
 			int32_t leftOperatorPriority = m_TokenMap.at(lastTerminal->ID).Priority;
+			PrecedenceAssociativity leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
+
+			BottomUpAction* reduceAction = nullptr;
+			const auto& symbols = m_LR1->GetSymbols();
+			for (const CFGElement& element : symbols)
+			{
+				BottomUpAction& action = m_LR1->GetAction(state, element);
+				if (action.Type == BottomUpActionType::Reduce)
+				{
+					reduceAction = &action;
+					break;
+				}
+			}
+
+			if (reduceAction != nullptr)
+			{
+				const BottomUpActionData* reduceActionData = reduceAction->GetActionData(BottomUpActionType::Reduce);
+				const ProductionData& productionData = m_CFGMap.at(reduceActionData->RuleID).Grammar.GetProductions()
+					.at(reduceActionData->ReducedProduction);
+				if (productionData.Associativity != PrecedenceAssociativity::None)
+				{
+					leftElementAssociativity = productionData.Associativity;
+					leftOperatorPriority = productionData.Priority;
+				}
+			}
+
 			if (leftOperatorPriority == 0)
 			{
 				BottomUpAction* dollarAction = nullptr;
@@ -38,19 +67,8 @@ namespace Parsy
 			}
 			else if (leftOperatorPriority > rightOperatorPriority)
 			{
-				BottomUpAction* dollarAction = nullptr;
-				const auto& symbols = m_LR1->GetSymbols();
-				for (const CFGElement& element : symbols)
-				{
-					BottomUpAction& action = m_LR1->GetAction(state, element);
-					if (action.Type == BottomUpActionType::Reduce)
-					{
-						dollarAction = &action;
-						break;
-					}
-				}
-				if (dollarAction == nullptr) return false;
-				OnReduce(state, *dollarAction);
+				if (reduceAction == nullptr) return LRParser::OnShift(state, action, type, token);
+				OnReduce(state, *reduceAction);
 				return true;
 			}
 			else if (leftOperatorPriority < rightOperatorPriority)
@@ -59,8 +77,6 @@ namespace Parsy
 			}
 			else
 			{
-				const PrecedenceAssociativity& leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
-				const PrecedenceAssociativity& rightElementAssociativity = m_TokenMap.at(token.TokenID).Associativity;
 				if (leftElementAssociativity != rightElementAssociativity)
 				{
 					std::cout << "FATAL ERROR" << std::endl;

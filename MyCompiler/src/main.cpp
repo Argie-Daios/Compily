@@ -11,12 +11,15 @@ int main()
 	std::ifstream stream2("SourceCode2.src");
 	//MyLexer lexer(stream);
 
-	std::cout << "Pasring 1st file" << std::endl;
+	int x = -2 * -10;
+	std::cout << x << std::endl;
+
+	/*std::cout << "Pasring 1st file" << std::endl;
 	std::cout << "===============================" << std::endl;
 
 	MyParser parser(stream);
 
-	std::cout << "===============================" << std::endl << std::endl;
+	std::cout << "===============================" << std::endl << std::endl;*/
 
 	std::cout << "Pasring 2nd file" << std::endl;
 	std::cout << "===============================" << std::endl;

@@ -34,7 +34,7 @@ namespace Parsy
             for (int32_t i = 0; i < productions.size(); i++)
             {
                 auto& elementList = productions.at(i);
-                for (auto& element : elementList)
+                for (auto& element : elementList.Elements)
                 {
                     EntryValue entry;
                     switch (element.Type)
@@ -75,8 +75,8 @@ namespace Parsy
     void Parser::DeclareRootRule(RuleID_t rule)
     {
         auto& grammar = m_CFGMap.at(m_StartingRule).Grammar;
-        grammar.m_Elements.at(grammar.m_ProductionCount - 1).at(0).Type = CFGElementType::NonTerminal;
-        grammar.m_Elements.at(grammar.m_ProductionCount - 1).at(0).ID = rule;
+        grammar.m_Elements.at(grammar.m_ProductionCount - 1).Elements.at(0).Type = CFGElementType::NonTerminal;
+        grammar.m_Elements.at(grammar.m_ProductionCount - 1).Elements.at(0).ID = rule;
     }
 
     void Parser::BeginRule(RuleID_t rule)
@@ -120,6 +120,15 @@ namespace Parsy
         Add(type, -1, callback);
     }
 
+    void Parser::Prec(Lexy::TokenID_t tokenID)
+    {
+        RuleProperties& ruleProps = m_CFGMap.at(m_BoundRule);
+        ProductionData& productionData = ruleProps.Grammar.m_Elements.back();
+        const TokenProperties& tokenProperties = m_TokenMap.at(tokenID);
+        productionData.Priority = tokenProperties.Priority;
+        productionData.Associativity = tokenProperties.Associativity;
+    }
+
     void Parser::Union()
     {
         RuleProperties& ruleProps = m_CFGMap.at(m_BoundRule);
@@ -146,7 +155,7 @@ namespace Parsy
         switch (element.Type)
         {
         case CFGElementType::Epsilon: return "Epsilon";
-        case CFGElementType::Dollar: return "Dollar";
+        case CFGElementType::Dollar: return "$";
         case CFGElementType::Symbol: return TokenToStr(element.ID);
         case CFGElementType::NonTerminal: return RuleToStr(element.ID);
         case CFGElementType::Error: return "Error";

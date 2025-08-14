@@ -36,6 +36,7 @@ MyParser::MyParser(const std::ifstream& inputStream)
 	DeclarePrecedence(Parsy::PrecedenceAssociativity::Left, PLUS, MINUS);
 	DeclarePrecedence(Parsy::PrecedenceAssociativity::Left, MULTIPLY, DIVIDE);
 	DeclarePrecedence(Parsy::PrecedenceAssociativity::Right, POWER);
+	DeclarePrecedence(Parsy::PrecedenceAssociativity::Right, UMINUS);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -129,6 +130,17 @@ MyParser::MyParser(const std::ifstream& inputStream)
 		Constant& innerExpressionValue = Get<Constant>(1);
 		expressionValue = innerExpressionValue;
 		});
+
+	Union();
+
+	Add(Parsy::CFGElementType::Symbol, MINUS);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(any);
+		Constant& innerExpressionValue = Get<Constant>(1);
+		expressionValue.IntVal = innerExpressionValue.IntVal * -1;
+		std::cout << "-" << innerExpressionValue.IntVal << std::endl;
+		});
+	Prec(UMINUS);
 
 	Union();
 

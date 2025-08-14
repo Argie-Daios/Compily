@@ -5,6 +5,14 @@
 
 namespace Parsy
 {
+	enum class PrecedenceAssociativity
+	{
+		None,
+		Left,
+		Right,
+		NonAssociate
+	};
+
 	enum class CFGElementType
 	{
 		Epsilon,
@@ -48,6 +56,17 @@ namespace Parsy
 	};
 
 	using Production = std::vector<CFGElement>;
+	struct ProductionData
+	{
+		Production Elements;
+		int32_t Priority = 0;
+		PrecedenceAssociativity Associativity = PrecedenceAssociativity::None;
+
+		ProductionData() = default;
+		ProductionData(const ProductionData&) = default;
+		ProductionData(ProductionData&&) = default;
+	};
+
 	class CFG
 	{
 	public:
@@ -61,7 +80,7 @@ namespace Parsy
 			{
 				Union();
 			}
-			m_Elements.at(m_ProductionCount - 1).emplace_back(element);
+			m_Elements.at(m_ProductionCount - 1).Elements.emplace_back(element);
 		}
 
 		void Union()
@@ -71,9 +90,9 @@ namespace Parsy
 		}
 
 		size_t GetProductionCount() const { return m_ProductionCount; }
-		const std::vector<Production>& GetProductions() const { return m_Elements; }
+		const std::vector<ProductionData>& GetProductions() const { return m_Elements; }
 	private:
-		std::vector<Production> m_Elements;
+		std::vector<ProductionData> m_Elements;
 		size_t m_ProductionCount = 0U;
 
 		friend class Parser;

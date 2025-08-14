@@ -23,14 +23,6 @@ namespace Parsy
 		LRParserFlags_IncludeDollarLookAhead = BIT(2)
 	};
 
-	enum class PrecedenceAssociativity
-	{
-		None,
-		Left,
-		Right,
-		NonAssociate
-	};
-
 	class Parser
 	{
 	public:
@@ -93,6 +85,7 @@ namespace Parsy
 		}
 		void Add(const CFGElementType& type, int32_t id, const TypeCallback& callback = [](EntryValue& entry) {});
 		void Add(const CFGElementType& type, const TypeCallback& callback = [](EntryValue& entry) {});
+		void Prec(Lexy::TokenID_t tokenID);
 		void Union();
 		void EndRule();
 		template<typename Type>
