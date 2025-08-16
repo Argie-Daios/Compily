@@ -5,10 +5,11 @@
 #include <vector>
 #include <functional>
 #include <any>
+#include <Utilities.h>
 
 #include "ThompsonCalculator.h"
 
-#define IGNORE -1
+#define TOKEN_IGNORE -1
 
 namespace Lexy
 {
@@ -54,7 +55,7 @@ namespace Lexy
 		std::vector<OfflineToken> Tokenize();
 		Token NextToken();
 		TokenID_t CreateRule(const std::string& regex, const RuleCallback& callback =
-			[]() { return IGNORE; });
+			[]() { return TOKEN_IGNORE; });
 		void CreateRule(const RuleBuffer& ruleBuffer, const RuleBufferCallback& callback =
 			[](TokenID_t tokenID) { });
 		inline std::any& GetDefaultTokenValue() { return m_DefaultTokenValue; }

@@ -12,11 +12,7 @@ namespace Parsy
 
     bool LRParser::Parse()
     {
-        if (m_Lexer == nullptr)
-        {
-            std::cout << "Null" << std::endl;
-            return false;
-        }
+        ASSERT(m_Lexer != nullptr, "Lexer reference is nullptr!!");
         m_LR1->GenerateFirstSets();
         m_LR1->GenerateFollowSets();
         m_LR1->GenerateStateGraph();
@@ -277,11 +273,7 @@ namespace Parsy
     {
         CFGElement& tokenElement = GetTokenElement(token);
         CFGElement* lastTerminal = GetLastTerminal();
-        if (lastTerminal == nullptr)
-        {
-            std::cout << "FATAL ERROR" << std::endl;
-            return false;
-        }
+        ASSERT(lastTerminal != nullptr, "Fatal Error");
 
         int32_t leftElementPriority = m_TokenMap.at(lastTerminal->ID).Priority;
         PrecedenceAssociativity leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
@@ -302,58 +294,36 @@ namespace Parsy
         if (leftElementPriority < rightElementPriority)
         {
             const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
-            if (shiftAction == nullptr)
-            {
-                std::cout << "FATAL ERROR" << std::endl;
-                return false;
-            }
+            ASSERT(shiftAction != nullptr, "There is no shift action!!");
             Shift(state, action, CFGElementType::Symbol, token);
         }
         else if (leftElementPriority > rightElementPriority)
         {
-            if (reduceActionData == nullptr)
-            {
-                std::cout << "FATAL ERROR" << std::endl;
-                return false;
-            }
+            ASSERT(reduceActionData != nullptr, "There is no reduce action!!");
             Reduce(state, action);
         }
         else
         {
-            if (leftElementAssociativity != rightElementAssociativity)
-            {
-                std::cout << "FATAL ERROR" << std::endl;
-                return false;
-            }
-
+            ASSERT(leftElementAssociativity == rightElementAssociativity, "There is no tie on associativity stage!!");
             switch (leftElementAssociativity)
             {
             case PrecedenceAssociativity::Left:
             {
                 const BottomUpActionData* reduceAction = action.GetActionData(BottomUpActionType::Reduce);
-                if (reduceAction == nullptr)
-                {
-                    std::cout << "FATAL ERROR" << std::endl;
-                    return false;
-                }
+                ASSERT(reduceAction != nullptr, "There is no reduce action!!");
                 Reduce(state, action);
                 break;
             }
             case PrecedenceAssociativity::Right:
             {
                 const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
-                if (shiftAction == nullptr)
-                {
-                    std::cout << "FATAL ERROR" << std::endl;
-                    return false;
-                }
+                ASSERT(shiftAction != nullptr, "There is no shift action!!");
                 Shift(state, action, CFGElementType::Symbol, token);
                 break;
             }
             case PrecedenceAssociativity::NonAssociate:
             {
-                std::cout << "Non-Associate Error" << std::endl;
-                return false;
+                ASSERT(false, "Tie breaker with non-associate associativity!!");
                 break;
             }
             }

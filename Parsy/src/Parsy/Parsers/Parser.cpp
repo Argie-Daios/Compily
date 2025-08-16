@@ -23,13 +23,32 @@ namespace Parsy
         }
         std::cout << "}" << std::endl << std::endl;*/
 
+        std::ofstream stream("CFGInfo.txt");
+        stream << "[Terminals]" << std::endl;
+        for (const CFGElement& element : m_LR1->GetSymbols())
+        {
+            if (element.Type != CFGElementType::Symbol) continue;
+            stream << '\t' << TokenToStr(element.ID) << std::endl;
+        }
+        stream << std::endl;
+
+        stream << "[Non-Terminals]" << std::endl;
+        for (const CFGElement& element : m_LR1->GetNonTerminals())
+        {
+            if (element.Type != CFGElementType::NonTerminal || element.ID == m_StartingRule) continue;
+            stream << '\t' << RuleToStr(element.ID) << std::endl;
+        }
+        stream << std::endl;
+
+        stream << "[CFG Grammar]" << std::endl;
         for (auto& [ruleID, ruleProps] : m_CFGMap)
         {
+            stream << '\t';
             if (ruleID == m_StartingRule)
-                std::cout << "Start";
+                stream << "Start";
             else
-                std::cout << RuleToStr(ruleID);
-            std::cout << " ===> ";
+                stream << RuleToStr(ruleID);
+            stream << " --> ";
             auto& productions = ruleProps.Grammar.GetProductions();
             for (int32_t i = 0; i < productions.size(); i++)
             {
@@ -41,35 +60,66 @@ namespace Parsy
                     {
                     case CFGElementType::Symbol:
                     {
-                        std::cout << TokenToStr(element.ID);
+                        stream << TokenToStr(element.ID);
                         m_TokenMap.at(element.ID).TokenTypeConstructCallback(entry);
                         break;
                     }
                     case CFGElementType::NonTerminal:
                     {
-                        std::cout << RuleToStr(element.ID);
+                        stream << RuleToStr(element.ID);
                         m_CFGMap.at(element.ID).RuleTypeConstructCallback(entry);
                         break;
                     }
                     case CFGElementType::Epsilon:
                     {
-                        std::cout << "Empty";
+                        stream << "Empty";
                         break;
                     }
                     case CFGElementType::Dollar:
                     {
-                        std::cout << "Dollar";
+                        stream << "$";
+                        break;
+                    }
+                    case CFGElementType::Error:
+                    {
+                        stream << "Error";
+                        break;
                     }
                     }
-                    std::cout << " ";
+                    stream << " ";
                 }
                 if(i < productions.size() - 1)
-                    std::cout << " | ";
+                    stream << " | " << std::endl << "\t\t\t";
             }
-            std::cout << std::endl;
+            stream << std::endl << std::endl;
         }
 
-        std::cout << std::endl;
+        stream << "[Conflicts]" << std::endl;
+        for (size_t i = 0; i < m_LR1->m_ActionTable.size(); i++)
+        {
+            const BottomUpAction& action = m_LR1->m_ActionTable.at(i);
+            size_t state = i / m_LR1->GetTotalSymbols();
+            if (action.Type != BottomUpActionType::Conflict) continue;
+            size_t shiftCount = 0U;
+            size_t reduceCount = 0U;
+            for (const BottomUpActionData& actionData : action.ActionData)
+            {
+                switch (actionData.Type)
+                {
+                case BottomUpActionType::Shift:
+                {
+                    shiftCount++;
+                    break;
+                }
+                case BottomUpActionType::Reduce:
+                {
+                    reduceCount++;
+                    break;
+                }
+                }
+            }
+            stream << '\t' << shiftCount << " Shifts / " << reduceCount << " Reduces" << " on state " << state << std::endl;
+        }
     }
 
     void Parser::DeclareRootRule(RuleID_t rule)

@@ -35,8 +35,8 @@ static Lexy::Lexer::RuleBuffer s_Punctuation = {
 	{SEMICOLON, R"(\;)"}
 };
 
-MyLexer::MyLexer(const std::ifstream& inputStream)
-	: Lexy::Lexer(inputStream)
+MyLexer::MyLexer(const std::ifstream& inputStream, const std::string& inputPath)
+	: Lexy::Lexer(inputStream), m_InputPath(inputPath)
 {
 	/////RULES///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ MyLexer::MyLexer(const std::ifstream& inputStream)
 
 	CreateRule(R"([ \t]+)");
 
-	CreateRule(R"([\r\n]+)", [this]() { AdvanceLineCount(); return IGNORE; });
+	CreateRule(R"([\r\n]+)", [this]() { AdvanceLineCount(); return TOKEN_IGNORE; });
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 }

@@ -2,6 +2,7 @@ workspace "Compily"
 	platforms { "x86", "x64" }
 	configurations { "Debug", "Release" }
 	startproject "MyCompiler"
+	buildoptions { "/utf-8" }
 
 	configurations 
 	{
@@ -34,6 +35,9 @@ workspace "Compily"
 		runtime "Release"
 		optimize "On"
 
+	IncludeDirs = {}
+	IncludeDirs["spdlog"] = "Utilities/vendor/spdlog/include"
+
 group "Dependencies"
 	project "Utilities"
 		location "Utilities"
@@ -53,6 +57,7 @@ group "Dependencies"
 		includedirs
 		{
 			"%{prj.name}/src",
+			"%{IncludeDirs.spdlog}"
 		}
 
 	project "Lexy"
@@ -74,6 +79,7 @@ group "Dependencies"
 		{
 			"%{wks.location}/Utilities/src",
 			"%{prj.name}/src",
+			"%{IncludeDirs.spdlog}"
 		}
 
 		links
@@ -100,7 +106,8 @@ group "Dependencies"
 		{
 			"%{wks.location}/Utilities/src",
 			"%{wks.location}/Lexy/src",
-			"%{prj.name}/src"
+			"%{prj.name}/src",
+			"%{IncludeDirs.spdlog}"
 		}
 
 		links
@@ -131,7 +138,8 @@ project "MyCompiler"
 		"%{wks.location}/Utilities/src",
 		"%{wks.location}/Lexy/src",
 		"%{wks.location}/Parsy/src",
-		"%{prj.name}/src"
+		"%{prj.name}/src",
+		"%{IncludeDirs.spdlog}"
 	}
 
 	links

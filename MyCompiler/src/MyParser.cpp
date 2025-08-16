@@ -21,10 +21,11 @@ struct Operation
 
 std::unordered_map<std::string, int32_t> s_SymbolTable;
 
-MyParser::MyParser(const std::ifstream& inputStream)
-	: CLRParser(inputStream, Parsy::CLRParserFlags_ForcePrecedence | Parsy::LRParserFlags_IncludeDollarLookAhead)
+MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPath)
+	: CLRParser(inputStream, Parsy::CLRParserFlags_ForcePrecedence | Parsy::LRParserFlags_IncludeDollarLookAhead),
+	m_InputPath(inputPath), m_Logger(inputPath)
 {
-	m_Lexer = new MyLexer(inputStream);
+	m_Lexer = new MyLexer(inputStream, inputPath);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +80,9 @@ MyParser::MyParser(const std::ifstream& inputStream)
 	Union();
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-	Add(Parsy::CFGElementType::Error, [](Parsy::EntryValue& any) { std::cout << "Missing ';'" << std::endl; });
+	Add(Parsy::CFGElementType::Error, [this](Parsy::EntryValue& any) { 
+		m_Logger.Error("Missing ';' on line {}", m_Lexer->GetLineCount());
+	});
 
 	EndRule();
 
@@ -146,18 +149,24 @@ MyParser::MyParser(const std::ifstream& inputStream)
 
 	Add(Parsy::CFGElementType::Symbol, LEFT_PARENTHESIS);
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-	Add(Parsy::CFGElementType::Error, [](Parsy::EntryValue& any) { std::cout << "Missing ')'" << std::endl; });
+	Add(Parsy::CFGElementType::Error, [this](Parsy::EntryValue& any) { 
+		m_Logger.Error("Missing ')' on line {}", m_Lexer->GetLineCount());
+	});
 
 	Union();
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-	Add(Parsy::CFGElementType::Error, [](Parsy::EntryValue& any) { std::cout << "Missing '('" << std::endl; });
+	Add(Parsy::CFGElementType::Error, [this](Parsy::EntryValue& any) { 
+		m_Logger.Error("Missing '(' on line {}", m_Lexer->GetLineCount());
+	});
 	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS);
 
 	Union();
 
 	Add(Parsy::CFGElementType::Symbol, LEFT_PARENTHESIS);
-	Add(Parsy::CFGElementType::Error, [](Parsy::EntryValue& any) { std::cout << "Empty Parenthesis" << std::endl; });
+	Add(Parsy::CFGElementType::Error, [this](Parsy::EntryValue& any) { 
+		m_Logger.Error("Empty parenthesis on line {}", m_Lexer->GetLineCount());
+	});
 	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS);
 
 	Union();

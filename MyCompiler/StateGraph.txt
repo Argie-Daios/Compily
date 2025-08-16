@@ -1,375 +1,506 @@
-[I0]
-Edges = { I1[Statements], I2[Statement], I3[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
+[State 0]
+Edges = { State1[Statements], State2[Statement], State3[Expression], State4[Minus], State5[LeftParenthesis], State6[Constant], State7[Integer], State8[String] }
 	StartRule --> .[Statements], { $ }
 	Statements --> .[Statement][Statements], { $ }
 	Statements --> .[Statement], { $ }
-	Statement --> .[Expression][Semicolon], { LeftParenthesis, Minus, Integer, String }
-	Statement --> .[Expression][Error], { Minus, LeftParenthesis, Integer, String }
-	Expression --> .[Expression][Plus][Expression], { Semicolon }
-	Expression --> .[Expression][Multiply][Expression], { Semicolon }
-	Expression --> .[Expression][Power][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
-	Expression --> .[Minus][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
-	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
-	Expression --> .[Constant], { Semicolon }
-	Constant --> .[Integer], { Semicolon }
-	Constant --> .[String], { Semicolon }
+	Statement --> .[Expression][Semicolon], { String, $, LeftParenthesis, Minus, Integer }
+	Statement --> .[Expression][Error], { $, String, Minus, LeftParenthesis, Integer }
+	Expression --> .[Expression][Plus][Expression], { $, Semicolon }
+	Expression --> .[Expression][Multiply][Expression], { $, Semicolon }
+	Expression --> .[Expression][Power][Expression], { $, Semicolon }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $, Semicolon }
+	Expression --> .[Minus][Expression], { $, Semicolon }
+	Expression --> .[LeftParenthesis][Expression][Error], { $, Semicolon }
+	Expression --> .[Expression][Error][RightParenthesis], { $, Semicolon }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $, Semicolon }
+	Expression --> .[Constant], { $, Semicolon }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 
-[I1]
+[State 1]
 Edges = {  }
 	StartRule --> [Statements]., { $ }
 
-[I2]
-Edges = { I44[Statements], I2[Statement], I3[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
+[State 2]
+Edges = { State57[Statements], State2[Statement], State3[Expression], State4[Minus], State5[LeftParenthesis], State6[Constant], State7[Integer], State8[String] }
 	Statements --> [Statement].[Statements], { $ }
 	Statements --> .[Statement][Statements], { $ }
 	Statements --> .[Statement], { $ }
-	Statement --> .[Expression][Semicolon], { LeftParenthesis, Minus, Integer, String }
-	Statement --> .[Expression][Error], { Minus, LeftParenthesis, Integer, String }
-	Expression --> .[Expression][Plus][Expression], { Semicolon }
-	Expression --> .[Expression][Multiply][Expression], { Semicolon }
-	Expression --> .[Expression][Power][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
-	Expression --> .[Minus][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
-	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
-	Expression --> .[Constant], { Semicolon }
-	Constant --> .[Integer], { Semicolon }
-	Constant --> .[String], { Semicolon }
+	Statement --> .[Expression][Semicolon], { String, $, LeftParenthesis, Minus, Integer }
+	Statement --> .[Expression][Error], { $, String, Minus, LeftParenthesis, Integer }
+	Expression --> .[Expression][Plus][Expression], { $, Semicolon }
+	Expression --> .[Expression][Multiply][Expression], { $, Semicolon }
+	Expression --> .[Expression][Power][Expression], { $, Semicolon }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $, Semicolon }
+	Expression --> .[Minus][Expression], { $, Semicolon }
+	Expression --> .[LeftParenthesis][Expression][Error], { $, Semicolon }
+	Expression --> .[Expression][Error][RightParenthesis], { $, Semicolon }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $, Semicolon }
+	Expression --> .[Constant], { $, Semicolon }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 	Statements --> [Statement]., { $ }
 
-[I3]
-Edges = { I42[Semicolon], I43[Error], I34[Plus], I35[Multiply], I36[Power] }
-	Statement --> [Expression].[Semicolon], { LeftParenthesis, Minus, Integer, String }
-	Statement --> [Expression].[Error], { Minus, LeftParenthesis, Integer, String }
-	Expression --> [Expression].[Plus][Expression], { Semicolon }
-	Expression --> [Expression].[Multiply][Expression], { Semicolon }
-	Expression --> [Expression].[Power][Expression], { Semicolon }
-	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
+[State 3]
+Edges = { State48[Semicolon], State49[Error], State50[Plus], State51[Multiply], State52[Power] }
+	Statement --> [Expression].[Semicolon], { String, $, LeftParenthesis, Minus, Integer }
+	Statement --> [Expression].[Error], { $, String, Minus, LeftParenthesis, Integer }
+	Expression --> [Expression].[Plus][Expression], { $, Semicolon }
+	Expression --> [Expression].[Multiply][Expression], { $, Semicolon }
+	Expression --> [Expression].[Power][Expression], { $, Semicolon }
+	Expression --> [Expression].[Error][RightParenthesis], { $, Semicolon }
 
-[I4]
-Edges = { I33[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
-	Expression --> [Minus].[Expression], { Semicolon }
-	Expression --> .[Expression][Plus][Expression], { Semicolon }
-	Expression --> .[Expression][Multiply][Expression], { Semicolon }
-	Expression --> .[Expression][Power][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
-	Expression --> .[Minus][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
-	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
-	Expression --> .[Constant], { Semicolon }
-	Constant --> .[Integer], { Semicolon }
-	Constant --> .[String], { Semicolon }
+[State 4]
+Edges = { State47[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Minus].[Expression], { $, Semicolon }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 
-[I5]
-Edges = { I9[Expression], I10[Minus], I11[LeftParenthesis], I12[Error], I13[Constant], I14[Integer], I15[String] }
-	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { Semicolon }
-	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
-	Expression --> .[Minus][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[Constant], { RightParenthesis }
-	Constant --> .[Integer], { RightParenthesis }
-	Constant --> .[String], { RightParenthesis }
-	Expression --> [LeftParenthesis].[Expression][Error], { Semicolon }
-	Expression --> [LeftParenthesis].[Error][RightParenthesis], { Semicolon }
+[State 5]
+Edges = { State9[Expression], State10[Minus], State11[LeftParenthesis], State12[Error], State13[Constant], State7[Integer], State8[String] }
+	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { $, Semicolon }
+	Expression --> .[Expression][Plus][Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[Minus][Expression], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { $, RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[Constant], { $, RightParenthesis }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
+	Expression --> [LeftParenthesis].[Expression][Error], { $, Semicolon }
+	Expression --> [LeftParenthesis].[Error][RightParenthesis], { $, Semicolon }
 
-[I6]
+[State 6]
 Edges = {  }
-	Expression --> [Constant]., { Semicolon }
+	Expression --> [Constant]., { $, Semicolon }
 
-[I7]
+[State 7]
 Edges = {  }
-	Constant --> [Integer]., { Semicolon }
+	Constant --> [Integer]., { $ }
 
-[I8]
+[State 8]
 Edges = {  }
-	Constant --> [String]., { Semicolon }
+	Constant --> [String]., { $ }
 
-[I9]
-Edges = { I20[Multiply], I31[RightParenthesis], I22[Plus], I23[Power], I32[Error] }
-	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { Semicolon }
-	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
-	Expression --> [LeftParenthesis][Expression].[Error], { Semicolon }
+[State 9]
+Edges = { State18[Multiply], State45[RightParenthesis], State20[Plus], State21[Power], State46[Error] }
+	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { $, Semicolon }
+	Expression --> [Expression].[Plus][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> [LeftParenthesis][Expression].[Error], { $, Semicolon }
 
-[I10]
-Edges = { I30[Expression], I10[Minus], I11[LeftParenthesis], I13[Constant], I14[Integer], I15[String] }
-	Expression --> [Minus].[Expression], { RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
-	Expression --> .[Minus][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[Constant], { RightParenthesis }
-	Constant --> .[Integer], { RightParenthesis }
-	Constant --> .[String], { RightParenthesis }
+[State 10]
+Edges = { State44[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Minus].[Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 
-[I11]
-Edges = { I17[Expression], I10[Minus], I11[LeftParenthesis], I18[Error], I13[Constant], I14[Integer], I15[String] }
-	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
-	Expression --> .[Minus][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[Constant], { RightParenthesis }
-	Constant --> .[Integer], { RightParenthesis }
-	Constant --> .[String], { RightParenthesis }
-	Expression --> [LeftParenthesis].[Expression][Error], { RightParenthesis }
-	Expression --> [LeftParenthesis].[Error][RightParenthesis], { RightParenthesis }
+[State 11]
+Edges = { State15[Expression], State10[Minus], State11[LeftParenthesis], State16[Error], State13[Constant], State7[Integer], State8[String] }
+	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[Minus][Expression], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { $, RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[Constant], { $, RightParenthesis }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
+	Expression --> [LeftParenthesis].[Expression][Error], { $, RightParenthesis }
+	Expression --> [LeftParenthesis].[Error][RightParenthesis], { $, RightParenthesis }
 
-[I12]
-Edges = { I16[RightParenthesis] }
-	Expression --> [LeftParenthesis][Error].[RightParenthesis], { Semicolon }
+[State 12]
+Edges = { State14[RightParenthesis] }
+	Expression --> [LeftParenthesis][Error].[RightParenthesis], { $, Semicolon }
 
-[I13]
+[State 13]
 Edges = {  }
-	Expression --> [Constant]., { RightParenthesis }
+	Expression --> [Constant]., { $, RightParenthesis }
 
-[I14]
+[State 14]
 Edges = {  }
-	Constant --> [Integer]., { RightParenthesis }
+	Expression --> [LeftParenthesis][Error][RightParenthesis]., { $, Semicolon }
 
-[I15]
+[State 15]
+Edges = { State18[Multiply], State19[RightParenthesis], State20[Plus], State21[Power], State22[Error] }
+	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { $, RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> [LeftParenthesis][Expression].[Error], { $, RightParenthesis }
+
+[State 16]
+Edges = { State17[RightParenthesis] }
+	Expression --> [LeftParenthesis][Error].[RightParenthesis], { $, RightParenthesis }
+
+[State 17]
 Edges = {  }
-	Constant --> [String]., { RightParenthesis }
+	Expression --> [LeftParenthesis][Error][RightParenthesis]., { $, RightParenthesis }
 
-[I16]
+[State 18]
+Edges = { State43[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Multiply].[Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
+
+[State 19]
 Edges = {  }
-	Expression --> [LeftParenthesis][Error][RightParenthesis]., { Semicolon }
+	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { $, RightParenthesis }
 
-[I17]
-Edges = { I20[Multiply], I21[RightParenthesis], I22[Plus], I23[Power], I24[Error] }
-	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
-	Expression --> [LeftParenthesis][Expression].[Error], { RightParenthesis }
+[State 20]
+Edges = { State42[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Plus].[Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 
-[I18]
-Edges = { I19[RightParenthesis] }
-	Expression --> [LeftParenthesis][Error].[RightParenthesis], { RightParenthesis }
+[State 21]
+Edges = { State24[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Power].[Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 
-[I19]
+[State 22]
+Edges = { State23[RightParenthesis] }
+	Expression --> [Expression][Error].[RightParenthesis], { $, RightParenthesis }
+	Expression --> [LeftParenthesis][Expression][Error]., { $, RightParenthesis }
+
+[State 23]
 Edges = {  }
-	Expression --> [LeftParenthesis][Error][RightParenthesis]., { RightParenthesis }
+	Expression --> [Expression][Error][RightParenthesis]., { $, RightParenthesis }
 
-[I20]
-Edges = { I29[Expression], I10[Minus], I11[LeftParenthesis], I13[Constant], I14[Integer], I15[String] }
-	Expression --> [Expression][Multiply].[Expression], { RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
-	Expression --> .[Minus][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[Constant], { RightParenthesis }
-	Constant --> .[Integer], { RightParenthesis }
-	Constant --> .[String], { RightParenthesis }
+[State 24]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Power][Expression]., { $, RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
 
-[I21]
+[State 25]
+Edges = { State33[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Minus].[Expression], { $ }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
+
+[State 26]
+Edges = { State28[Expression], State10[Minus], State11[LeftParenthesis], State29[Error], State13[Constant], State7[Integer], State8[String] }
+	Expression --> [LeftParenthesis].[Expression][RightParenthesis], { $ }
+	Expression --> .[Expression][Plus][Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Multiply][Expression], { $, RightParenthesis }
+	Expression --> .[Expression][Power][Expression], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[Minus][Expression], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Expression][Error], { $, RightParenthesis }
+	Expression --> .[Expression][Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> .[Constant], { $, RightParenthesis }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
+	Expression --> [LeftParenthesis].[Expression][Error], { $ }
+	Expression --> [LeftParenthesis].[Error][RightParenthesis], { $ }
+
+[State 27]
 Edges = {  }
-	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { RightParenthesis }
+	Expression --> [Constant]., { $ }
 
-[I22]
-Edges = { I28[Expression], I10[Minus], I11[LeftParenthesis], I13[Constant], I14[Integer], I15[String] }
-	Expression --> [Expression][Plus].[Expression], { RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
-	Expression --> .[Minus][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[Constant], { RightParenthesis }
-	Constant --> .[Integer], { RightParenthesis }
-	Constant --> .[String], { RightParenthesis }
+[State 28]
+Edges = { State18[Multiply], State31[RightParenthesis], State20[Plus], State21[Power], State32[Error] }
+	Expression --> [LeftParenthesis][Expression].[RightParenthesis], { $ }
+	Expression --> [Expression].[Plus][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Multiply][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Power][Expression], { $, RightParenthesis }
+	Expression --> [Expression].[Error][RightParenthesis], { $, RightParenthesis }
+	Expression --> [LeftParenthesis][Expression].[Error], { $ }
 
-[I23]
-Edges = { I26[Expression], I10[Minus], I11[LeftParenthesis], I13[Constant], I14[Integer], I15[String] }
-	Expression --> [Expression][Power].[Expression], { RightParenthesis }
-	Expression --> .[Expression][Plus][Expression], { RightParenthesis }
-	Expression --> .[Expression][Multiply][Expression], { RightParenthesis }
-	Expression --> .[Expression][Power][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { RightParenthesis }
-	Expression --> .[Minus][Expression], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Expression][Error], { RightParenthesis }
-	Expression --> .[Expression][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { RightParenthesis }
-	Expression --> .[Constant], { RightParenthesis }
-	Constant --> .[Integer], { RightParenthesis }
-	Constant --> .[String], { RightParenthesis }
+[State 29]
+Edges = { State30[RightParenthesis] }
+	Expression --> [LeftParenthesis][Error].[RightParenthesis], { $ }
 
-[I24]
-Edges = { I25[RightParenthesis] }
-	Expression --> [Expression][Error].[RightParenthesis], { RightParenthesis }
-	Expression --> [LeftParenthesis][Expression][Error]., { RightParenthesis }
-
-[I25]
+[State 30]
 Edges = {  }
-	Expression --> [Expression][Error][RightParenthesis]., { RightParenthesis }
+	Expression --> [LeftParenthesis][Error][RightParenthesis]., { $ }
 
-[I26]
-Edges = { I22[Plus], I20[Multiply], I23[Power], I27[Error] }
-	Expression --> [Expression][Power][Expression]., { RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
-
-[I27]
-Edges = { I25[RightParenthesis] }
-	Expression --> [Expression][Error].[RightParenthesis], { RightParenthesis }
-
-[I28]
-Edges = { I22[Plus], I20[Multiply], I23[Power], I27[Error] }
-	Expression --> [Expression][Plus][Expression]., { RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
-
-[I29]
-Edges = { I22[Plus], I20[Multiply], I23[Power], I27[Error] }
-	Expression --> [Expression][Multiply][Expression]., { RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
-
-[I30]
-Edges = { I22[Plus], I20[Multiply], I23[Power], I27[Error] }
-	Expression --> [Minus][Expression]., { RightParenthesis }
-	Expression --> [Expression].[Plus][Expression], { RightParenthesis }
-	Expression --> [Expression].[Multiply][Expression], { RightParenthesis }
-	Expression --> [Expression].[Power][Expression], { RightParenthesis }
-	Expression --> [Expression].[Error][RightParenthesis], { RightParenthesis }
-
-[I31]
+[State 31]
 Edges = {  }
-	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { Semicolon }
+	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { $ }
 
-[I32]
-Edges = { I25[RightParenthesis] }
-	Expression --> [Expression][Error].[RightParenthesis], { RightParenthesis }
-	Expression --> [LeftParenthesis][Expression][Error]., { Semicolon }
+[State 32]
+Edges = { State23[RightParenthesis] }
+	Expression --> [Expression][Error].[RightParenthesis], { $, RightParenthesis }
+	Expression --> [LeftParenthesis][Expression][Error]., { $ }
 
-[I33]
-Edges = { I34[Plus], I35[Multiply], I36[Power], I37[Error] }
-	Expression --> [Minus][Expression]., { Semicolon }
-	Expression --> [Expression].[Plus][Expression], { Semicolon }
-	Expression --> [Expression].[Multiply][Expression], { Semicolon }
-	Expression --> [Expression].[Power][Expression], { Semicolon }
-	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
+[State 33]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Minus][Expression]., { $ }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
 
-[I34]
-Edges = { I41[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
-	Expression --> [Expression][Plus].[Expression], { Semicolon }
-	Expression --> .[Expression][Plus][Expression], { Semicolon }
-	Expression --> .[Expression][Multiply][Expression], { Semicolon }
-	Expression --> .[Expression][Power][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
-	Expression --> .[Minus][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
-	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
-	Expression --> .[Constant], { Semicolon }
-	Constant --> .[Integer], { Semicolon }
-	Constant --> .[String], { Semicolon }
+[State 34]
+Edges = { State41[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Plus].[Expression], { $ }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 
-[I35]
-Edges = { I40[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
-	Expression --> [Expression][Multiply].[Expression], { Semicolon }
-	Expression --> .[Expression][Plus][Expression], { Semicolon }
-	Expression --> .[Expression][Multiply][Expression], { Semicolon }
-	Expression --> .[Expression][Power][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
-	Expression --> .[Minus][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
-	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
-	Expression --> .[Constant], { Semicolon }
-	Constant --> .[Integer], { Semicolon }
-	Constant --> .[String], { Semicolon }
+[State 35]
+Edges = { State40[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Multiply].[Expression], { $ }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 
-[I36]
-Edges = { I39[Expression], I4[Minus], I5[LeftParenthesis], I6[Constant], I7[Integer], I8[String] }
-	Expression --> [Expression][Power].[Expression], { Semicolon }
-	Expression --> .[Expression][Plus][Expression], { Semicolon }
-	Expression --> .[Expression][Multiply][Expression], { Semicolon }
-	Expression --> .[Expression][Power][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { Semicolon }
-	Expression --> .[Minus][Expression], { Semicolon }
-	Expression --> .[LeftParenthesis][Expression][Error], { Semicolon }
-	Expression --> .[Expression][Error][RightParenthesis], { Semicolon }
-	Expression --> .[LeftParenthesis][Error][RightParenthesis], { Semicolon }
-	Expression --> .[Constant], { Semicolon }
-	Constant --> .[Integer], { Semicolon }
-	Constant --> .[String], { Semicolon }
+[State 36]
+Edges = { State39[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Power].[Expression], { $ }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
 
-[I37]
-Edges = { I38[RightParenthesis] }
-	Expression --> [Expression][Error].[RightParenthesis], { Semicolon }
+[State 37]
+Edges = { State38[RightParenthesis] }
+	Expression --> [Expression][Error].[RightParenthesis], { $ }
 
-[I38]
+[State 38]
 Edges = {  }
-	Expression --> [Expression][Error][RightParenthesis]., { Semicolon }
+	Expression --> [Expression][Error][RightParenthesis]., { $ }
 
-[I39]
-Edges = { I34[Plus], I35[Multiply], I36[Power], I37[Error] }
-	Expression --> [Expression][Power][Expression]., { Semicolon }
-	Expression --> [Expression].[Plus][Expression], { Semicolon }
-	Expression --> [Expression].[Multiply][Expression], { Semicolon }
-	Expression --> [Expression].[Power][Expression], { Semicolon }
-	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
+[State 39]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Power][Expression]., { $ }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
 
-[I40]
-Edges = { I34[Plus], I35[Multiply], I36[Power], I37[Error] }
-	Expression --> [Expression][Multiply][Expression]., { Semicolon }
-	Expression --> [Expression].[Plus][Expression], { Semicolon }
-	Expression --> [Expression].[Multiply][Expression], { Semicolon }
-	Expression --> [Expression].[Power][Expression], { Semicolon }
-	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
+[State 40]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Multiply][Expression]., { $ }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
 
-[I41]
-Edges = { I34[Plus], I35[Multiply], I36[Power], I37[Error] }
-	Expression --> [Expression][Plus][Expression]., { Semicolon }
-	Expression --> [Expression].[Plus][Expression], { Semicolon }
-	Expression --> [Expression].[Multiply][Expression], { Semicolon }
-	Expression --> [Expression].[Power][Expression], { Semicolon }
-	Expression --> [Expression].[Error][RightParenthesis], { Semicolon }
+[State 41]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Plus][Expression]., { $ }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
 
-[I42]
+[State 42]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Plus][Expression]., { $, RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
+
+[State 43]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Multiply][Expression]., { $, RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
+
+[State 44]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Minus][Expression]., { $, RightParenthesis }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
+
+[State 45]
 Edges = {  }
-	Statement --> [Expression][Semicolon]., { LeftParenthesis, Minus, Integer, String }
+	Expression --> [LeftParenthesis][Expression][RightParenthesis]., { $, Semicolon }
 
-[I43]
-Edges = { I38[RightParenthesis] }
-	Statement --> [Expression][Error]., { Minus, LeftParenthesis, Integer, String }
-	Expression --> [Expression][Error].[RightParenthesis], { Semicolon }
+[State 46]
+Edges = { State23[RightParenthesis] }
+	Expression --> [Expression][Error].[RightParenthesis], { $, RightParenthesis }
+	Expression --> [LeftParenthesis][Expression][Error]., { $, Semicolon }
 
-[I44]
+[State 47]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Minus][Expression]., { $, Semicolon }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
+
+[State 48]
+Edges = {  }
+	Statement --> [Expression][Semicolon]., { String, $, LeftParenthesis, Minus, Integer }
+
+[State 49]
+Edges = { State56[RightParenthesis] }
+	Statement --> [Expression][Error]., { $, String, Minus, LeftParenthesis, Integer }
+	Expression --> [Expression][Error].[RightParenthesis], { $, Semicolon }
+
+[State 50]
+Edges = { State55[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Plus].[Expression], { $, Semicolon }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
+
+[State 51]
+Edges = { State54[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Multiply].[Expression], { $, Semicolon }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
+
+[State 52]
+Edges = { State53[Expression], State25[Minus], State26[LeftParenthesis], State27[Constant], State7[Integer], State8[String] }
+	Expression --> [Expression][Power].[Expression], { $, Semicolon }
+	Expression --> .[Expression][Plus][Expression], { $ }
+	Expression --> .[Expression][Multiply][Expression], { $ }
+	Expression --> .[Expression][Power][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][RightParenthesis], { $ }
+	Expression --> .[Minus][Expression], { $ }
+	Expression --> .[LeftParenthesis][Expression][Error], { $ }
+	Expression --> .[Expression][Error][RightParenthesis], { $ }
+	Expression --> .[LeftParenthesis][Error][RightParenthesis], { $ }
+	Expression --> .[Constant], { $ }
+	Constant --> .[Integer], { $ }
+	Constant --> .[String], { $ }
+
+[State 53]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Power][Expression]., { $, Semicolon }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
+
+[State 54]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Multiply][Expression]., { $, Semicolon }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
+
+[State 55]
+Edges = { State34[Plus], State35[Multiply], State36[Power], State37[Error] }
+	Expression --> [Expression][Plus][Expression]., { $, Semicolon }
+	Expression --> [Expression].[Plus][Expression], { $ }
+	Expression --> [Expression].[Multiply][Expression], { $ }
+	Expression --> [Expression].[Power][Expression], { $ }
+	Expression --> [Expression].[Error][RightParenthesis], { $ }
+
+[State 56]
+Edges = {  }
+	Expression --> [Expression][Error][RightParenthesis]., { $, Semicolon }
+
+[State 57]
 Edges = {  }
 	Statements --> [Statement][Statements]., { $ }
 

@@ -93,13 +93,13 @@ namespace Parsy
 		auto& vertices = m_StateGraph.GetVertices();
 		for (const auto& [vertexID, vertexData] : vertices)
 		{
-			stream << "[I" << vertexID << "]\n";
+			stream << "[State " << vertexID << "]\n";
 			stream << "Edges = { ";
 			const auto& edges = m_StateGraph.GetEdgesOfVertex(vertexID);
 			for (size_t i = 0; i < edges.size(); i++)
 			{
 				const StateGraph::Edge& edge = edges.at(i);
-				stream << "I" << edge.Destination << "[";
+				stream << "State" << edge.Destination << "[";
 				switch (edge.Data.Type)
 				{
 				case CFGElementType::Epsilon:

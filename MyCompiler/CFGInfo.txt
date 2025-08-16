@@ -1,0 +1,41 @@
+[Terminals]
+	Plus
+	Semicolon
+	RightParenthesis
+	Multiply
+	LeftParenthesis
+	Power
+	Minus
+	Integer
+	String
+
+[Non-Terminals]
+	Statements
+	Statement
+	Expression
+	Constant
+
+[CFG Grammar]
+	Statements --> Statement Statements  | 
+			Statement 
+
+	Start --> Statements 
+
+	Statement --> Expression Semicolon  | 
+			Expression Error 
+
+	Expression --> Expression Plus Expression  | 
+			Expression Multiply Expression  | 
+			Expression Power Expression  | 
+			LeftParenthesis Expression RightParenthesis  | 
+			Minus Expression  | 
+			LeftParenthesis Expression Error  | 
+			Expression Error RightParenthesis  | 
+			LeftParenthesis Error RightParenthesis  | 
+			Constant 
+
+	Constant --> Integer  | 
+			String 
+
+[Conflicts]
+	1 Shifts / 1 Reduces on state 22

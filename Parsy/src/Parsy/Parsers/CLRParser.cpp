@@ -77,12 +77,7 @@ namespace Parsy
 			}
 			else
 			{
-				if (leftElementAssociativity != rightElementAssociativity)
-				{
-					std::cout << "FATAL ERROR" << std::endl;
-					return false;
-				}
-
+				ASSERT(leftElementAssociativity == rightElementAssociativity, "There is no tie on associativity stage!!");
 				switch (leftElementAssociativity)
 				{
 				case PrecedenceAssociativity::Left:
@@ -107,12 +102,11 @@ namespace Parsy
 				}
 				case PrecedenceAssociativity::Right:
 				{
-					std::cout << "Reudejfmcis" << std::endl;
 					return LRParser::OnShift(state, action, type, token);
 				}
 				case PrecedenceAssociativity::NonAssociate:
 				{
-					std::cout << "Non-Associate Error" << std::endl;
+					ASSERT(false, "Tie breaker with non-associate associativity!!");
 					return false;
 				}
 				}

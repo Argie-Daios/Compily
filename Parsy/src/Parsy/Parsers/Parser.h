@@ -9,6 +9,8 @@
 #include <memory>
 #include <type_traits>
 
+#include <Utilities.h>
+
 namespace Parsy
 {
 	using RuleID_t = int32_t;

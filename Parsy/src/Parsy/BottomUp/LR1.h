@@ -227,5 +227,7 @@ namespace Parsy
 		std::vector<int32_t> m_GotoTable;
 		std::unordered_set<CFGElement> m_Symbols;
 		std::unordered_set<CFGElement> m_NonTerminals;
+
+		friend class Parser;
 	};
 }
