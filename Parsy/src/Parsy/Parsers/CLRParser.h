@@ -14,5 +14,7 @@ namespace Parsy
 			const Lexy::Lexer::Token& token) override;
 		virtual bool OnEmpty(int32_t state, const BottomUpAction& action,
 			const Lexy::Lexer::Token& token) override;
+	private:
+		const BottomUpAction* GetReduceAction(int32_t state);
 	};
 }

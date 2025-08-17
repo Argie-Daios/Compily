@@ -32,7 +32,8 @@ static Lexy::Lexer::RuleBuffer s_Punctuation = {
 	{RIGHT_BRACKET, R"(\])"},
 	{LEFT_PARENTHESIS, R"(\()"},
 	{RIGHT_PARENTHESIS, R"(\))"},
-	{SEMICOLON, R"(\;)"}
+	{SEMICOLON, R"(\;)"},
+	{COMMA, R"(\,)"}
 };
 
 MyLexer::MyLexer(const std::ifstream& inputStream, const std::string& inputPath)
@@ -47,6 +48,8 @@ MyLexer::MyLexer(const std::ifstream& inputStream, const std::string& inputPath)
 	CreateRule(s_Operators);
 
 	CreateRule(s_Punctuation);
+
+	CreateRule(R"(print)", [this]() { return PRINT_FUNCTION; });
 
 	CreateRule(R"(\"[^"\n]*\")", [this]() {  // Needs fix it takes hole thing
 		auto& defaultValue = GetDefaultTokenValue();

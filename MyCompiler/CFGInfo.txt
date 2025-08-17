@@ -1,28 +1,43 @@
 [Terminals]
 	Plus
+	Comma
 	Semicolon
+	LeftParenthesis
+	PrintFunction
 	RightParenthesis
 	Multiply
-	LeftParenthesis
 	Power
 	Minus
 	Integer
 	String
 
 [Non-Terminals]
+	ExpressionList
+	Program
+	ExpressionListNext
 	Statements
+	Constant
 	Statement
 	Expression
-	Constant
 
 [CFG Grammar]
-	Statements --> Statement Statements  | 
-			Statement 
+	Program --> Statements  | 
+			Empty 
 
 	Start --> Statements 
 
+	Statements --> Statement Statements  | 
+			Statement 
+
 	Statement --> Expression Semicolon  | 
-			Expression Error 
+			Expression Error  | 
+			PrintFunction LeftParenthesis ExpressionList RightParenthesis Semicolon  | 
+			Semicolon 
+
+	ExpressionList --> Expression ExpressionListNext 
+
+	ExpressionListNext --> Comma Expression  | 
+			Empty 
 
 	Expression --> Expression Plus Expression  | 
 			Expression Multiply Expression  | 
@@ -38,4 +53,5 @@
 			String 
 
 [Conflicts]
-	1 Shifts / 1 Reduces on state 22
+	1 Shifts / 1 Reduces on state 28
+	1 Shifts / 1 Reduces on state 53

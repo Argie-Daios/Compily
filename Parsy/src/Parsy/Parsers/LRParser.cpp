@@ -1,6 +1,7 @@
 #include "LRParser.h"
 
 #include "Parsy/BottomUp/CLR1.h"
+#include "Parsy/Macros.h"
 
 namespace Parsy
 {
@@ -15,8 +16,10 @@ namespace Parsy
         ASSERT(m_Lexer != nullptr, "Lexer reference is nullptr!!");
         m_LR1->GenerateFirstSets();
         m_LR1->GenerateFollowSets();
-        m_LR1->GenerateStateGraph();
-        m_LR1->GenerateTable();
+        auto& stateGraphBenchmark = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(m_LR1->GenerateStateGraph));
+        auto& tableGraphBenchmark = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(m_LR1->GenerateTable));
+        PARSY_LOG_INFO("State graph generation took {}ms", stateGraphBenchmark.GetTimeElapsed());
+        PARSY_LOG_INFO("Parsing table generation took {}ms", tableGraphBenchmark.GetTimeElapsed());
         Print();
         m_LR1->PrintStateGraph();
         m_LR1->PrintTable();
@@ -275,58 +278,28 @@ namespace Parsy
         CFGElement* lastTerminal = GetLastTerminal();
         ASSERT(lastTerminal != nullptr, "Fatal Error");
 
-        int32_t leftElementPriority = m_TokenMap.at(lastTerminal->ID).Priority;
-        PrecedenceAssociativity leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
         const BottomUpActionData* reduceActionData = action.GetActionData(BottomUpActionType::Reduce);
-        if (reduceActionData != nullptr)
-        {
-            const ProductionData& productionData = m_CFGMap.at(reduceActionData->RuleID).Grammar.GetProductions()
-                .at(reduceActionData->ReducedProduction);
-            if (productionData.Associativity != PrecedenceAssociativity::None)
-            {
-                leftElementAssociativity = productionData.Associativity;
-                leftElementPriority = productionData.Priority;
-            }
-        }
+        const BottomUpActionData* shiftActionData = action.GetActionData(BottomUpActionType::Shift);
 
-        int32_t rightElementPriority = m_TokenMap.at(tokenElement.ID).Priority;
-        PrecedenceAssociativity rightElementAssociativity = m_TokenMap.at(tokenElement.ID).Associativity;
-        if (leftElementPriority < rightElementPriority)
+        const TokenProperties& leftProductionData = m_TokenMap.at(lastTerminal->ID);
+        PrecedenceData leftPrecedenceData = leftProductionData.Precedence;
+        TryGetRulePrecedence(reduceActionData, leftPrecedenceData);
+
+        const TokenProperties& rightProductionData = m_TokenMap.at(tokenElement.ID);
+        PrecedenceData rightPrecedenceData = rightProductionData.Precedence;
+        if (leftPrecedenceData.Priority < rightPrecedenceData.Priority)
         {
-            const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
-            ASSERT(shiftAction != nullptr, "There is no shift action!!");
+            ASSERT(shiftActionData != nullptr, "There is no shift action!!");
             Shift(state, action, CFGElementType::Symbol, token);
         }
-        else if (leftElementPriority > rightElementPriority)
+        else if (leftPrecedenceData.Priority > rightPrecedenceData.Priority)
         {
             ASSERT(reduceActionData != nullptr, "There is no reduce action!!");
             Reduce(state, action);
         }
         else
         {
-            ASSERT(leftElementAssociativity == rightElementAssociativity, "There is no tie on associativity stage!!");
-            switch (leftElementAssociativity)
-            {
-            case PrecedenceAssociativity::Left:
-            {
-                const BottomUpActionData* reduceAction = action.GetActionData(BottomUpActionType::Reduce);
-                ASSERT(reduceAction != nullptr, "There is no reduce action!!");
-                Reduce(state, action);
-                break;
-            }
-            case PrecedenceAssociativity::Right:
-            {
-                const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);
-                ASSERT(shiftAction != nullptr, "There is no shift action!!");
-                Shift(state, action, CFGElementType::Symbol, token);
-                break;
-            }
-            case PrecedenceAssociativity::NonAssociate:
-            {
-                ASSERT(false, "Tie breaker with non-associate associativity!!");
-                break;
-            }
-            }
+            TieBreakWithAssociativity(leftPrecedenceData, rightPrecedenceData, state, action, action, token);
         }
     }
 
@@ -391,5 +364,50 @@ namespace Parsy
         elements.push_back(message);
         elements.push_back(message);
         ExportParseStack(labels, elements);
+    }
+
+    void LRParser::TryGetRulePrecedence(const BottomUpActionData* reduceActionData, PrecedenceData& precedenceData)
+    {
+        if (reduceActionData != nullptr)
+        {
+            const ProductionData& productionData = m_CFGMap.at(reduceActionData->RuleID).Grammar.GetProductions()
+                .at(reduceActionData->ReducedProduction);
+            const PrecedenceData& preductionPrecedenceData = productionData.Precedence;
+            if (preductionPrecedenceData.Associativity != PrecedenceAssociativity::None)
+            {
+                precedenceData.Priority = preductionPrecedenceData.Priority;
+                precedenceData.Associativity = preductionPrecedenceData.Associativity;
+            }
+        }
+    }
+
+    void LRParser::TieBreakWithAssociativity(const PrecedenceData& leftPrecedenceData,
+        const PrecedenceData& rightPrecedenceData, int32_t state, const BottomUpAction& reduceAction,
+        const BottomUpAction& shiftAction, const Lexy::Lexer::Token& token)
+    {
+        ASSERT(leftPrecedenceData.Associativity == rightPrecedenceData.Associativity,
+            "There is no tie on associativity stage!!");
+        switch (leftPrecedenceData.Associativity)
+        {
+        case PrecedenceAssociativity::Left:
+        {
+            const BottomUpActionData* reduceActionData = reduceAction.GetActionData(BottomUpActionType::Reduce);
+            ASSERT(reduceActionData != nullptr, "There is no reduce action!!");
+            Reduce(state, reduceAction);
+            break;
+        }
+        case PrecedenceAssociativity::Right:
+        {
+            const BottomUpActionData* shiftActionData = shiftAction.GetActionData(BottomUpActionType::Shift);
+            ASSERT(shiftActionData != nullptr, "There is no shift action!!");
+            Shift(state, shiftAction, CFGElementType::Symbol, token);
+            break;
+        }
+        case PrecedenceAssociativity::NonAssociate:
+        {
+            ASSERT(false, "Tie breaker with non-associate associativity!!");
+            break;
+        }
+        }
     }
 }

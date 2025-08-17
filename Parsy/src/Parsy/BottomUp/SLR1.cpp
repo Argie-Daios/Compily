@@ -21,4 +21,10 @@ namespace Parsy
 				action.Type = BottomUpActionType::Conflict;
 		}
 	}
+
+	void SLR1::GenerateLookAheadSymbols(std::unordered_set<CFGElement>& lookaheadSymbols,
+		BottomUpStateProduction& expandedRule)
+	{
+
+	}
 }

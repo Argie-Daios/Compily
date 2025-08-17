@@ -30,5 +30,4 @@ private:
 	Constant ExecuteOperation(int32_t opCode, const Constant& leftValue, const Constant& rightValue);
 private:
 	std::string m_InputPath;
-	Utilities::Logger m_Logger;
 };

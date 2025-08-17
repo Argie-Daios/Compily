@@ -92,8 +92,8 @@ namespace Parsy
 					// TODO: Problematic (Current problem leftout parenthesis results cause precedence issues)
 					CFGElement& lastToken = GetLastPushedTerminal(i);
 
-					int32_t leftElementPriority = m_TokenMap.at(lastToken.ID).Priority;
-					int32_t rightElementPriority = m_TokenMap.at(tokenElement.ID).Priority;
+					int32_t leftElementPriority = m_TokenMap.at(lastToken.ID).Precedence.Priority;
+					int32_t rightElementPriority = m_TokenMap.at(tokenElement.ID).Precedence.Priority;
 					if (leftElementPriority < rightElementPriority)
 					{
 						const BottomUpActionData* shiftAction = action.GetActionData(BottomUpActionType::Shift);

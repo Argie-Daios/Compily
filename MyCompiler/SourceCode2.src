@@ -1,1 +1,1 @@
--2*-5;
+print("The result is: ", -2*-5);

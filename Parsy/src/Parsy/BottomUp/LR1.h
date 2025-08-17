@@ -206,7 +206,7 @@ namespace Parsy
 		const std::unordered_set<CFGElement> CalculateFirstOfElement(const CFGElement& element);
 		const std::unordered_set<CFGElement> CalculateFirstOfProduction(const Production& production);
 		const std::unordered_set<CFGElement>& CalculateFirstOfRule(int32_t ruleID);
-		void GenerateLookAheadSymbols(std::unordered_set<CFGElement>& lookaheadSymbols,
+		virtual void GenerateLookAheadSymbols(std::unordered_set<CFGElement>& lookaheadSymbols,
 			BottomUpStateProduction& expandedRule);
 
 		const std::unordered_set<CFGElement> CalculateFollowOfElement(const CFGElement& element);
@@ -214,7 +214,6 @@ namespace Parsy
 		const std::unordered_set<CFGElement>& CalculateFollowOfRule(int32_t ruleID);
 
 		void ExpandNonTerminals(BottomUpState& state);
-
 		virtual void HandleReduceTable(int32_t state, const BottomUpStateProduction& production);
 	protected:
 		class Parser* m_ParserRef;

@@ -175,8 +175,8 @@ namespace Parsy
         RuleProperties& ruleProps = m_CFGMap.at(m_BoundRule);
         ProductionData& productionData = ruleProps.Grammar.m_Elements.back();
         const TokenProperties& tokenProperties = m_TokenMap.at(tokenID);
-        productionData.Priority = tokenProperties.Priority;
-        productionData.Associativity = tokenProperties.Associativity;
+        productionData.Precedence.Priority = tokenProperties.Precedence.Priority;
+        productionData.Precedence.Associativity = tokenProperties.Precedence.Associativity;
     }
 
     void Parser::Union()

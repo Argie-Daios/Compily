@@ -5,6 +5,15 @@
 
 namespace Parsy
 {
+	enum class CFGElementType
+	{
+		Epsilon,
+		Dollar,
+		Error,
+		Symbol,
+		NonTerminal
+	};
+
 	enum class PrecedenceAssociativity
 	{
 		None,
@@ -13,13 +22,41 @@ namespace Parsy
 		NonAssociate
 	};
 
-	enum class CFGElementType
+	struct PrecedenceData
 	{
-		Epsilon,
-		Dollar,
-		Error,
-		Symbol,
-		NonTerminal
+		int32_t Priority = 0U;
+		PrecedenceAssociativity Associativity = PrecedenceAssociativity::None;
+
+		PrecedenceData() = default;
+		PrecedenceData(const PrecedenceData&) = default;
+		PrecedenceData(PrecedenceData&&) noexcept = default;
+
+		PrecedenceData& operator=(const PrecedenceData& other)
+		{
+			if (this == &other) return *this;
+			this->Priority = other.Priority;
+			this->Associativity = other.Associativity;
+			return *this;
+		}
+
+		PrecedenceData& operator=(PrecedenceData&& other) noexcept
+		{
+			if (this == &other) return *this;
+			this->Priority = std::move(other.Priority);
+			this->Associativity = std::move(other.Associativity);
+			return *this;
+		}
+
+		bool operator==(const PrecedenceData& other)
+		{
+			if (this == &other) return true;
+			return this->Priority == other.Priority && this->Associativity == other.Associativity;
+		}
+
+		bool operator!=(const PrecedenceData& other)
+		{
+			return !(*this == other);
+		}
 	};
 
 	struct CFGElement
@@ -59,8 +96,7 @@ namespace Parsy
 	struct ProductionData
 	{
 		Production Elements;
-		int32_t Priority = 0;
-		PrecedenceAssociativity Associativity = PrecedenceAssociativity::None;
+		PrecedenceData Precedence;
 
 		ProductionData() = default;
 		ProductionData(const ProductionData&) = default;

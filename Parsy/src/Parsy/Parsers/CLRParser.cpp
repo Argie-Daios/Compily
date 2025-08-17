@@ -13,103 +13,47 @@ namespace Parsy
 	bool CLRParser::OnShift(int32_t state, const BottomUpAction& action, const CFGElementType& type,
 		const Lexy::Lexer::Token& token)
 	{
-		int32_t rightOperatorPriority = m_TokenMap.at(token.TokenID).Priority;
-		PrecedenceAssociativity rightElementAssociativity = m_TokenMap.at(token.TokenID).Associativity;
+		const TokenProperties& rightProductionData = m_TokenMap.at(token.TokenID);
+		PrecedenceData rightPrecedenceData = rightProductionData.Precedence;
 
-		if (m_Flags & CLRParserFlags_ForcePrecedence && rightOperatorPriority > 0)
+		if (m_Flags & CLRParserFlags_ForcePrecedence && rightPrecedenceData.Priority > 0)
 		{
 			CFGElement* lastTerminal = GetLastTerminal();
 			if (lastTerminal == nullptr) return LRParser::OnShift(state, action, type, token);
 
-			int32_t leftOperatorPriority = m_TokenMap.at(lastTerminal->ID).Priority;
-			PrecedenceAssociativity leftElementAssociativity = m_TokenMap.at(lastTerminal->ID).Associativity;
+			const BottomUpActionData* shiftActionData = action.GetActionData(BottomUpActionType::Shift);
 
-			BottomUpAction* reduceAction = nullptr;
-			const auto& symbols = m_LR1->GetSymbols();
-			for (const CFGElement& element : symbols)
-			{
-				BottomUpAction& action = m_LR1->GetAction(state, element);
-				if (action.Type == BottomUpActionType::Reduce)
-				{
-					reduceAction = &action;
-					break;
-				}
-			}
+			const TokenProperties& leftProductionData = m_TokenMap.at(lastTerminal->ID);
+			PrecedenceData leftPrecedenceData = leftProductionData.Precedence;
+			const BottomUpAction* reduceAction = GetReduceAction(state);
 
 			if (reduceAction != nullptr)
 			{
 				const BottomUpActionData* reduceActionData = reduceAction->GetActionData(BottomUpActionType::Reduce);
-				const ProductionData& productionData = m_CFGMap.at(reduceActionData->RuleID).Grammar.GetProductions()
-					.at(reduceActionData->ReducedProduction);
-				if (productionData.Associativity != PrecedenceAssociativity::None)
-				{
-					leftElementAssociativity = productionData.Associativity;
-					leftOperatorPriority = productionData.Priority;
-				}
+				TryGetRulePrecedence(reduceActionData, leftPrecedenceData);
 			}
 
-			if (leftOperatorPriority == 0)
+			if (leftPrecedenceData.Priority == 0)
 			{
-				BottomUpAction* dollarAction = nullptr;
-				const auto& symbols = m_LR1->GetSymbols();
-				for (const CFGElement& element : symbols)
-				{
-					BottomUpAction& action = m_LR1->GetAction(state, element);
-					if (action.Type == BottomUpActionType::Reduce)
-					{
-						dollarAction = &action;
-						break;
-					}
-				}
-				if (dollarAction == nullptr) return LRParser::OnShift(state, action, type, token);
-				OnReduce(state, *dollarAction);
-				return true;
+				/*if (reduceAction == nullptr) return LRParser::OnShift(state, action, type, token);
+				OnReduce(state, *reduceAction);
+				return true;*/
+				return LRParser::OnShift(state, action, type, token);
 			}
-			else if (leftOperatorPriority > rightOperatorPriority)
+			else if (leftPrecedenceData.Priority > rightPrecedenceData.Priority)
 			{
 				if (reduceAction == nullptr) return LRParser::OnShift(state, action, type, token);
 				OnReduce(state, *reduceAction);
 				return true;
 			}
-			else if (leftOperatorPriority < rightOperatorPriority)
+			else if (leftPrecedenceData.Priority < rightPrecedenceData.Priority)
 			{
 				return LRParser::OnShift(state, action, type, token);
 			}
 			else
 			{
-				ASSERT(leftElementAssociativity == rightElementAssociativity, "There is no tie on associativity stage!!");
-				switch (leftElementAssociativity)
-				{
-				case PrecedenceAssociativity::Left:
-				{
-					BottomUpAction* dollarAction = nullptr;
-					const auto& symbols = m_LR1->GetSymbols();
-					for (const CFGElement& element : symbols)
-					{
-						BottomUpAction& action = m_LR1->GetAction(state, element);
-						if (action.Type == BottomUpActionType::Reduce)
-						{
-							dollarAction = &action;
-							break;
-						}
-					}
-					if (dollarAction == nullptr)
-					{
-						return false;
-					}
-					OnReduce(state, *dollarAction);
-					return true;
-				}
-				case PrecedenceAssociativity::Right:
-				{
-					return LRParser::OnShift(state, action, type, token);
-				}
-				case PrecedenceAssociativity::NonAssociate:
-				{
-					ASSERT(false, "Tie breaker with non-associate associativity!!");
-					return false;
-				}
-				}
+				TieBreakWithAssociativity(leftPrecedenceData, rightPrecedenceData, state, *reduceAction, action, token);
+				return true;
 			}
 		}
 
@@ -122,22 +66,29 @@ namespace Parsy
 		{
 			CFGElement* lastTerminal = GetLastTerminal();
 			if(lastTerminal == nullptr) return LRParser::OnEmpty(state, action, token);
-			BottomUpAction* dollarAction = nullptr;
-			const auto& symbols = m_LR1->GetSymbols();
-			for (const CFGElement& element : symbols)
-			{
-				BottomUpAction& action = m_LR1->GetAction(state, element);
-				if (action.Type == BottomUpActionType::Reduce)
-				{
-					dollarAction = &action;
-					break;
-				}
-			}
-			if (dollarAction == nullptr) return LRParser::OnEmpty(state, action, token);
-			OnReduce(state, *dollarAction);
+			const BottomUpAction* reduceAction = GetReduceAction(state);
+			if (reduceAction == nullptr) return LRParser::OnEmpty(state, action, token);
+			OnReduce(state, *reduceAction);
 			return true;
 		}
 
 		return LRParser::OnEmpty(state, action, token);
+	}
+
+	const BottomUpAction* CLRParser::GetReduceAction(int32_t state)
+	{
+		BottomUpAction* reduceAction = nullptr;
+		const auto& symbols = m_LR1->GetSymbols();
+		for (const CFGElement& element : symbols)
+		{
+			BottomUpAction& action = m_LR1->GetAction(state, element);
+			if (action.Type == BottomUpActionType::Reduce)
+			{
+				reduceAction = &action;
+				break;
+			}
+		}
+
+		return reduceAction;
 	}
 }

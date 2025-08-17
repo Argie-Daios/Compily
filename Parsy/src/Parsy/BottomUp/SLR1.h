@@ -10,5 +10,7 @@ namespace Parsy
 		SLR1(class Parser* parserRef);
 	protected:
 		virtual void HandleReduceTable(int32_t state, const BottomUpStateProduction& production) override;
+		virtual void GenerateLookAheadSymbols(std::unordered_set<CFGElement>& lookaheadSymbols,
+			BottomUpStateProduction& expandedRule) override;
 	};
 }

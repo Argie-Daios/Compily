@@ -50,8 +50,8 @@ namespace Parsy
 			([&]()
 				{
 					m_TokenMap.try_emplace(token);
-					m_TokenMap.at(token).Priority = m_HighestPriority;
-					m_TokenMap.at(token).Associativity = associativity;
+					m_TokenMap.at(token).Precedence.Priority = m_HighestPriority;
+					m_TokenMap.at(token).Precedence.Associativity = associativity;
 				}(), ...);
 		}
 
@@ -117,8 +117,7 @@ namespace Parsy
 
 		struct TokenProperties
 		{
-			int32_t Priority = 0;
-			PrecedenceAssociativity Associativity = PrecedenceAssociativity::None;
+			PrecedenceData Precedence;
 			TypeCallback TokenTypeConstructCallback = [](EntryValue& entry) { entry.reset(); };
 		};
 	private:

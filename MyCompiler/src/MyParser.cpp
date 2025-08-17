@@ -7,9 +7,12 @@
 
 enum RuleType
 {
+	PROGRAM,
 	STATEMENTS,
 	STATEMENT,
 	EXPRESSION,
+	EXPRESSION_LIST,
+	EXPRESSION_LIST_NEXT,
 	CONSTANT
 };
 
@@ -21,11 +24,18 @@ struct Operation
 
 std::unordered_map<std::string, int32_t> s_SymbolTable;
 
+template<typename Function, typename ... Args>
+static void InvokeFunction(Function&& function, Args&& ... args)
+{
+	function(std::forward<Args>(args)...);
+}
+
 MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPath)
 	: CLRParser(inputStream, Parsy::CLRParserFlags_ForcePrecedence | Parsy::LRParserFlags_IncludeDollarLookAhead),
-	m_InputPath(inputPath), m_Logger(inputPath)
+	m_InputPath(inputPath)
 {
 	m_Lexer = new MyLexer(inputStream, inputPath);
+	Utilities::Logger::Register("MyParser", inputPath);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +54,16 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 	DeclareRootRule(STATEMENTS);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	BeginRule(PROGRAM);
+
+	Add(Parsy::CFGElementType::NonTerminal, STATEMENTS);
+
+	Union();
+
+	Add(Parsy::CFGElementType::Epsilon);
+
+	EndRule();
 
 	BeginRule(STATEMENTS);
 
@@ -66,12 +86,12 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		{
 		case ConstantValueType::Int:
 		{
-			std::cout << "Expression value: " << expressionValue.IntVal << std::endl;
+			//std::cout << "Expression value: " << expressionValue.IntVal << std::endl;
 			break;
 		}
 		case ConstantValueType::String:
 		{
-			std::cout << "Expression value: " << expressionValue.StrVal << std::endl;
+			//std::cout << "Expression value: " << expressionValue.StrVal << std::endl;
 			break;
 		}
 		}
@@ -81,8 +101,73 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 	Add(Parsy::CFGElementType::Error, [this](Parsy::EntryValue& any) { 
-		m_Logger.Error("Missing ';' on line {}", m_Lexer->GetLineCount());
+		Utilities::Logger::Error("MyParser", "Missing ';' on line{}", m_Lexer->GetLineCount());
 	});
+
+	Union();
+
+	Add(Parsy::CFGElementType::Symbol, PRINT_FUNCTION);
+	Add(Parsy::CFGElementType::Symbol, LEFT_PARENTHESIS);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION_LIST);
+	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS);
+	Add(Parsy::CFGElementType::Symbol, SEMICOLON, [this](Parsy::EntryValue& entry) {
+		std::vector<Constant>& expressionValue = Get<std::vector<Constant>>(2);
+		for (const Constant& arg : expressionValue)
+		{
+			switch (arg.Type)
+			{
+			case ConstantValueType::Int:
+			{
+				std::cout << arg.IntVal;
+				break;
+			}
+			case ConstantValueType::String:
+			{
+				std::cout << arg.StrVal;
+				break;
+			}
+			}
+		}
+	});
+
+	Union();
+
+	Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+
+	EndRule();
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	BeginRule<std::vector<Constant>>(EXPRESSION_LIST);
+
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION_LIST_NEXT, [this](Parsy::EntryValue& entry) {
+		std::vector<Constant>& expressionListValue = Get<std::vector<Constant>>(entry);
+		Constant& leftExpressionValue = Get<Constant>(0);
+		std::vector<Constant>& nextExpressionListValue = Get<std::vector<Constant>>(1);
+		expressionListValue.push_back(leftExpressionValue);
+		for (auto& constant : nextExpressionListValue)
+		{
+			expressionListValue.push_back(constant);
+		}
+	});
+
+	EndRule();
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	BeginRule<std::vector<Constant>>(EXPRESSION_LIST_NEXT);
+
+	Add(Parsy::CFGElementType::Symbol, COMMA);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
+		std::vector<Constant>& expressionListValue = Get<std::vector<Constant>>(entry);
+		Constant& leftExpressionValue = Get<Constant>(1);
+		expressionListValue.push_back(leftExpressionValue);
+	});
+
+	Union();
+
+	Add(Parsy::CFGElementType::Epsilon);
 
 	EndRule();
 
@@ -97,7 +182,7 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		Constant& leftExpressionValue = Get<Constant>(0);
 		Constant& rightExpressionValue = Get<Constant>(2);
 		expressionValue = ExecuteOperation(0, leftExpressionValue, rightExpressionValue);
-		std::cout << leftExpressionValue.IntVal << " + " << rightExpressionValue.IntVal << std::endl;
+		//std::cout << leftExpressionValue.IntVal << " + " << rightExpressionValue.IntVal << std::endl;
 		});
 
 	Union();
@@ -109,7 +194,7 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		Constant& leftExpressionValue = Get<Constant>(0);
 		Constant& rightExpressionValue = Get<Constant>(2);
 		expressionValue = ExecuteOperation(1, leftExpressionValue, rightExpressionValue);
-		std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
+		//std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
 		});
 
 	Union();
@@ -121,7 +206,7 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		Constant& leftExpressionValue = Get<Constant>(0);
 		Constant& rightExpressionValue = Get<Constant>(2);
 		expressionValue = ExecuteOperation(2, leftExpressionValue, rightExpressionValue);
-		std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
+		//std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
 		});
 
 	Union();
@@ -141,7 +226,7 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		Constant& expressionValue = Get<Constant>(any);
 		Constant& innerExpressionValue = Get<Constant>(1);
 		expressionValue.IntVal = innerExpressionValue.IntVal * -1;
-		std::cout << "-" << innerExpressionValue.IntVal << std::endl;
+		//std::cout << "-" << innerExpressionValue.IntVal << std::endl;
 		});
 	Prec(UMINUS);
 
@@ -150,14 +235,14 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 	Add(Parsy::CFGElementType::Symbol, LEFT_PARENTHESIS);
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 	Add(Parsy::CFGElementType::Error, [this](Parsy::EntryValue& any) { 
-		m_Logger.Error("Missing ')' on line {}", m_Lexer->GetLineCount());
+		Utilities::Logger::Error("MyParser", "Missing ')' on line {}", m_Lexer->GetLineCount());
 	});
 
 	Union();
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 	Add(Parsy::CFGElementType::Error, [this](Parsy::EntryValue& any) { 
-		m_Logger.Error("Missing '(' on line {}", m_Lexer->GetLineCount());
+		Utilities::Logger::Error("MyParser", "Missing '(' on line {}", m_Lexer->GetLineCount());
 	});
 	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS);
 
@@ -165,7 +250,7 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 
 	Add(Parsy::CFGElementType::Symbol, LEFT_PARENTHESIS);
 	Add(Parsy::CFGElementType::Error, [this](Parsy::EntryValue& any) { 
-		m_Logger.Error("Empty parenthesis on line {}", m_Lexer->GetLineCount());
+		Utilities::Logger::Error("MyParser", "Empty parenthesis on line {}", m_Lexer->GetLineCount());
 	});
 	Add(Parsy::CFGElementType::Symbol, RIGHT_PARENTHESIS);
 
@@ -203,16 +288,19 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Parse();
-
+	Utilities::Time::TimerHandle& timerHandle = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(Parse));
+	Utilities::Logger::Info("MyParser", "Parsing took {}ms", timerHandle.GetTimeElapsed());
 }
 
 const std::string MyParser::RuleToStr(Parsy::RuleID_t ruleID) const
 {
 	switch (ruleID)
 	{
+	case PROGRAM: return "Program";
 	case STATEMENTS: return "Statements";
 	case STATEMENT: return "Statement";
+	case EXPRESSION_LIST: return "ExpressionList";
+	case EXPRESSION_LIST_NEXT: return "ExpressionListNext";
 	case EXPRESSION: return "Expression";
 	case CONSTANT: return "Constant";
 	}
@@ -253,6 +341,8 @@ const std::string MyParser::TokenToStr(Lexy::TokenID_t tokenID) const
 	case LEFT_PARENTHESIS: return "LeftParenthesis";
 	case RIGHT_PARENTHESIS: return "RightParenthesis";
 	case SEMICOLON: return "Semicolon";
+	case COMMA: return "Comma";
+	case PRINT_FUNCTION: return "PrintFunction";
 	}
 
 	return Parser::TokenToStr(tokenID);

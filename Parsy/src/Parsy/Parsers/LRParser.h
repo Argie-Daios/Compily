@@ -38,10 +38,17 @@ namespace Parsy
 	private:
 		void ExportParseStack(std::vector<std::string>& labels, std::vector<std::string>& elements);
 		void ExportResult(const std::string& message, std::vector<std::string>& labels, std::vector<std::string>& elements);
+		void TryGetRulePrecedence(const BottomUpActionData* reduceActionData, PrecedenceData& precedenceData);
+		void TieBreakWithAssociativity(const PrecedenceData& leftPrecedenceData, const PrecedenceData& rightPrecedenceData,
+			int32_t state, const BottomUpAction& reduceAction, const BottomUpAction& shiftAction,
+			const Lexy::Lexer::Token& token);
 	private:
 		ParseTree m_InputStack;
 		std::string m_ActionString;
 		int32_t m_Elements = -1;
 		bool m_KeepToken = false;
+
+		friend class CLRParser;
+		friend class SLRParser;
 	};
 }
