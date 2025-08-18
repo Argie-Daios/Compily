@@ -14,22 +14,14 @@ namespace Parsy
     bool LRParser::Parse()
     {
         ASSERT(m_Lexer != nullptr, "Lexer reference is nullptr!!");
-        m_LR1->GenerateFirstSets();
-        m_LR1->GenerateFollowSets();
-        auto& stateGraphBenchmark = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(m_LR1->GenerateStateGraph));
-        auto& tableGraphBenchmark = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(m_LR1->GenerateTable));
-        PARSY_LOG_INFO("State graph generation took {}ms", stateGraphBenchmark.GetTimeElapsed());
-        PARSY_LOG_INFO("Parsing table generation took {}ms", tableGraphBenchmark.GetTimeElapsed());
-        Print();
-        m_LR1->PrintStateGraph();
-        m_LR1->PrintTable();
+        GenerateParsingData();
+        GenerateOutputFiles();
 
         m_InputStack.Stack.clear();
         m_InputStack.Stack.push_back({ 0, {CFGElementType::Dollar, -1} });
         Lexy::Lexer::Token token;
         std::vector<std::string> labels = { "States", "Stack", "Token", "Action", "String Range"};
         std::vector<std::string> elements;
-
         while (true)
         {
             if (!m_KeepToken)
@@ -37,59 +29,7 @@ namespace Parsy
             m_KeepToken = false;
             ParseEntryData& topState = m_InputStack.Stack.back();
             CFGElement& tokenElement = GetTokenElement(token);
-
-            std::string states;
-            std::string stack;
-            std::string tokenStr;
-            std::string stringRange = "---";
-            size_t count = 0;
-            for (int32_t i = 0; i < m_InputStack.Stack.size(); i++)
-            {
-                const ParseEntryData& entry = m_InputStack.Stack.at(i);
-                count += entry.Token.StringCount;
-
-                if (i == 1)
-                {
-                    stringRange = std::to_string(entry.Token.StringOffset);
-                }
-                if (count > 0 && i == m_InputStack.Stack.size() - 1)
-                {
-                    stringRange += " - " + std::to_string(count);
-                }
-
-                states += '(' + std::to_string(entry.State) + ')';
-                switch (entry.Symbol.Type)
-                {
-                case CFGElementType::NonTerminal:
-                {
-                    stack += '{' + CFGElementToStr(entry.Symbol) + '}';
-                    break;
-                }
-                case CFGElementType::Symbol:
-                {
-                    stack += '{' + CFGElementToStr(entry.Symbol) + '}';
-                    break;
-                }
-                default:
-                {
-                    stack += CFGElementToStr(entry.Symbol);
-                    break;
-                }
-                }
-            }
-            if (tokenElement.Type == CFGElementType::Dollar)
-                tokenStr += '$';
-            else
-                tokenStr += TokenToStr(tokenElement.ID);
-                
-            elements.push_back(states);
-            elements.push_back(stack);
-            elements.push_back(tokenStr);
-            if (m_ActionString.empty())
-                elements.push_back("---");
-            else
-                elements.push_back(m_ActionString);
-            elements.push_back(stringRange);
+            SubmitDataToTable(labels, elements, tokenElement);
 
             BottomUpAction& action = m_LR1->GetAction(topState.State, tokenElement);
             switch (action.Type)
@@ -113,10 +53,10 @@ namespace Parsy
             {
                 if (!OnConflict(topState.State, action, token))
                 {
-                    ExportResult("Error", labels, elements);
                     auto& errorAction = m_LR1->GetAction(topState.State, CFGElement(CFGElementType::Error, -1));
                     if (errorAction.Type == BottomUpActionType::Empty)
                     {
+                        ExportResult("Error", labels, elements);
                         SyntaxErrorHandler();
                     }
                     Shift(topState.State, errorAction, CFGElementType::Error, token);
@@ -356,14 +296,71 @@ namespace Parsy
         stackTable.Export();
     }
 
-    void LRParser::ExportResult(const std::string& message, std::vector<std::string>& labels, std::vector<std::string>& elements)
+    void LRParser::ExportResult(const std::string& message, std::vector<std::string>& labels,
+        std::vector<std::string>& elements)
     {
-        elements.push_back(message);
-        elements.push_back(message);
-        elements.push_back(message);
-        elements.push_back(message);
-        elements.push_back(message);
+        for (size_t i = 0; i < labels.size(); i++)
+        {
+            elements.push_back(message);
+        }
         ExportParseStack(labels, elements);
+    }
+
+    void LRParser::SubmitDataToTable(std::vector<std::string>& labels, std::vector<std::string>& elements,
+        const CFGElement& tokenElement)
+    {
+        std::string states;
+        std::string stack;
+        std::string tokenStr;
+        std::string stringRange = "---";
+        size_t count = 0;
+        for (int32_t i = 0; i < m_InputStack.Stack.size(); i++)
+        {
+            const ParseEntryData& entry = m_InputStack.Stack.at(i);
+            count += entry.Token.StringCount;
+
+            if (i == 1)
+            {
+                stringRange = std::to_string(entry.Token.StringOffset);
+            }
+            if (count > 0 && i == m_InputStack.Stack.size() - 1)
+            {
+                stringRange += " - " + std::to_string(count);
+            }
+
+            states += '(' + std::to_string(entry.State) + ')';
+            switch (entry.Symbol.Type)
+            {
+            case CFGElementType::NonTerminal:
+            {
+                stack += '{' + CFGElementToStr(entry.Symbol) + '}';
+                break;
+            }
+            case CFGElementType::Symbol:
+            {
+                stack += '{' + CFGElementToStr(entry.Symbol) + '}';
+                break;
+            }
+            default:
+            {
+                stack += CFGElementToStr(entry.Symbol);
+                break;
+            }
+            }
+        }
+        if (tokenElement.Type == CFGElementType::Dollar)
+            tokenStr += '$';
+        else
+            tokenStr += TokenToStr(tokenElement.ID);
+
+        elements.push_back(states);
+        elements.push_back(stack);
+        elements.push_back(tokenStr);
+        if (m_ActionString.empty())
+            elements.push_back("---");
+        else
+            elements.push_back(m_ActionString);
+        elements.push_back(stringRange);
     }
 
     void LRParser::TryGetRulePrecedence(const BottomUpActionData* reduceActionData, PrecedenceData& precedenceData)

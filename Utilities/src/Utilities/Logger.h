@@ -10,7 +10,7 @@ namespace Utilities
 	{
 	public:
 		inline static const std::shared_ptr<spdlog::logger>& Register(const std::string& name, const std::string& label,
-			const std::string format = "%^[%n]: %v%$")
+			const std::string format = "%^[%n](%l): %v%$")
 		{
 			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 			console_sink->set_pattern(format);

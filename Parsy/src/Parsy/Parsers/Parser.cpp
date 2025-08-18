@@ -1,6 +1,7 @@
 #include "Parser.h"
 
 #include <iostream>
+#include "Parsy/Macros.h"
 
 namespace Parsy
 {
@@ -12,114 +13,11 @@ namespace Parsy
         m_TokenMap.try_emplace(-1);
     }
 
-    void Parser::Print()
+    void Parser::GenerateOutputFiles()
     { 
-        /*auto& set = m_LR1->GetFirstSet({ CFGElementType::NonTerminal, 0 });
-        std::cout << "First Set of Rule(0) { ";
-        for (auto& element : set)
-        {
-            element.Print();
-            std::cout << " ";
-        }
-        std::cout << "}" << std::endl << std::endl;*/
-
-        std::ofstream stream("CFGInfo.txt");
-        stream << "[Terminals]" << std::endl;
-        for (const CFGElement& element : m_LR1->GetSymbols())
-        {
-            if (element.Type != CFGElementType::Symbol) continue;
-            stream << '\t' << TokenToStr(element.ID) << std::endl;
-        }
-        stream << std::endl;
-
-        stream << "[Non-Terminals]" << std::endl;
-        for (const CFGElement& element : m_LR1->GetNonTerminals())
-        {
-            if (element.Type != CFGElementType::NonTerminal || element.ID == m_StartingRule) continue;
-            stream << '\t' << RuleToStr(element.ID) << std::endl;
-        }
-        stream << std::endl;
-
-        stream << "[CFG Grammar]" << std::endl;
-        for (auto& [ruleID, ruleProps] : m_CFGMap)
-        {
-            stream << '\t';
-            if (ruleID == m_StartingRule)
-                stream << "Start";
-            else
-                stream << RuleToStr(ruleID);
-            stream << " --> ";
-            auto& productions = ruleProps.Grammar.GetProductions();
-            for (int32_t i = 0; i < productions.size(); i++)
-            {
-                auto& elementList = productions.at(i);
-                for (auto& element : elementList.Elements)
-                {
-                    EntryValue entry;
-                    switch (element.Type)
-                    {
-                    case CFGElementType::Symbol:
-                    {
-                        stream << TokenToStr(element.ID);
-                        m_TokenMap.at(element.ID).TokenTypeConstructCallback(entry);
-                        break;
-                    }
-                    case CFGElementType::NonTerminal:
-                    {
-                        stream << RuleToStr(element.ID);
-                        m_CFGMap.at(element.ID).RuleTypeConstructCallback(entry);
-                        break;
-                    }
-                    case CFGElementType::Epsilon:
-                    {
-                        stream << "Empty";
-                        break;
-                    }
-                    case CFGElementType::Dollar:
-                    {
-                        stream << "$";
-                        break;
-                    }
-                    case CFGElementType::Error:
-                    {
-                        stream << "Error";
-                        break;
-                    }
-                    }
-                    stream << " ";
-                }
-                if(i < productions.size() - 1)
-                    stream << " | " << std::endl << "\t\t\t";
-            }
-            stream << std::endl << std::endl;
-        }
-
-        stream << "[Conflicts]" << std::endl;
-        for (size_t i = 0; i < m_LR1->m_ActionTable.size(); i++)
-        {
-            const BottomUpAction& action = m_LR1->m_ActionTable.at(i);
-            size_t state = i / m_LR1->GetTotalSymbols();
-            if (action.Type != BottomUpActionType::Conflict) continue;
-            size_t shiftCount = 0U;
-            size_t reduceCount = 0U;
-            for (const BottomUpActionData& actionData : action.ActionData)
-            {
-                switch (actionData.Type)
-                {
-                case BottomUpActionType::Shift:
-                {
-                    shiftCount++;
-                    break;
-                }
-                case BottomUpActionType::Reduce:
-                {
-                    reduceCount++;
-                    break;
-                }
-                }
-            }
-            stream << '\t' << shiftCount << " Shifts / " << reduceCount << " Reduces" << " on state " << state << std::endl;
-        }
+        GenerateCFGInfo();
+        m_LR1->PrintStateGraph();
+        m_LR1->PrintTable();
     }
 
     void Parser::DeclareRootRule(RuleID_t rule)
@@ -240,7 +138,6 @@ namespace Parsy
         }
         case Lexy::Lexer::TokenState::Failure:
         {
-
             break;
         }
         }
@@ -266,7 +163,6 @@ namespace Parsy
         }
         case Lexy::Lexer::TokenState::Failure:
         {
-
             break;
         }
         }
@@ -318,5 +214,116 @@ namespace Parsy
         }
 
         return parseEntry;
+    }
+
+    void Parser::GenerateParsingData()
+    {
+        m_LR1->GenerateFirstSets();
+        m_LR1->GenerateFollowSets();
+        auto& stateGraphBenchmark = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(m_LR1->GenerateStateGraph));
+        auto& tableGraphBenchmark = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(m_LR1->GenerateTable));
+        PARSY_LOG_INFO("State graph generation took {}ms", stateGraphBenchmark.GetTimeElapsed());
+        PARSY_LOG_INFO("Parsing table generation took {}ms", tableGraphBenchmark.GetTimeElapsed());
+    }
+
+    void Parser::GenerateCFGInfo()
+    {
+        std::ofstream stream("CFGInfo.txt");
+        stream << "[Terminals]" << std::endl;
+        for (const CFGElement& element : m_LR1->GetSymbols())
+        {
+            if (element.Type != CFGElementType::Symbol) continue;
+            stream << '\t' << TokenToStr(element.ID) << std::endl;
+        }
+        stream << std::endl;
+
+        stream << "[Non-Terminals]" << std::endl;
+        for (const CFGElement& element : m_LR1->GetNonTerminals())
+        {
+            if (element.Type != CFGElementType::NonTerminal || element.ID == m_StartingRule) continue;
+            stream << '\t' << RuleToStr(element.ID) << std::endl;
+        }
+        stream << std::endl;
+
+        stream << "[CFG Grammar]" << std::endl;
+        for (auto& [ruleID, ruleProps] : m_CFGMap)
+        {
+            stream << '\t';
+            if (ruleID == m_StartingRule)
+                stream << "Start";
+            else
+                stream << RuleToStr(ruleID);
+            stream << " --> ";
+            auto& productions = ruleProps.Grammar.GetProductions();
+            for (int32_t i = 0; i < productions.size(); i++)
+            {
+                auto& elementList = productions.at(i);
+                for (auto& element : elementList.Elements)
+                {
+                    EntryValue entry;
+                    switch (element.Type)
+                    {
+                    case CFGElementType::Symbol:
+                    {
+                        stream << TokenToStr(element.ID);
+                        m_TokenMap.at(element.ID).TokenTypeConstructCallback(entry);
+                        break;
+                    }
+                    case CFGElementType::NonTerminal:
+                    {
+                        stream << RuleToStr(element.ID);
+                        m_CFGMap.at(element.ID).RuleTypeConstructCallback(entry);
+                        break;
+                    }
+                    case CFGElementType::Epsilon:
+                    {
+                        stream << "Empty";
+                        break;
+                    }
+                    case CFGElementType::Dollar:
+                    {
+                        stream << "$";
+                        break;
+                    }
+                    case CFGElementType::Error:
+                    {
+                        stream << "Error";
+                        break;
+                    }
+                    }
+                    stream << " ";
+                }
+                if (i < productions.size() - 1)
+                    stream << " | " << std::endl << "\t\t\t";
+            }
+            stream << std::endl << std::endl;
+        }
+
+        stream << "[Conflicts]" << std::endl;
+        for (size_t i = 0; i < m_LR1->m_ActionTable.size(); i++)
+        {
+            const BottomUpAction& action = m_LR1->m_ActionTable.at(i);
+            size_t state = i / m_LR1->GetTotalSymbols();
+            if (action.Type != BottomUpActionType::Conflict) continue;
+            size_t shiftCount = 0U;
+            size_t reduceCount = 0U;
+            for (const BottomUpActionData& actionData : action.ActionData)
+            {
+                switch (actionData.Type)
+                {
+                case BottomUpActionType::Shift:
+                {
+                    shiftCount++;
+                    break;
+                }
+                case BottomUpActionType::Reduce:
+                {
+                    reduceCount++;
+                    break;
+                }
+                }
+            }
+            stream << '\t' << shiftCount << " Shifts / " << reduceCount << " Reduces" << " on state " << state << std::endl;
+        }
     }
 }

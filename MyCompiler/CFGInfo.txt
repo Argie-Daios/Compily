@@ -1,15 +1,17 @@
 [Terminals]
-	Plus
-	Comma
 	Semicolon
+	Integer
 	LeftParenthesis
 	PrintFunction
 	RightParenthesis
-	Multiply
-	Power
+	Plus
+	Comma
 	Minus
-	Integer
+	Multiply
+	Divide
+	Power
 	String
+	2
 
 [Non-Terminals]
 	ExpressionList
@@ -24,7 +26,7 @@
 	Program --> Statements  | 
 			Empty 
 
-	Start --> Statements 
+	Start --> Program 
 
 	Statements --> Statement Statements  | 
 			Statement 
@@ -36,11 +38,13 @@
 
 	ExpressionList --> Expression ExpressionListNext 
 
-	ExpressionListNext --> Comma Expression  | 
+	ExpressionListNext --> Comma Expression ExpressionListNext  | 
 			Empty 
 
 	Expression --> Expression Plus Expression  | 
+			Expression Minus Expression  | 
 			Expression Multiply Expression  | 
+			Expression Divide Expression  | 
 			Expression Power Expression  | 
 			LeftParenthesis Expression RightParenthesis  | 
 			Minus Expression  | 
@@ -50,8 +54,9 @@
 			Constant 
 
 	Constant --> Integer  | 
-			String 
+			String  | 
+			2 
 
 [Conflicts]
-	1 Shifts / 1 Reduces on state 28
-	1 Shifts / 1 Reduces on state 53
+	1 Shifts / 1 Reduces on state 32
+	1 Shifts / 1 Reduces on state 63

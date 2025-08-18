@@ -6,6 +6,7 @@ enum TokenType
 
 	COMMENT,
 	STRING,
+	CHARACTER,
 	IDENTIFIER,
 	DOUBLE,
 	INTEGER,

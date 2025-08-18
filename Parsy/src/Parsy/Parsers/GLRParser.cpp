@@ -18,13 +18,8 @@ namespace Parsy
 			std::cout << "Null" << std::endl;
 			return false;
 		}
-		m_LR1->GenerateFirstSets();
-		m_LR1->GenerateFollowSets();
-		m_LR1->GenerateStateGraph();
-		m_LR1->GenerateTable();
-		m_LR1->PrintStateGraph();
-		m_LR1->PrintTable();
-		Print();
+		GenerateParsingData();
+		GenerateOutputFiles();
 
 		int32_t id = PushStateOnGSS(0, 0);
 		m_GSS.m_GSSGraph.GetVertex(id).Data.Path = "0";

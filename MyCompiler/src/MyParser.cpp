@@ -22,14 +22,6 @@ struct Operation
 	int32_t RightValue;
 };
 
-std::unordered_map<std::string, int32_t> s_SymbolTable;
-
-template<typename Function, typename ... Args>
-static void InvokeFunction(Function&& function, Args&& ... args)
-{
-	function(std::forward<Args>(args)...);
-}
-
 MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPath)
 	: CLRParser(inputStream, Parsy::CLRParserFlags_ForcePrecedence | Parsy::LRParserFlags_IncludeDollarLookAhead),
 	m_InputPath(inputPath)
@@ -51,7 +43,7 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	DeclareRootRule(STATEMENTS);
+	DeclareRootRule(PROGRAM);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,23 +71,7 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 	BeginRule<int32_t>(STATEMENT);
 
 	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION );
-	Add(Parsy::CFGElementType::Symbol, SEMICOLON, [this](Parsy::EntryValue& any) {
-		Constant& expressionValue = Get<Constant>(0);
-
-		switch (expressionValue.Type)
-		{
-		case ConstantValueType::Int:
-		{
-			//std::cout << "Expression value: " << expressionValue.IntVal << std::endl;
-			break;
-		}
-		case ConstantValueType::String:
-		{
-			//std::cout << "Expression value: " << expressionValue.StrVal << std::endl;
-			break;
-		}
-		}
-		});
+	Add(Parsy::CFGElementType::Symbol, SEMICOLON);
 
 	Union();
 
@@ -159,10 +135,16 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 	BeginRule<std::vector<Constant>>(EXPRESSION_LIST_NEXT);
 
 	Add(Parsy::CFGElementType::Symbol, COMMA);
-	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION_LIST_NEXT, [this](Parsy::EntryValue& entry) {
 		std::vector<Constant>& expressionListValue = Get<std::vector<Constant>>(entry);
 		Constant& leftExpressionValue = Get<Constant>(1);
+		std::vector<Constant>& expressionListNextValue = Get<std::vector<Constant>>(2);
 		expressionListValue.push_back(leftExpressionValue);
+		for (auto& constant : expressionListNextValue)
+		{
+			expressionListValue.push_back(constant);
+		}
 	});
 
 	Union();
@@ -182,7 +164,17 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		Constant& leftExpressionValue = Get<Constant>(0);
 		Constant& rightExpressionValue = Get<Constant>(2);
 		expressionValue = ExecuteOperation(0, leftExpressionValue, rightExpressionValue);
-		//std::cout << leftExpressionValue.IntVal << " + " << rightExpressionValue.IntVal << std::endl;
+		});
+
+	Union();
+
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+	Add(Parsy::CFGElementType::Symbol, MINUS);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(any);
+		Constant& leftExpressionValue = Get<Constant>(0);
+		Constant& rightExpressionValue = Get<Constant>(2);
+		expressionValue = ExecuteOperation(1, leftExpressionValue, rightExpressionValue);
 		});
 
 	Union();
@@ -193,8 +185,18 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		Constant& expressionValue = Get<Constant>(any);
 		Constant& leftExpressionValue = Get<Constant>(0);
 		Constant& rightExpressionValue = Get<Constant>(2);
-		expressionValue = ExecuteOperation(1, leftExpressionValue, rightExpressionValue);
-		//std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
+		expressionValue = ExecuteOperation(2, leftExpressionValue, rightExpressionValue);
+		});
+
+	Union();
+
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+	Add(Parsy::CFGElementType::Symbol, DIVIDE);
+	Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& any) {
+		Constant& expressionValue = Get<Constant>(any);
+		Constant& leftExpressionValue = Get<Constant>(0);
+		Constant& rightExpressionValue = Get<Constant>(2);
+		expressionValue = ExecuteOperation(3, leftExpressionValue, rightExpressionValue);
 		});
 
 	Union();
@@ -205,8 +207,7 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		Constant& expressionValue = Get<Constant>(any);
 		Constant& leftExpressionValue = Get<Constant>(0);
 		Constant& rightExpressionValue = Get<Constant>(2);
-		expressionValue = ExecuteOperation(2, leftExpressionValue, rightExpressionValue);
-		//std::cout << leftExpressionValue.IntVal << " * " << rightExpressionValue.IntVal << std::endl;
+		expressionValue = ExecuteOperation(4, leftExpressionValue, rightExpressionValue);
 		});
 
 	Union();
@@ -226,7 +227,6 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 		Constant& expressionValue = Get<Constant>(any);
 		Constant& innerExpressionValue = Get<Constant>(1);
 		expressionValue.IntVal = innerExpressionValue.IntVal * -1;
-		//std::cout << "-" << innerExpressionValue.IntVal << std::endl;
 		});
 	Prec(UMINUS);
 
@@ -278,6 +278,15 @@ MyParser::MyParser(const std::ifstream& inputStream, const std::string& inputPat
 	Union();
 
 	Add(Parsy::CFGElementType::Symbol, STRING, [this](Parsy::EntryValue& any) {
+		Constant& constantValue = Get<Constant>(any);
+		std::string& stringValue = Get<std::string>(0);
+		constantValue.Type = ConstantValueType::String;
+		constantValue.StrVal = stringValue;
+		});
+
+	Union();
+
+	Add(Parsy::CFGElementType::Symbol, CHARACTER, [this](Parsy::EntryValue& any) {
 		Constant& constantValue = Get<Constant>(any);
 		std::string& stringValue = Get<std::string>(0);
 		constantValue.Type = ConstantValueType::String;
@@ -399,7 +408,7 @@ Constant MyParser::ExecuteOperation(int32_t opCode, const Constant& leftValue, c
 			int32_t rightValueInt = (rightValue.Type == ConstantValueType::Int ? rightValue.IntVal :
 				std::stoi(rightValue.StrVal));
 			constant.Type = ConstantValueType::Int;
-			constant.IntVal = leftValueInt * rightValueInt;
+			constant.IntVal = leftValueInt - rightValueInt;
 			break;
 		}
 		case ConstantValueType::String:
@@ -411,6 +420,51 @@ Constant MyParser::ExecuteOperation(int32_t opCode, const Constant& leftValue, c
 		break;
 	}
 	case 2:
+	{
+		switch (resultType)
+		{
+		case ConstantValueType::Int:
+		{
+			int32_t leftValueInt = (leftValue.Type == ConstantValueType::Int ? leftValue.IntVal :
+				std::stoi(leftValue.StrVal));
+			int32_t rightValueInt = (rightValue.Type == ConstantValueType::Int ? rightValue.IntVal :
+				std::stoi(rightValue.StrVal));
+			constant.Type = ConstantValueType::Int;
+			constant.IntVal = leftValueInt * rightValueInt;
+			break;
+		}
+		case ConstantValueType::String:
+		{
+			std::cout << "Cannot perform power with string" << std::endl;
+			exit(1);
+		}
+		}
+		break;
+	}
+	case 3:
+	{
+		switch (resultType)
+		{
+		case ConstantValueType::Int:
+		{
+			int32_t leftValueInt = (leftValue.Type == ConstantValueType::Int ? leftValue.IntVal :
+				std::stoi(leftValue.StrVal));
+			int32_t rightValueInt = (rightValue.Type == ConstantValueType::Int ? rightValue.IntVal :
+				std::stoi(rightValue.StrVal));
+			constant.Type = ConstantValueType::Int;
+			ASSERT(rightValueInt != 0, "Division with 0");
+			constant.IntVal = leftValueInt / rightValueInt;
+			break;
+		}
+		case ConstantValueType::String:
+		{
+			std::cout << "Cannot perform power with string" << std::endl;
+			exit(1);
+		}
+		}
+		break;
+	}
+	case 4:
 	{
 		switch (resultType)
 		{

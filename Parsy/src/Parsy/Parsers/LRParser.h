@@ -38,6 +38,8 @@ namespace Parsy
 	private:
 		void ExportParseStack(std::vector<std::string>& labels, std::vector<std::string>& elements);
 		void ExportResult(const std::string& message, std::vector<std::string>& labels, std::vector<std::string>& elements);
+		void SubmitDataToTable(std::vector<std::string>& labels, std::vector<std::string>& elements,
+			const CFGElement& tokenElement);
 		void TryGetRulePrecedence(const BottomUpActionData* reduceActionData, PrecedenceData& precedenceData);
 		void TieBreakWithAssociativity(const PrecedenceData& leftPrecedenceData, const PrecedenceData& rightPrecedenceData,
 			int32_t state, const BottomUpAction& reduceAction, const BottomUpAction& shiftAction,

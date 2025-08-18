@@ -1,6 +1,7 @@
 #include "CLRParser.h"
 
 #include "Parsy/BottomUp/CLR1.h"
+#include "Parsy/Macros.h"
 
 namespace Parsy
 {
@@ -52,6 +53,10 @@ namespace Parsy
 			}
 			else
 			{
+				if (reduceAction == nullptr)
+				{
+					PARSY_LOG_WARN("Attempt to tie break with no reduce action");
+				}
 				TieBreakWithAssociativity(leftPrecedenceData, rightPrecedenceData, state, *reduceAction, action, token);
 				return true;
 			}

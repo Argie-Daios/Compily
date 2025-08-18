@@ -31,7 +31,7 @@ namespace Parsy
 		Parser(const std::ifstream& inputStream, int32_t flags = 0);
 
 		virtual bool Parse() = 0;
-		void Print();
+		void GenerateOutputFiles();
 
 		template<typename Type>
 		void DeclareTokenType(Lexy::TokenID_t token)
@@ -126,6 +126,8 @@ namespace Parsy
 		ParseEntryData ConstructEntry(RuleID_t ruleID, int32_t production);
 		ParseEntryData InvokeCallbacks(RuleID_t ruleID, int32_t production);
 		ParseEntryData ConstructEntryAndInvokeCallbacks(RuleID_t ruleID, int32_t production);
+		void GenerateParsingData();
+		void GenerateCFGInfo();
 	protected:
 		Lexy::Lexer* m_Lexer = nullptr;
 		int32_t m_Flags = 0;

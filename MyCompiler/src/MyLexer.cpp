@@ -36,6 +36,53 @@ static Lexy::Lexer::RuleBuffer s_Punctuation = {
 	{COMMA, R"(\,)"}
 };
 
+static void UnescapeInPlace(std::string& s)
+{
+	size_t w = 0;
+	for (size_t r = 0; r < s.size(); ++r) 
+	{
+		if (s[r] == '\\' && r + 1 < s.size()) 
+		{
+			char next = s[r + 1];
+			switch (next) {
+			case 'n': s[w++] = '\n'; break;
+			case 't': s[w++] = '\t'; break;
+			case 'r': s[w++] = '\r'; break;
+			case '\\': s[w++] = '\\'; break;
+			case '"': s[w++] = '"'; break;
+			default:
+			{
+				ASSERT(false, "Unknown escaped character");
+				break;
+			}
+			}
+			r++;
+		}
+		else {
+			s[w++] = s[r];
+		}
+	}
+	s.resize(w);
+}
+
+static void StripQuotesInPlaceString(std::string& s)
+{
+	if (s.size() >= 2 && s.front() == '"' && s.back() == '"') 
+	{
+		s.erase(s.begin());
+		s.pop_back();
+	}
+}
+
+static void StripQuotesInPlaceCharacter(std::string& s)
+{
+	if (s.size() >= 2 && s.front() == '\'' && s.back() == '\'')
+	{
+		s.erase(s.begin());
+		s.pop_back();
+	}
+}
+
 MyLexer::MyLexer(const std::ifstream& inputStream, const std::string& inputPath)
 	: Lexy::Lexer(inputStream), m_InputPath(inputPath)
 {
@@ -54,8 +101,20 @@ MyLexer::MyLexer(const std::ifstream& inputStream, const std::string& inputPath)
 	CreateRule(R"(\"[^"\n]*\")", [this]() {  // Needs fix it takes hole thing
 		auto& defaultValue = GetDefaultTokenValue();
 		defaultValue = GetTokenContent();
+		std::string& string = std::any_cast<std::string&>(defaultValue);
+		StripQuotesInPlaceString(string);
+		UnescapeInPlace(string);
 		return STRING; 
 		});
+
+	CreateRule(R"(\'[^'\n]\')", [this]() {
+		auto& defaultValue = GetDefaultTokenValue();
+		defaultValue = GetTokenContent();
+		std::string& string = std::any_cast<std::string&>(defaultValue);
+		StripQuotesInPlaceCharacter(string);
+		UnescapeInPlace(string);
+		return CHARACTER;
+	});
 
 	CreateRule(R"([A-Za-z][A-Za-z0-9\_]*)", [this]() { 
 		auto& defaultValue = GetDefaultTokenValue();

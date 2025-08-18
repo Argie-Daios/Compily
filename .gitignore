@@ -1,5 +1,6 @@
 # Binaries
 **/bin/
+**.exe
 bin-int/
 
 # Visual Studio files and folder
