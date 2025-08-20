@@ -270,6 +270,7 @@ namespace Parsy
 
     void LRParser::ExportParseStack(std::vector<std::string>& labels, std::vector<std::string>& elements)
     {
+#ifdef COMPILY_DEBUG
         Utilities::TableStream stackTable("ParseStack.txt", std::ios::out, Utilities::TableStreamFlags_ColumnsLabel
             | Utilities::TableStreamFlags_RowsLabel | Utilities::TableStreamFlags_RowSeperator);
 
@@ -294,6 +295,7 @@ namespace Parsy
         stackTable.SetColumnHorizontalSpacing(4);
 
         stackTable.Export();
+#endif
     }
 
     void LRParser::ExportResult(const std::string& message, std::vector<std::string>& labels,
@@ -309,6 +311,7 @@ namespace Parsy
     void LRParser::SubmitDataToTable(std::vector<std::string>& labels, std::vector<std::string>& elements,
         const CFGElement& tokenElement)
     {
+#ifdef COMPILY_DEBUG
         std::string states;
         std::string stack;
         std::string tokenStr;
@@ -361,6 +364,7 @@ namespace Parsy
         else
             elements.push_back(m_ActionString);
         elements.push_back(stringRange);
+#endif
     }
 
     void LRParser::TryGetRulePrecedence(const BottomUpActionData* reduceActionData, PrecedenceData& precedenceData)

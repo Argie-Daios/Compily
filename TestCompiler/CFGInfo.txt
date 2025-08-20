@@ -1,0 +1,207 @@
+[Terminals]
+	Slash
+	String
+	GreaterEquals
+	Plus
+	Semicolon
+	Caret
+	Dash
+	Comma
+	Star
+	Identifier
+	EqualsEquals
+	Integer
+	ExclamationEquals
+	Float
+	Less
+	Double
+	LessEquals
+	Character
+	Greater
+	Equals
+	IntegerType
+	OpeningParenthesis
+	FloatType
+	ClosingParenthesis
+	For
+	Ampersand
+	DoubleType
+	CharacterType
+	OpeningBrace
+	ShortType
+	ClosingBrace
+	LongType
+	Struct
+	If
+	While
+
+[Non-Terminals]
+	FunctionParameterList
+	Program
+	ForStatement
+	Expression
+	FunctionDefinition
+	Statements
+	IfStatement
+	StructDefinition
+	34
+	Statement
+	WhileStatement
+	AssignmentList
+	LvalueDeclarationList
+	OptionalStatement
+	StatementList
+	Terminal
+	OptionalExpression
+	ExpressionList
+	ExpressionListNext
+	Assignment
+	AssignmentListNext
+	Constant
+	TypeDefinition
+	LvalueDeclaration
+	Lvalue
+	LvalueListNext
+	LvalueList
+	IdentifierList
+	IdentifierListNext
+	StructMemberDeclarationList
+	StructMemberDeclarations
+	StructMemberDeclaration
+	ForDeclarationSlot
+	FunctionParameterDeclarationList
+	FunctionParameterDeclarationListNext
+
+[CFG Grammar]
+	Start --> Program 
+
+	Program --> Statements  | 
+			Empty 
+
+	Statements --> Statement Statements  | 
+			Statement 
+
+	Statement --> Expression Semicolon  | 
+			StructDefinition Semicolon  | 
+			IfStatement  | 
+			WhileStatement  | 
+			ForStatement  | 
+			FunctionDefinition  | 
+			AssignmentList Semicolon  | 
+			LvalueDeclarationList Semicolon  | 
+			Semicolon 
+
+	OptionalStatement --> Statement  | 
+			Empty 
+
+	StatementList --> Statements  | 
+			Empty 
+
+	Expression --> Expression Plus Expression  | 
+			Expression Dash Expression  | 
+			Expression Star Expression  | 
+			Expression Slash Expression  | 
+			Expression Caret Expression  | 
+			Expression EqualsEquals Expression  | 
+			Expression ExclamationEquals Expression  | 
+			Expression Less Expression  | 
+			Expression LessEquals Expression  | 
+			Expression Greater Expression  | 
+			Expression GreaterEquals Expression  | 
+			Terminal 
+
+	OptionalExpression --> Expression  | 
+			Empty 
+
+	ExpressionList --> Expression ExpressionListNext 
+
+	ExpressionListNext --> Comma Expression ExpressionListNext  | 
+			Empty 
+
+	Assignment --> Identifier Equals Expression 
+
+	AssignmentList --> Assignment AssignmentListNext 
+
+	AssignmentListNext --> Comma Assignment AssignmentListNext  | 
+			Empty 
+
+	Terminal --> OpeningParenthesis Expression ClosingParenthesis  | 
+			Identifier Plus Plus  | 
+			Plus Plus Identifier  | 
+			Identifier Dash Dash  | 
+			Dash Dash Identifier  | 
+			Identifier  | 
+			Star Expression  | 
+			Ampersand Expression  | 
+			34  | 
+			Constant 
+
+	TypeDefinition --> IntegerType  | 
+			FloatType  | 
+			DoubleType  | 
+			CharacterType  | 
+			ShortType  | 
+			LongType  | 
+			Identifier  | 
+			TypeDefinition Star 
+
+	LvalueDeclaration --> TypeDefinition Identifier  | 
+			TypeDefinition Assignment 
+
+	Lvalue --> Identifier  | 
+			Assignment 
+
+	LvalueDeclarationList --> LvalueDeclaration LvalueListNext 
+
+	LvalueList --> Lvalue LvalueListNext 
+
+	LvalueListNext --> Comma LvalueDeclaration LvalueListNext  | 
+			Comma Assignment LvalueListNext  | 
+			Comma Identifier LvalueListNext  | 
+			Empty 
+
+	IdentifierList --> Identifier IdentifierListNext 
+
+	IdentifierListNext --> Comma Identifier IdentifierListNext  | 
+			Empty 
+
+	Constant --> Integer  | 
+			Float  | 
+			Double  | 
+			Character  | 
+			String 
+
+	StructDefinition --> Struct Identifier OpeningBrace StructMemberDeclarationList ClosingBrace 
+
+	StructMemberDeclarationList --> StructMemberDeclarations  | 
+			Empty 
+
+	StructMemberDeclarations --> StructMemberDeclaration StructMemberDeclarations  | 
+			StructMemberDeclaration 
+
+	StructMemberDeclaration --> LvalueDeclarationList Semicolon 
+
+	IfStatement --> If OpeningParenthesis Expression ClosingParenthesis OpeningBrace OptionalStatement ClosingBrace 
+
+	WhileStatement --> While OpeningParenthesis Expression ClosingParenthesis OpeningBrace OptionalStatement ClosingBrace 
+
+	ForDeclarationSlot --> LvalueDeclarationList  | 
+			LvalueList  | 
+			Empty 
+
+	ForStatement --> For OpeningParenthesis ForDeclarationSlot Semicolon OptionalExpression Semicolon OptionalExpression ClosingParenthesis OpeningBrace OptionalStatement ClosingBrace 
+
+	FunctionParameterDeclarationList --> LvalueDeclaration FunctionParameterDeclarationListNext  | 
+			Empty 
+
+	FunctionParameterDeclarationListNext --> Comma LvalueDeclaration FunctionParameterDeclarationListNext  | 
+			Empty 
+
+	FunctionParameterList --> ExpressionList  | 
+			Empty 
+
+	FunctionDefinition --> TypeDefinition Identifier OpeningParenthesis FunctionParameterDeclarationList ClosingParenthesis OpeningBrace StatementList ClosingBrace 
+
+	34 --> Identifier OpeningParenthesis FunctionParameterList ClosingParenthesis 
+
+[Conflicts]

@@ -26,7 +26,14 @@ namespace Lexy
         {
             tokenStream.push_back({ token, std::move(m_DefaultTokenValue) });
         }
-        tokenStream.push_back({ Lexy::Lexer::Token(Lexy::Lexer::TokenState::End, -1) });
+        if (token.State == TokenState::Failure)
+        {
+            tokenStream.push_back({ Lexy::Lexer::Token(Lexy::Lexer::TokenState::Failure, -1) });
+        }
+        else
+        {
+            tokenStream.push_back({ Lexy::Lexer::Token(Lexy::Lexer::TokenState::End, -1) });
+        }
         return tokenStream;
 	}
 

@@ -411,7 +411,6 @@ namespace Parsy
 				StateGraph::Vertex& vertex = m_StateGraph.GetVertex(id);
 				m_StateGraph.PushEdge(top, id, element);
 				stateMemo.emplace(bottomUpProductions, id);
-				std::unordered_set<CFGElement> elementMemo;
 				for (BottomUpStateProduction& bottomUpProduction : bottomUpProductions)
 				{
 					auto& productions = m_ParserRef->m_CFGMap.at(bottomUpProduction.Rule).Grammar.GetProductions();
@@ -424,12 +423,8 @@ namespace Parsy
 						vertex.Data.CFGSet.back().LookAheadSymbols.insert(element);
 					}
 					AdvanceIfEpsilon(production.Elements, vertex.Data.CFGSet.back());
-					if (elementMemo.find(dotElement) == elementMemo.end())
-					{
-						ExpandNonTerminals(vertex.Data);
-						elementMemo.insert(dotElement);
-					}
 				}
+				ExpandNonTerminals(vertex.Data);
 			}
 		}
 	}

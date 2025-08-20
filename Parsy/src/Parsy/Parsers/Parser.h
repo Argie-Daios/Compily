@@ -7,6 +7,7 @@
 #include "Parsy/ParseStructs.h"
 
 #include <memory>
+#include <array>
 #include <type_traits>
 
 #include <Utilities.h>
@@ -128,6 +129,7 @@ namespace Parsy
 		ParseEntryData ConstructEntryAndInvokeCallbacks(RuleID_t ruleID, int32_t production);
 		void GenerateParsingData();
 		void GenerateCFGInfo();
+		std::string ProductionToStr(const ProductionData& production) const;
 	protected:
 		Lexy::Lexer* m_Lexer = nullptr;
 		int32_t m_Flags = 0;

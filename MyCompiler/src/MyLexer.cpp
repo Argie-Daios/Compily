@@ -98,7 +98,7 @@ MyLexer::MyLexer(const std::ifstream& inputStream, const std::string& inputPath)
 
 	CreateRule(R"(print)", [this]() { return PRINT_FUNCTION; });
 
-	CreateRule(R"(\"[^"\n]*\")", [this]() {  // Needs fix it takes hole thing
+	CreateRule(R"(\"[^"\n]*\")", [this]() {
 		auto& defaultValue = GetDefaultTokenValue();
 		defaultValue = GetTokenContent();
 		std::string& string = std::any_cast<std::string&>(defaultValue);

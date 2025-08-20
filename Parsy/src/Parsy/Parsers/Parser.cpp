@@ -15,9 +15,11 @@ namespace Parsy
 
     void Parser::GenerateOutputFiles()
     { 
+#ifdef COMPILY_DEBUG
         GenerateCFGInfo();
         m_LR1->PrintStateGraph();
         m_LR1->PrintTable();
+#endif
     }
 
     void Parser::DeclareRootRule(RuleID_t rule)
@@ -228,6 +230,7 @@ namespace Parsy
 
     void Parser::GenerateCFGInfo()
     {
+#ifdef COMPILY_DEBUG
         std::ofstream stream("CFGInfo.txt");
         stream << "[Terminals]" << std::endl;
         for (const CFGElement& element : m_LR1->GetSymbols())
@@ -325,5 +328,47 @@ namespace Parsy
             }
             stream << '\t' << shiftCount << " Shifts / " << reduceCount << " Reduces" << " on state " << state << std::endl;
         }
+#endif
+    }
+
+    std::string Parser::ProductionToStr(const ProductionData& production) const
+    {
+        std::string output;
+        for (auto& element : production.Elements)
+        {
+            EntryValue entry;
+            switch (element.Type)
+            {
+            case CFGElementType::Symbol:
+            {
+                output += TokenToStr(element.ID);
+                m_TokenMap.at(element.ID).TokenTypeConstructCallback(entry);
+                break;
+            }
+            case CFGElementType::NonTerminal:
+            {
+                output += RuleToStr(element.ID);
+                m_CFGMap.at(element.ID).RuleTypeConstructCallback(entry);
+                break;
+            }
+            case CFGElementType::Epsilon:
+            {
+                output += "Empty";
+                break;
+            }
+            case CFGElementType::Dollar:
+            {
+                output += "$";
+                break;
+            }
+            case CFGElementType::Error:
+            {
+                output += "Error";
+                break;
+            }
+            }
+            output += ' ';
+        }
+        return output;
     }
 }

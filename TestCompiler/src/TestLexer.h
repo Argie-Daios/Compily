@@ -6,4 +6,8 @@ class TestLexer : public Lexy::Lexer
 {
 public:
 	TestLexer(const std::ifstream& inputStream);
+private:
+	void UpdateLineCountFromString(const std::string& contentStr);
+	void RemoveQuotes(std::string& string, char quotes = '\"');
+	void UnescapeString(std::string& string);
 };
