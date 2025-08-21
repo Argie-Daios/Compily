@@ -38,6 +38,8 @@ namespace Parsy
 
     void Parser::Add(const CFGElementType& type, int32_t id, const TypeCallback& callback)
     {
+        ASSERT(m_BoundRule != -1, "You can not add an element outside a rule declaration!!");
+
         CFGElement element(type, id);
         if (element.Type == CFGElementType::Symbol && m_TokenMap.find(element.ID) == m_TokenMap.end())
         {
@@ -72,6 +74,7 @@ namespace Parsy
 
     void Parser::Prec(Lexy::TokenID_t tokenID)
     {
+        ASSERT(m_BoundRule != -1, "You can not add an element outside a rule declaration!!");
         RuleProperties& ruleProps = m_CFGMap.at(m_BoundRule);
         ProductionData& productionData = ruleProps.Grammar.m_Elements.back();
         const TokenProperties& tokenProperties = m_TokenMap.at(tokenID);
@@ -81,6 +84,7 @@ namespace Parsy
 
     void Parser::Union()
     {
+        ASSERT(m_BoundRule != -1, "You can not add an element outside a rule declaration!!");
         RuleProperties& ruleProps = m_CFGMap.at(m_BoundRule);
         ruleProps.Grammar.Union();
     }
@@ -220,6 +224,7 @@ namespace Parsy
 
     void Parser::GenerateParsingData()
     {
+        CheckIDValidation();
         m_LR1->GenerateFirstSets();
         m_LR1->GenerateFollowSets();
         auto& stateGraphBenchmark = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(m_LR1->GenerateStateGraph));
@@ -331,43 +336,98 @@ namespace Parsy
 #endif
     }
 
-    std::string Parser::ProductionToStr(const ProductionData& production) const
+    void Parser::CheckIDValidation()
+    {
+#ifdef COMPILY_DEBUG
+        if (!m_IsDebugToolsEnabled) return;
+        bool errorOccured = false;
+        for (auto& [ruleID, ruleProps] : m_CFGMap)
+        {
+            auto& productions = ruleProps.Grammar.GetProductions();
+            for (auto& production : productions)
+            {
+                for (size_t i = 0; i < production.Elements.size(); i++)
+                {
+                    const CFGElement& element = production.Elements.at(i);
+                    switch (element.Type)
+                    {
+                    case CFGElementType::NonTerminal:
+                    {
+                        if (m_RuleIDCheckCallback && !m_RuleIDCheckCallback(element.ID))
+                        {
+                            PARSY_LOG_WARN_DEBUG("Used invalid rule ID inside rule: {}, production: {}!!"
+                                " (NOTE: You might have put non terminal type with a token ID)", RuleToStr(ruleID),
+                                ProductionToStr(production, i));
+                            errorOccured = true;
+                        }
+                        break;
+                    }
+                    case CFGElementType::Symbol:
+                    {
+                        if (m_TokenIDCheckCallback && !m_TokenIDCheckCallback(element.ID))
+                        {
+                            PARSY_LOG_WARN_DEBUG("Used invalid token ID inside rule: {}, production: {}!!"
+                                " (NOTE: You might have put terminal type with a rule ID)", RuleToStr(ruleID),
+                                ProductionToStr(production, i));
+                            errorOccured = true;
+                        }
+                        break;
+                    }
+                    }
+                }
+            }
+        }
+        if (errorOccured)
+        {
+            PARSY_LOG_ERROR_DEBUG("Aborting parsing, id errors needs to be resolved!!");
+            exit(1);
+        }
+#endif
+    }
+
+    std::string Parser::ProductionToStr(const ProductionData& production, int32_t invalidElementIndex) const
     {
         std::string output;
-        for (auto& element : production.Elements)
+        for (size_t i = 0; i < production.Elements.size(); i++)
         {
-            EntryValue entry;
-            switch (element.Type)
+            const CFGElement& element = production.Elements.at(i);
+            if (invalidElementIndex != -1 && i == invalidElementIndex)
             {
-            case CFGElementType::Symbol:
+                output += "<Invalid>";
+            }
+            else
             {
-                output += TokenToStr(element.ID);
-                m_TokenMap.at(element.ID).TokenTypeConstructCallback(entry);
-                break;
+                switch (element.Type)
+                {
+                case CFGElementType::Symbol:
+                {
+                    output += TokenToStr(element.ID);
+                    break;
+                }
+                case CFGElementType::NonTerminal:
+                {
+                    output += RuleToStr(element.ID);
+                    break;
+                }
+                case CFGElementType::Epsilon:
+                {
+                    output += "Empty";
+                    break;
+                }
+                case CFGElementType::Dollar:
+                {
+                    output += "$";
+                    break;
+                }
+                case CFGElementType::Error:
+                {
+                    output += "Error";
+                    break;
+                }
+                }
             }
-            case CFGElementType::NonTerminal:
-            {
-                output += RuleToStr(element.ID);
-                m_CFGMap.at(element.ID).RuleTypeConstructCallback(entry);
-                break;
-            }
-            case CFGElementType::Epsilon:
-            {
-                output += "Empty";
-                break;
-            }
-            case CFGElementType::Dollar:
-            {
-                output += "$";
-                break;
-            }
-            case CFGElementType::Error:
-            {
-                output += "Error";
-                break;
-            }
-            }
-            output += ' ';
+            if(i < production.Elements.size() - 1)
+                output += ' ';
         }
         return output;
     }

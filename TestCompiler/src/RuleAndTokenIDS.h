@@ -5,11 +5,12 @@ enum TokenID
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	IDENTIFIER,
-	INTEGER,
+	_INTEGER,
+	_BOOL,
 	_FLOAT,
-	DOUBLE,
-	CHARACTER,
-	STRING,
+	_DOUBLE,
+	_CHARACTER,
+	_STRING,
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -23,6 +24,7 @@ enum TokenID
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	INTEGER_TYPE,
+	BOOL_TYPE,
 	FLOAT_TYPE,
 	DOUBLE_TYPE,
 	CHARACTER_TYPE,
@@ -39,6 +41,8 @@ enum TokenID
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	EQUALS,
+	PLUS_PLUS,
+	DASH_DASH,
 	PLUS_EQUALS,
 	DASH_EQUALS,
 	STAR_EQUALS,
@@ -67,16 +71,24 @@ enum TokenID
 	BACKSLASH,
 	PIPE,
 	UNDERSCORE,
-	AMPERSAND
+	AMPERSAND,
+	ARROW,
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	UMINUS,
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	TOKENID_MAX
+
 };
 
 enum RuleID
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	PROGRAM,
+	PROGRAM = TOKENID_MAX,
 	STATEMENTS,
 	STATEMENT,
 	OPTIONAL_STATEMENT,
@@ -86,14 +98,12 @@ enum RuleID
 	EXPRESSION_LIST,
 	EXPRESSION_LIST_NEXT,
 	ASSIGNMENT,
-	ASSIGNMENT_LIST,
-	ASSIGNMENT_LIST_NEXT,
 	TERMINAL,
 	TYPE_DEFINITION,
 	LVALUE_DECLARATION,
+	LVALUE_DECLARATION_FORMAT,
 	LVALUE,
 	LVALUE_DECLARATION_LIST,
-	LVALUE_LIST,
 	LVALUE_LIST_NEXT,
 	IDENTIFIER_LIST,
 	IDENTIFIER_LIST_NEXT,
@@ -102,6 +112,7 @@ enum RuleID
 	STRUCT_MEMBER_DECLARATION_LIST,
 	STRUCT_MEMBER_DECLARATIONS,
 	STRUCT_MEMBER_DECLARATION,
+	STRUCT_MEMBER_REFERENCE,
 	IF_STATEMENT,
 	WHILE_STATEMENT,
 	FOR_DECLARATION_SLOT,
@@ -110,7 +121,9 @@ enum RuleID
 	FUNCTION_PARAMETER_DECLARATION_LIST_NEXT,
 	FUNCTION_PARAMETER_LIST,
 	FUNCTION_DEFINITION,
-	FUNCTION_CALL
+	FUNCTION_CALL,
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	RULEID_MAX
 };

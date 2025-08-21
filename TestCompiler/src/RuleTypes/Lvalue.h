@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Constant.h"
+
 struct TLvalueData
 {
 
@@ -7,5 +9,5 @@ struct TLvalueData
 
 struct TLvalue
 {
-
+	TConstant Constant;
 };

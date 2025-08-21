@@ -3,6 +3,7 @@
 #include "Parsy/Parsers/Parser.h"
 
 #include <Utilities.h>
+#include <algorithm>
 
 namespace Parsy
 {
@@ -91,8 +92,15 @@ namespace Parsy
 		std::ofstream stream("StateGraph.txt");
 
 		auto& vertices = m_StateGraph.GetVertices();
-		for (const auto& [vertexID, vertexData] : vertices)
+		std::vector<int32_t> stateGraphIDSSorted;
+		stateGraphIDSSorted.reserve(vertices.size());
+		for (const auto& [vertexID, vertexData] : vertices) stateGraphIDSSorted.push_back(vertexID);
+		std::sort(stateGraphIDSSorted.begin(), stateGraphIDSSorted.end(), [](int32_t left, int32_t right) {
+			return left < right;
+		});
+		for (int32_t vertexID : stateGraphIDSSorted)
 		{
+			const StateGraph::Vertex& vertexData = vertices.at(vertexID);
 			stream << "[State " << vertexID << "]\n";
 			stream << "Edges = { ";
 			const auto& edges = m_StateGraph.GetEdgesOfVertex(vertexID);

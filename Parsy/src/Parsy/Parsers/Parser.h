@@ -16,6 +16,7 @@ namespace Parsy
 {
 	using RuleID_t = int32_t;
 	using TypeCallback = std::function<void(EntryValue&)>;
+	using TypeIDCheckCallback = std::function<bool(int32_t id)>;
 
 	enum ParserFlags
 	{
@@ -56,7 +57,16 @@ namespace Parsy
 				}(), ...);
 		}
 
+		inline void DeclareTokenIDValidationCheck(const TypeIDCheckCallback& validationCallback)
+		{
+			m_TokenIDCheckCallback = validationCallback;
+		}
+		inline void DeclareRuleIDValidationCheck(const TypeIDCheckCallback& validationCallback)
+		{
+			m_RuleIDCheckCallback = validationCallback;
+		}
 		void DeclareRootRule(RuleID_t rule);
+		inline void EnableDebugTools() { m_IsDebugToolsEnabled = true; }
 		void BeginRule(RuleID_t rule);
 		template<typename Type>
 		void BeginRule(RuleID_t rule)
@@ -129,7 +139,8 @@ namespace Parsy
 		ParseEntryData ConstructEntryAndInvokeCallbacks(RuleID_t ruleID, int32_t production);
 		void GenerateParsingData();
 		void GenerateCFGInfo();
-		std::string ProductionToStr(const ProductionData& production) const;
+		void CheckIDValidation();
+		std::string ProductionToStr(const ProductionData& production, int32_t invalidElementIndex = -1) const;
 	protected:
 		Lexy::Lexer* m_Lexer = nullptr;
 		int32_t m_Flags = 0;
@@ -139,6 +150,9 @@ namespace Parsy
 		std::unordered_map<RuleID_t, RuleProperties> m_CFGMap;
 		std::unordered_map<Lexy::TokenID_t, TokenProperties> m_TokenMap;
 		std::unique_ptr<LR1> m_LR1;
+		TypeIDCheckCallback m_RuleIDCheckCallback;
+		TypeIDCheckCallback m_TokenIDCheckCallback;
+		bool m_IsDebugToolsEnabled = false;
 
 		RuleID_t m_BoundRule = -1;
 		int32_t m_HighestPriority = 0;

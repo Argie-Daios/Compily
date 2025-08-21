@@ -10,6 +10,7 @@ public:
 protected:
 	virtual const std::string RuleToStr(Parsy::RuleID_t ruleID) const override;
 	virtual const std::string TokenToStr(Lexy::TokenID_t tokenID) const override;
+	virtual void SyntaxErrorHandler() override;
 private:
 	SymbolTable m_SymbolTable;
 };

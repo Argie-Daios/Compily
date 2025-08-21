@@ -1,53 +1,58 @@
 [Terminals]
-	Slash
-	String
 	GreaterEquals
-	Plus
-	Semicolon
-	Caret
-	Dash
-	Comma
 	Star
-	Identifier
-	EqualsEquals
-	Integer
-	ExclamationEquals
-	Float
-	Less
-	Double
-	LessEquals
 	Character
+	ExclamationEquals
+	Dot
+	Slash
+	If
+	Semicolon
+	LessEquals
+	Plus
+	Comma
+	Caret
 	Greater
+	Dash
+	Double
+	EqualsEquals
+	String
+	Less
+	Arrow
 	Equals
-	IntegerType
-	OpeningParenthesis
-	FloatType
-	ClosingParenthesis
-	For
-	Ampersand
 	DoubleType
+	OpeningParenthesis
 	CharacterType
-	OpeningBrace
+	ClosingParenthesis
+	Identifier
+	PlusPlus
+	DashDash
+	IntegerType
+	BoolType
+	FloatType
 	ShortType
-	ClosingBrace
 	LongType
 	Struct
-	If
+	Ampersand
+	Integer
+	Bool
+	Float
+	OpeningBrace
+	ClosingBrace
 	While
+	For
 
 [Non-Terminals]
-	FunctionParameterList
-	Program
 	ForStatement
-	Expression
-	FunctionDefinition
-	Statements
-	IfStatement
 	StructDefinition
-	34
-	Statement
+	FunctionDefinition
+	Program
+	IfStatement
+	Expression
+	FunctionCall
+	Statements
 	WhileStatement
-	AssignmentList
+	Statement
+	Assignment
 	LvalueDeclarationList
 	OptionalStatement
 	StatementList
@@ -55,14 +60,13 @@
 	OptionalExpression
 	ExpressionList
 	ExpressionListNext
-	Assignment
-	AssignmentListNext
+	Lvalue
 	Constant
 	TypeDefinition
 	LvalueDeclaration
-	Lvalue
+	LvalueDeclarationFormat
+	StructMemberReference
 	LvalueListNext
-	LvalueList
 	IdentifierList
 	IdentifierListNext
 	StructMemberDeclarationList
@@ -71,9 +75,13 @@
 	ForDeclarationSlot
 	FunctionParameterDeclarationList
 	FunctionParameterDeclarationListNext
+	FunctionParameterList
 
 [CFG Grammar]
 	Start --> Program 
+
+	OptionalStatement --> Statement  | 
+			Empty 
 
 	Program --> Statements  | 
 			Empty 
@@ -87,12 +95,9 @@
 			WhileStatement  | 
 			ForStatement  | 
 			FunctionDefinition  | 
-			AssignmentList Semicolon  | 
+			Assignment Semicolon  | 
 			LvalueDeclarationList Semicolon  | 
 			Semicolon 
-
-	OptionalStatement --> Statement  | 
-			Empty 
 
 	StatementList --> Statements  | 
 			Empty 
@@ -118,25 +123,19 @@
 	ExpressionListNext --> Comma Expression ExpressionListNext  | 
 			Empty 
 
-	Assignment --> Identifier Equals Expression 
-
-	AssignmentList --> Assignment AssignmentListNext 
-
-	AssignmentListNext --> Comma Assignment AssignmentListNext  | 
-			Empty 
+	Assignment --> Lvalue Equals Expression 
 
 	Terminal --> OpeningParenthesis Expression ClosingParenthesis  | 
-			Identifier Plus Plus  | 
-			Plus Plus Identifier  | 
-			Identifier Dash Dash  | 
-			Dash Dash Identifier  | 
-			Identifier  | 
-			Star Expression  | 
-			Ampersand Expression  | 
-			34  | 
+			Dash Expression  | 
+			Identifier PlusPlus  | 
+			PlusPlus Identifier  | 
+			Identifier DashDash  | 
+			DashDash Identifier  | 
+			Lvalue  | 
 			Constant 
 
 	TypeDefinition --> IntegerType  | 
+			BoolType  | 
 			FloatType  | 
 			DoubleType  | 
 			CharacterType  | 
@@ -145,19 +144,21 @@
 			Identifier  | 
 			TypeDefinition Star 
 
-	LvalueDeclaration --> TypeDefinition Identifier  | 
-			TypeDefinition Assignment 
+	LvalueDeclaration --> TypeDefinition LvalueDeclarationFormat 
+
+	LvalueDeclarationFormat --> Identifier  | 
+			Identifier Equals Expression 
 
 	Lvalue --> Identifier  | 
-			Assignment 
+			Star Expression  | 
+			Ampersand Expression  | 
+			StructMemberReference  | 
+			FunctionCall 
 
 	LvalueDeclarationList --> LvalueDeclaration LvalueListNext 
 
-	LvalueList --> Lvalue LvalueListNext 
-
 	LvalueListNext --> Comma LvalueDeclaration LvalueListNext  | 
-			Comma Assignment LvalueListNext  | 
-			Comma Identifier LvalueListNext  | 
+			Comma LvalueDeclarationFormat LvalueListNext  | 
 			Empty 
 
 	IdentifierList --> Identifier IdentifierListNext 
@@ -166,6 +167,7 @@
 			Empty 
 
 	Constant --> Integer  | 
+			Bool  | 
 			Float  | 
 			Double  | 
 			Character  | 
@@ -181,12 +183,14 @@
 
 	StructMemberDeclaration --> LvalueDeclarationList Semicolon 
 
+	StructMemberReference --> Expression Dot Identifier  | 
+			Expression Arrow Identifier 
+
 	IfStatement --> If OpeningParenthesis Expression ClosingParenthesis OpeningBrace OptionalStatement ClosingBrace 
 
 	WhileStatement --> While OpeningParenthesis Expression ClosingParenthesis OpeningBrace OptionalStatement ClosingBrace 
 
 	ForDeclarationSlot --> LvalueDeclarationList  | 
-			LvalueList  | 
 			Empty 
 
 	ForStatement --> For OpeningParenthesis ForDeclarationSlot Semicolon OptionalExpression Semicolon OptionalExpression ClosingParenthesis OpeningBrace OptionalStatement ClosingBrace 
@@ -202,6 +206,6 @@
 
 	FunctionDefinition --> TypeDefinition Identifier OpeningParenthesis FunctionParameterDeclarationList ClosingParenthesis OpeningBrace StatementList ClosingBrace 
 
-	34 --> Identifier OpeningParenthesis FunctionParameterList ClosingParenthesis 
+	FunctionCall --> Identifier OpeningParenthesis FunctionParameterList ClosingParenthesis 
 
 [Conflicts]

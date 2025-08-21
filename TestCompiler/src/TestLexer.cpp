@@ -4,6 +4,7 @@
 
 static Lexy::Lexer::RuleBuffer s_Keywords = {
 	{INTEGER_TYPE, R"(int)"},
+	{BOOL_TYPE, R"(bool)"},
 	{FLOAT_TYPE, R"(float)"},
 	{DOUBLE_TYPE, R"(double)"},
 	{CHARACTER_TYPE, R"(char)"},
@@ -29,6 +30,8 @@ static Lexy::Lexer::RuleBuffer s_Operators = {
 
 static Lexy::Lexer::RuleBuffer s_Punctuation = {
 	{EQUALS, R"(\=)"},
+	{PLUS_PLUS, R"(\+\+)"},
+	{DASH_DASH, R"(\-\-)"},
 	{PLUS_EQUALS, R"(\+\=)"},
 	{DASH_EQUALS, R"(\-\=)"},
 	{STAR_EQUALS, R"(\*\=)"},
@@ -54,7 +57,8 @@ static Lexy::Lexer::RuleBuffer s_Punctuation = {
 	{OPENING_BRACE, R"(\{)"},
 	{CLOSING_BRACE, R"(\})"},
 	{SEMICOLON, R"(\;)"},
-	{AMPERSAND, R"(\&)"}
+	{AMPERSAND, R"(\&)"},
+	{ARROW, R"(\-\>)"}
 };
 
 TestLexer::TestLexer(const std::ifstream& inputStream)
@@ -81,7 +85,7 @@ TestLexer::TestLexer(const std::ifstream& inputStream)
 		RemoveQuotes(tokenContent);
 		UnescapeString(tokenContent);
 		defaultValue = std::move(tokenContent);
-		return STRING; 
+		return _STRING; 
 	});
 
 	CreateRule(R"(\'[^'\n\r]\')", [this]() { 
@@ -90,7 +94,7 @@ TestLexer::TestLexer(const std::ifstream& inputStream)
 		RemoveQuotes(tokenContent, '\'');
 		UnescapeString(tokenContent);
 		defaultValue = std::move(tokenContent);
-		return CHARACTER; 
+		return _CHARACTER; 
 	});
 
 	CreateRule(R"([A-Za-z][A-Za-z0-9\_]*)", [this]() {
@@ -108,18 +112,32 @@ TestLexer::TestLexer(const std::ifstream& inputStream)
 	CreateRule(R"([0-9]+\.[0-9]+)", [this]() {
 		auto& defaultValue = GetDefaultTokenValue();
 		defaultValue = std::stod(GetTokenContent());
-		return DOUBLE; 
+		return _DOUBLE; 
 	});
+
+	CreateRule(R"(true|false)", [this]() {
+		auto& defaultValue = GetDefaultTokenValue();
+		const std::string tokenContent = GetTokenContent();
+		if (tokenContent == "true")
+			defaultValue = true;
+		else
+			defaultValue = false;
+		return _BOOL;
+		});
 
 	CreateRule(R"([0-9]+)", [this]() { 
 		auto& defaultValue = GetDefaultTokenValue();
 		defaultValue = std::stoi(GetTokenContent());
-		return INTEGER; 
+		return _INTEGER; 
 	});
 
 	CreateRule(R"([ \t]+)", [this]() { return TOKEN_IGNORE; });
 
-	CreateRule(R"([\r\n]+)", [this]() { AdvanceLineCount(); return TOKEN_IGNORE; });
+	CreateRule(R"([\r\n]+)", [this]() { 
+		const std::string& content = GetTokenContent();
+		UpdateLineCountFromString(content);
+		return TOKEN_IGNORE; 
+	});
 }
 
 void TestLexer::UpdateLineCountFromString(const std::string& contentStr)

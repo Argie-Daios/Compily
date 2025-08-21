@@ -127,6 +127,24 @@ namespace Utilities
 			{
 				s_EdgeMoveCount++;
 			}
+
+			Edge& operator=(const Edge& other)
+			{
+				if (this == &other) return *this;
+				Source = other.Source;
+				Destination = other.Destination;
+				Data = other.Data;
+				return *this;
+			}
+
+			Edge& operator=(Edge&& other)
+			{
+				if (this == &other) return *this;
+				Source = std::move(other.Source);
+				Destination = std::move(other.Destination);
+				Data = std::move(other.Data);
+				return *this;
+			}
 		};
 
 		struct Vertex
@@ -161,6 +179,22 @@ namespace Utilities
 				Edges(std::move(vertex.Edges))
 			{
 				s_VertexMoveCount++;
+			}
+
+			Vertex& operator=(const Vertex& other)
+			{
+				if (this == &other) return *this;
+				Data = other.Data;
+				Edges = other.Edges;
+				return *this;
+			}
+
+			Vertex& operator=(Vertex&& other)
+			{
+				if (this == &other) return *this;
+				Data = std::move(other.Data);
+				Edges = std::move(other.Edges);
+				return *this;
 			}
 		private:
 			std::vector<Edge> Edges;
