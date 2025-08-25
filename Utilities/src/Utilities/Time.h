@@ -14,6 +14,16 @@ namespace Utilities
 			TimerHandle() = default;
 			TimerHandle(const TimerHandle&) = default;
 			TimerHandle(TimerHandle&&) = default;
+
+			void Start()
+			{
+				StartTimeStamp = std::chrono::high_resolution_clock::now();
+			}
+
+			void End()
+			{
+				EndTimeStamp = std::chrono::high_resolution_clock::now();
+			}
 			long long GetTimeElapsed() const
 			{
 				long long start = std::chrono::time_point_cast<std::chrono::milliseconds>(StartTimeStamp)
@@ -43,10 +53,11 @@ namespace Utilities
 		template<typename Function, typename ... Args>
 		inline TimerHandle BenchmarkRoutine(Function&& function, Args&& ... args)
 		{
-			auto& start = std::chrono::high_resolution_clock::now();
+			TimerHandle handle;
+			handle.Start();
 			function(std::forward<Args>(args)...);
-			auto& end = std::chrono::high_resolution_clock::now();
-			return { start, end };
+			handle.End();
+			return handle;
 		}
 	}
 }

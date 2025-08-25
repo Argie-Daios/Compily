@@ -1,6 +1,7 @@
 #include "LR1.h"
 
 #include "Parsy/Parsers/Parser.h"
+#include "Parsy/Macros.h"
 
 #include <Utilities.h>
 #include <algorithm>
@@ -40,50 +41,34 @@ namespace Parsy
 	LR1::LR1(Parser* parserRef)
 		: m_ParserRef(parserRef)
 	{
-		m_Symbols.insert({ CFGElementType::Dollar, -1 });
-		m_Symbols.insert({ CFGElementType::Error, -1 });
+		m_Symbols.emplace(CFGElement{ CFGElementType::Dollar, -1 }, m_Symbols.size());
+		m_Symbols.emplace(CFGElement{ CFGElementType::Error, -1 }, m_Symbols.size());
 	}
 
 	void LR1::RegisterToken(const CFGElement& element)
 	{
 		if (element.Type != CFGElementType::Symbol) return;
-		m_Symbols.insert(element);
+		m_Symbols.emplace(element, m_Symbols.size());
 	}
 
 	void LR1::RegisterNonTerminal(const CFGElement& element)
 	{
 		if (element.Type != CFGElementType::NonTerminal) return;
-		m_NonTerminals.insert(element);
+		m_NonTerminals.emplace(element, m_NonTerminals.size());
 	}
 
 	BottomUpAction& LR1::GetAction(int32_t state, const CFGElement& symbol)
 	{
-		int32_t symbolIndex = 0U;
-		for (const CFGElement& setSymbol : m_Symbols)
-		{
-			if (setSymbol == symbol)
-			{
-				break;
-			}
-			symbolIndex++;
-		}
-		if (symbolIndex == m_Symbols.size()) return s_ErrorAction;
-		int32_t index = state * m_Symbols.size() + symbolIndex;
+		auto& it = m_Symbols.find(symbol);
+		if (it == m_Symbols.end()) return s_ErrorAction;
+		size_t index = (size_t)state * m_Symbols.size() + it->second;
 		return m_ActionTable.at(index);
 	}
 
 	int32_t& LR1::GetGotoState(int32_t state, const CFGElement& nonTerminal)
 	{
-		int32_t nonTerminalIndex = 0U;
-		for (const CFGElement& setNonTerminal : m_NonTerminals)
-		{
-			if (setNonTerminal == nonTerminal)
-			{
-				break;
-			}
-			nonTerminalIndex++;
-		}
-		int32_t index = state * m_NonTerminals.size() + nonTerminalIndex;
+		auto& it = m_NonTerminals.find(nonTerminal);
+		size_t index = (size_t)state * m_NonTerminals.size() + it->second;
 		return m_GotoTable.at(index);
 	}
 
@@ -222,13 +207,13 @@ namespace Parsy
 				size_t index = (col - m_Symbols.size());
 				auto& it = m_NonTerminals.begin();
 				std::advance(it, index);
-				helperString = m_ParserRef->RuleToStr(it->ID);
+				helperString = m_ParserRef->RuleToStr(it->first.ID);
 				return helperString;
 			}
 
 			auto& it = m_Symbols.begin();
 			std::advance(it, col);
-			helperString = m_ParserRef->CFGElementToStr(*it);
+			helperString = m_ParserRef->CFGElementToStr(it->first);
 			return helperString;
 		});
 

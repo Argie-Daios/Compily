@@ -17,7 +17,7 @@ namespace Parsy
 	public:
 		virtual bool Parse() override;
 	protected:
-		LRParser(const std::ifstream& inputStream, int32_t flags = 0);
+		LRParser(int32_t flags = 0);
 
 		virtual std::any& GetValue(int32_t offset) override;
 		virtual bool OnShift(int32_t state, const BottomUpAction& action, const CFGElementType& type,

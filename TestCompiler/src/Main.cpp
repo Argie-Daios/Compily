@@ -2,8 +2,7 @@
 
 int main()
 {
-	std::ifstream stream("Source.src");
-	TestParser parser(stream);
-
+	TestParser parser("Source.src");
+	std::cin.get();
 	return 0;
 }

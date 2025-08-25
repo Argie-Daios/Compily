@@ -429,13 +429,13 @@ namespace Lexy
 	{
 		m_NFAStack.emplace_back();
 		NFA& nfa = m_NFAStack.back();
-		FAGraph& fa = nfa.GetFiniteAutomate();
+		NFAGraph& fa = nfa.GetFiniteAutomate();
 
-		int32_t startState = fa.PushVertex(" ");
+		int32_t startState = fa.PushVertex();
 		nfa.SetStart(startState);
 
-		int32_t acceptingState = fa.PushVertex(" ");
-		nfa.SetAccepting(acceptingState);
+		int32_t acceptingState = fa.PushVertex();
+		nfa.GetAccepting().insert(acceptingState);
 
 		if(regexElement.Characters.empty())
 			fa.PushEdge(startState, acceptingState, { regexElement.Character });

@@ -5,8 +5,8 @@
 
 namespace Parsy
 {
-    LRParser::LRParser(const std::ifstream& inputStream, int32_t flags)
-        : Parser(inputStream, flags)
+    LRParser::LRParser(int32_t flags)
+        : Parser(flags)
     {
         
     }
@@ -22,35 +22,60 @@ namespace Parsy
         Lexy::Lexer::Token token;
         std::vector<std::string> labels = { "States", "Stack", "Token", "Action", "String Range"};
         std::vector<std::string> elements;
+
+        Utilities::Time::TimerHandle timer;
+        double actionTimer = 0.0f;
+        double shiftTimer = 0.0f;
+        double reduceTimer = 0.0f;
+        double conflictTimer = 0.0f;
+        double emptyTimer = 0.0f;
+
         while (true)
         {
+            timer.Start();
+
             if (!m_KeepToken)
                 token = m_Lexer->NextToken();
+            timer.End();
+            actionTimer += timer.GetTimeElapsed();
             m_KeepToken = false;
             ParseEntryData& topState = m_InputStack.Stack.back();
             CFGElement& tokenElement = GetTokenElement(token);
             SubmitDataToTable(labels, elements, tokenElement);
+
 
             BottomUpAction& action = m_LR1->GetAction(topState.State, tokenElement);
             switch (action.Type)
             {
             case BottomUpActionType::Shift:
             {
+                timer.Start();
                 OnShift(topState.State, action, CFGElementType::Symbol, token);
+                timer.End();
+                shiftTimer += timer.GetTimeElapsed();
                 break;
             }
             case BottomUpActionType::Reduce:
             {
+                timer.Start();
                 OnReduce(topState.State, action);
+                timer.End();
+                reduceTimer += timer.GetTimeElapsed();
                 break;
             }
             case BottomUpActionType::Accept:
             {
                 ExportResult("Accepted", labels, elements);
+                PARSY_LOG_INFO("Actions took {}ms", actionTimer);
+                PARSY_LOG_INFO("Shifts took {}ms", shiftTimer);
+                PARSY_LOG_INFO("Reduces took {}ms", reduceTimer);
+                PARSY_LOG_INFO("Conflicts took {}ms", conflictTimer);
+                PARSY_LOG_INFO("Empties took {}ms", emptyTimer);
                 return true;
             }
             case BottomUpActionType::Conflict:
             {
+                timer.Start();
                 if (!OnConflict(topState.State, action, token))
                 {
                     auto& errorAction = m_LR1->GetAction(topState.State, CFGElement(CFGElementType::Error, -1));
@@ -62,10 +87,13 @@ namespace Parsy
                     Shift(topState.State, errorAction, CFGElementType::Error, token);
                     m_KeepToken = true;
                 }
+                timer.End();
+                conflictTimer += timer.GetTimeElapsed();
                 break;
             }
             case BottomUpActionType::Empty:
             {
+                timer.Start();
                 if (topState.Symbol.Type == CFGElementType::Error)
                 {
                     SyntaxErrorHandler();
@@ -99,6 +127,8 @@ namespace Parsy
                     }
                     m_KeepToken = true;
                 }
+                timer.End();
+                emptyTimer += timer.GetTimeElapsed();
                 break;
             }
             case BottomUpActionType::Error:
@@ -172,27 +202,29 @@ namespace Parsy
         ParseEntryData& entry =
             ConstructEntryAndInvokeCallbacks(reduceData->RuleID, reduceData->ReducedProduction);
 
-        Lexy::Lexer::Token startToken;
+        size_t stringOffset = 0;
         size_t count = 0;
         for (int32_t i = 0; i < m_Elements; i++)
         {
             if (production.Elements.at(i).Type == CFGElementType::Epsilon) continue;
 
+            ParseEntryData& topEntry = inputStack.back();
             if(i == m_Elements - 1)
-                startToken = inputStack.back().Token;
-            count += inputStack.back().Token.StringCount;
+                stringOffset = topEntry.Token.StringOffset;
+            count += topEntry.Token.StringCount;
 
             inputStack.pop_back();
         }
 
-        ParseEntryData& newParseEntry = inputStack.back();
-        int32_t gotoID = m_LR1->GetGotoState(newParseEntry.State,
+        ParseEntryData& topParseEntry = inputStack.back();
+        int32_t gotoID = m_LR1->GetGotoState(topParseEntry.State,
             { CFGElementType::NonTerminal, reduceData->RuleID });
         entry.State = gotoID;
-        entry.Token = Lexy::Lexer::Token(Lexy::Lexer::TokenState::Success, -1, startToken.StringOffset, count);
-        inputStack.push_back(entry);
+        entry.Token = Lexy::Lexer::Token(Lexy::Lexer::TokenState::Success, -1, stringOffset, count);
+        inputStack.emplace_back(std::move(entry));
         m_KeepToken = true;
 
+#ifdef COMPILY_DEBUG
         m_ActionString = "Reduce(" + RuleToStr(reduceData->RuleID) + " --> ";
         for (size_t i = 0; i < production.Elements.size(); i++)
         {
@@ -203,6 +235,7 @@ namespace Parsy
             else
                 m_ActionString += ')';
         }
+#endif
         
         return true;
     }

@@ -116,6 +116,37 @@ group "Dependencies"
 			"Lexy"
 		}
 
+	project "Iry"
+		location "Iry"
+		kind "StaticLib"
+		language "C++"
+		cppdialect "C++17"
+
+		targetdir  ("bin/" .. outputdir .. "/%{prj.name}")
+		objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+		files
+		{
+			"%{prj.name}/src/**.h",
+			"%{prj.name}/src/**.cpp",
+		}
+
+		includedirs
+		{
+			"%{wks.location}/Utilities/src",
+			"%{wks.location}/Lexy/src",
+			"%{wks.location}/Parsy/src",
+			"%{prj.name}/src",
+			"%{IncludeDirs.spdlog}"
+		}
+
+		links
+		{
+			"Utilities",
+			"Lexy",
+			"Parsy"
+		}
+
 group ""
 
 project "MyCompiler"
@@ -138,6 +169,7 @@ project "MyCompiler"
 		"%{wks.location}/Utilities/src",
 		"%{wks.location}/Lexy/src",
 		"%{wks.location}/Parsy/src",
+		"%{wks.location}/Iry/src",
 		"%{prj.name}/src",
 		"%{IncludeDirs.spdlog}"
 	}
@@ -145,7 +177,8 @@ project "MyCompiler"
 	links
 	{
 		"Lexy",
-		"Parsy"
+		"Parsy",
+		"Iry"
 	}
 
 project "TestCompiler"
@@ -167,7 +200,9 @@ project "TestCompiler"
 	{
 		"%{wks.location}/Utilities/src",
 		"%{wks.location}/Lexy/src",
+		"%{wks.location}/Lexy/src",
 		"%{wks.location}/Parsy/src",
+		"%{wks.location}/Iry/src",
 		"%{prj.name}/src",
 		"%{IncludeDirs.spdlog}"
 	}
@@ -175,5 +210,6 @@ project "TestCompiler"
 	links
 	{
 		"Lexy",
-		"Parsy"
+		"Parsy",
+		"Iry"
 	}

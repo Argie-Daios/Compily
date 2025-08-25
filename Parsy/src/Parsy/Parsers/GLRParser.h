@@ -101,7 +101,7 @@ namespace Parsy
 	class GLRParser : public Parser
 	{
 	public:
-		GLRParser(const std::ifstream& inputStream);
+		GLRParser();
 
 		virtual bool Parse() override;
 	private:

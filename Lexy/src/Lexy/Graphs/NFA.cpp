@@ -29,7 +29,28 @@ namespace Lexy
 		}
 	}
 
-	CharacterData NFA::CharacterToCharacterData(const std::string& string, int32_t& index)
+	void NFA::ExpandEpsilonClosure(std::unordered_set<int32_t>& states)
+	{
+		std::vector<int32_t> stack(states.begin(), states.end());
+
+		while (!stack.empty())
+		{
+			int32_t stateID = stack.back();
+			stack.pop_back();
+
+			auto& edges = m_Graph.GetEdgesOfVertex(stateID);
+			for (const auto& edge : edges)
+			{
+				if (edge.Data.empty() && states.find(edge.Destination) == states.end())
+				{
+					states.insert(edge.Destination);
+					stack.push_back(edge.Destination);
+				}
+			}
+		}
+	}
+
+	CharacterData CharacterData::CharacterToCharacterData(const std::string& string, int32_t& index)
 	{
 		if (string.at(index) != '\\') return { string.at(index), false };
 
@@ -48,16 +69,56 @@ namespace Lexy
 		return { EOF, false };
 	}
 
-	bool NFA::IsAccepting(const std::string& string)
+	bool NFA::IsStateAccepting(const std::vector<int32_t>& states, int32_t& maxPriorityTokenIndex)
 	{
-		auto& vertices = m_Graph.GetVertices();
-		if (vertices.empty()) return false;
+		int32_t maxPriority = INT_MIN;
+		bool isAccepting = false;
+		for (int32_t id : states)
+		{
+			auto& it = m_Accepting.find(id);
+			if (it == m_Accepting.end()) continue;
+			NodeData& nodeData = m_Graph.GetVertex(id).Data;
+			if (nodeData.Priority > maxPriority)
+			{
+				maxPriority = nodeData.Priority;
+				maxPriorityTokenIndex = nodeData.TokenIndex;
+				isAccepting = true;
+			}
+		}
+		return isAccepting;
+	}
+
+	NFA::NFA(const NFA& nfa)
+		: FA(nfa), m_Graph(nfa.m_Graph)
+	{
+
+	}
+
+	NFA::NFA(NFA&& nfa)
+		: FA(nfa), m_Graph(std::move(nfa.m_Graph))
+	{
+
+	}
+
+	MatchResult NFA::Match(const std::string& input, int start)
+	{
+		MatchResult result;
+		result.Length = -1;
+
 		std::vector<int32_t> currentStates = { m_Start };
 		ExpandEpsilonClosure(currentStates);
 
-		for (int32_t i = 0; i < string.length(); i++)
+		int32_t maxPriorityTokenIndex = -1;
+		if (IsStateAccepting(currentStates, maxPriorityTokenIndex))
 		{
-			char character = string.at(i);
+			result.Length = 0;
+			result.TokenIndex = maxPriorityTokenIndex;
+		}
+
+		for (int i = start; i < input.length(); ++i)
+		{
+			char character = input[i];
+			CharacterData& data = CharacterData::CharacterToCharacterData(input, i);
 			std::vector<int32_t> nextStates;
 
 			for (int32_t stateID : currentStates)
@@ -65,7 +126,6 @@ namespace Lexy
 				auto& edges = m_Graph.GetEdgesOfVertex(stateID);
 				for (const auto& edge : edges)
 				{
-					CharacterData& data = CharacterToCharacterData(string, i);
 					if (edge.Data.find(data) != edge.Data.end())
 					{
 						nextStates.push_back(edge.Destination);
@@ -74,49 +134,6 @@ namespace Lexy
 			}
 
 			if (nextStates.empty())
-				return false;
-
-			ExpandEpsilonClosure(nextStates);
-
-			currentStates = std::move(nextStates);
-		}
-
-		
-		return std::find(currentStates.begin(), currentStates.end(), m_Accepting)
-			!= currentStates.end();
-	}
-
-	int NFA::Match(const std::string& input, int start)
-	{
-		int maxLength = -1;
-
-		std::vector<int32_t> currentStates = { m_Start };
-		ExpandEpsilonClosure(currentStates);
-
-		if (std::find(currentStates.begin(), currentStates.end(), m_Accepting) != currentStates.end()) 
-		{
-			maxLength = 0;
-		}
-
-		for (int i = start; i < input.length(); ++i) 
-		{
-			char character = input[i];
-			CharacterData& data = CharacterToCharacterData(input, i);
-			std::vector<int32_t> nextStates;
-
-			for (int32_t stateID : currentStates) 
-			{
-				auto& edges = m_Graph.GetEdgesOfVertex(stateID);
-				for (const auto& edge : edges) 
-				{
-					if (edge.Data.find(data) != edge.Data.end())
-					{
-						nextStates.push_back(edge.Destination);
-					}
-				}
-			}
-
-			if (nextStates.empty()) 
 			{
 				break;
 			}
@@ -124,53 +141,57 @@ namespace Lexy
 			ExpandEpsilonClosure(nextStates);
 			currentStates = std::move(nextStates);
 
-			if (std::find(currentStates.begin(), currentStates.end(), m_Accepting) != currentStates.end()) 
+			int32_t maxPriorityTokenIndex = -1;
+			if (IsStateAccepting(currentStates, maxPriorityTokenIndex))
 			{
-				maxLength = i - start + 1;
+				result.Length = i - start + 1;
+				result.TokenIndex = maxPriorityTokenIndex;
 			}
 		}
 
-		return maxLength;
+		return result;
 	}
 
-	NFA operator|(NFA& nfaLeft, NFA& nfaRight)
+	void NFA::Print()
 	{
-		NFA newNFA;
+		std::ofstream stream("NFA.txt");
 
-		newNFA.m_Graph |= nfaLeft.m_Graph;
+		const auto& vertices = m_Graph.GetVertices();
+		std::vector<int32_t> stateGraphIDSSorted;
+		stateGraphIDSSorted.reserve(vertices.size());
+		for (const auto& [vertexID, vertexData] : vertices) stateGraphIDSSorted.push_back(vertexID);
+		std::sort(stateGraphIDSSorted.begin(), stateGraphIDSSorted.end(), [](int32_t left, int32_t right) {
+			return left < right;
+			});
+		for (int32_t vertexID : stateGraphIDSSorted)
+		{
+			const NFAGraph::Vertex& vertexData = vertices.at(vertexID);
+			if(m_Accepting.find(vertexID) != m_Accepting.end())
+				stream << "[State " << vertexID << "] (Accepting)\n";
+			else
+				stream << "[State " << vertexID << "]\n";
+			stream << "Edges = { ";
+			const auto& edges = m_Graph.GetEdgesOfVertex(vertexID);
+			for (size_t i = 0; i < edges.size(); i++)
+			{
+				const NFAGraph::Edge& edge = edges.at(i);
+				stream << "State" << edge.Destination << "[";
+				if (edge.Data.size() == 1)
+					stream << edge.Data.begin()->Character;
+				else if (edge.Data.size() == 0)
+					stream << "Epsilon";
+				else
+					stream << edge.Data.size();
+				stream << "]";
+				if (i < edges.size() - 1)
+					stream << ", ";
+			}
+			stream << " }\n";
+			stream << "\tTokenIndex: " << vertexData.Data.TokenIndex << ", Priority: " << vertexData.Data.Priority;
+			stream << '\n' << '\n';
+		}
 
-		int32_t rightStart = (int32_t)newNFA.GetTotalStates() + nfaRight.m_Start;
-		int32_t rightAccepting = (int32_t)newNFA.GetTotalStates() + nfaRight.m_Accepting;
-
-		newNFA.m_Graph |= nfaRight.m_Graph;
-
-		newNFA.m_Start = newNFA.m_Graph.PushVertex(" ");
-		newNFA.m_Graph.PushEdge(newNFA.m_Start, nfaLeft.m_Start, EPSILON);
-		newNFA.m_Graph.PushEdge(newNFA.m_Start, rightStart, EPSILON);
-
-		newNFA.m_Accepting = newNFA.m_Graph.PushVertex(" ");
-		newNFA.m_Graph.PushEdge(nfaLeft.m_Accepting, newNFA.m_Accepting, EPSILON);
-		newNFA.m_Graph.PushEdge(rightAccepting, newNFA.m_Accepting, EPSILON);
-
-		return newNFA;
-	}
-
-	NFA operator&(NFA& nfaLeft, NFA& nfaRight)
-	{
-		NFA newNFA;
-
-		newNFA.m_Graph |= nfaLeft.m_Graph;
-
-		int32_t rightStart = (int32_t)newNFA.GetTotalStates() + nfaRight.m_Start;
-		int32_t rightAccepting = (int32_t)newNFA.GetTotalStates() + nfaRight.m_Accepting;
-
-		newNFA.m_Graph |= nfaRight.m_Graph;
-
-		newNFA.m_Start = nfaLeft.m_Start;
-		newNFA.m_Accepting = rightAccepting;
-		newNFA.m_Graph.PushEdge(nfaLeft.m_Accepting, rightStart, EPSILON);
-
-		return newNFA;
+		stream.close();
 	}
 
 	NFA& NFA::operator|=(NFA& nfa)
@@ -178,20 +199,21 @@ namespace Lexy
 		if (this == &nfa) return *this;
 
 		int32_t rightStart = (int32_t)GetTotalStates() + nfa.m_Start;
-		int32_t rightAccepting = (int32_t)GetTotalStates() + nfa.m_Accepting;
+		int32_t rightAccepting = (int32_t)GetTotalStates() + *nfa.m_Accepting.begin();
 
 		m_Graph |= nfa.m_Graph;
 
-		int32_t newStart = m_Graph.PushVertex(" ");
+		int32_t newStart = m_Graph.PushVertex();
 		m_Graph.PushEdge(newStart, m_Start, EPSILON);
 		m_Graph.PushEdge(newStart, rightStart, EPSILON);
 
-		int32_t newAccepting = m_Graph.PushVertex(" ");
-		m_Graph.PushEdge(m_Accepting, newAccepting, EPSILON);
+		int32_t newAccepting = m_Graph.PushVertex();
+		m_Graph.PushEdge(*m_Accepting.begin(), newAccepting, EPSILON);
 		m_Graph.PushEdge(rightAccepting, newAccepting, EPSILON);
 
 		m_Start = newStart;
-		m_Accepting = newAccepting;
+		m_Accepting.clear();
+		m_Accepting.insert(newAccepting);
 
 		return *this;
 	}
@@ -199,58 +221,62 @@ namespace Lexy
 	NFA& NFA::operator&=(NFA& nfa)
 	{
 		int32_t rightStart = (int32_t)GetTotalStates() + nfa.m_Start;
-		int32_t rightAccepting = (int32_t)GetTotalStates() + nfa.m_Accepting;
+		int32_t rightAccepting = (int32_t)GetTotalStates() + *nfa.m_Accepting.begin();
 
 		m_Graph |= nfa.m_Graph;
 
-		m_Graph.PushEdge(m_Accepting, rightStart, EPSILON);
-		m_Accepting = rightAccepting;
+		m_Graph.PushEdge(*m_Accepting.begin(), rightStart, EPSILON);
+		m_Accepting.clear();
+		m_Accepting.insert(rightAccepting);
 
 		return *this;
 	}
 
 	NFA& NFA::Kleene()
 	{
-		int32_t newStart = m_Graph.PushVertex(" ");
-		int32_t newAccepting = m_Graph.PushVertex(" ");
+		int32_t newStart = m_Graph.PushVertex();
+		int32_t newAccepting = m_Graph.PushVertex();
 
 		m_Graph.PushEdge(newStart, m_Start, EPSILON);
 		m_Graph.PushEdge(newStart, newAccepting, EPSILON);
-		m_Graph.PushEdge(m_Accepting, newAccepting, EPSILON);
-		m_Graph.PushEdge(m_Accepting, m_Start, EPSILON);
+		m_Graph.PushEdge(*m_Accepting.begin(), newAccepting, EPSILON);
+		m_Graph.PushEdge(*m_Accepting.begin(), m_Start, EPSILON);
 
 		m_Start = newStart;
-		m_Accepting = newAccepting;
+		m_Accepting.clear();
+		m_Accepting.insert(newAccepting);
 
 		return *this;
 	}
 
 	NFA& NFA::Plus()
 	{
-		int32_t newStart = m_Graph.PushVertex(" ");
-		int32_t newAccepting = m_Graph.PushVertex(" ");
+		int32_t newStart = m_Graph.PushVertex();
+		int32_t newAccepting = m_Graph.PushVertex();
 
 		m_Graph.PushEdge(newStart, m_Start, EPSILON);
-		m_Graph.PushEdge(m_Accepting, newAccepting, EPSILON);
-		m_Graph.PushEdge(m_Accepting, m_Start, EPSILON);
+		m_Graph.PushEdge(*m_Accepting.begin(), newAccepting, EPSILON);
+		m_Graph.PushEdge(*m_Accepting.begin(), m_Start, EPSILON);
 
 		m_Start = newStart;
-		m_Accepting = newAccepting;
+		m_Accepting.clear();
+		m_Accepting.insert(newAccepting);
 
 		return *this;
 	}
 
 	NFA& NFA::QuestionMark()
 	{
-		int32_t newStart = m_Graph.PushVertex(" ");
-		int32_t newAccepting = m_Graph.PushVertex(" ");
+		int32_t newStart = m_Graph.PushVertex();
+		int32_t newAccepting = m_Graph.PushVertex();
 
 		m_Graph.PushEdge(newStart, m_Start, EPSILON);
 		m_Graph.PushEdge(newStart, newAccepting, EPSILON);
-		m_Graph.PushEdge(m_Accepting, newAccepting, EPSILON);
+		m_Graph.PushEdge(*m_Accepting.begin(), newAccepting, EPSILON);
 
 		m_Start = newStart;
-		m_Accepting = newAccepting;
+		m_Accepting.clear();
+		m_Accepting.insert(newAccepting);
 
 		return *this;
 	}

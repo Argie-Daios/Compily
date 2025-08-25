@@ -93,7 +93,7 @@ TestLexer::TestLexer(const std::ifstream& inputStream)
 		std::string tokenContent = GetTokenContent();
 		RemoveQuotes(tokenContent, '\'');
 		UnescapeString(tokenContent);
-		defaultValue = std::move(tokenContent);
+		defaultValue = tokenContent.front();
 		return _CHARACTER; 
 	});
 
@@ -138,6 +138,43 @@ TestLexer::TestLexer(const std::ifstream& inputStream)
 		UpdateLineCountFromString(content);
 		return TOKEN_IGNORE; 
 	});
+
+	GenerateDFA();
+
+	/*Lexy::NFA nfa;
+
+	int32_t state0 = nfa.GetFiniteAutomate().PushVertex();
+	nfa.GetFiniteAutomate().GetVertex(state0).Data.StateId = state0;
+
+	int32_t state1 = nfa.GetFiniteAutomate().PushVertex();
+	nfa.GetFiniteAutomate().GetVertex(state1).Data.StateId = state1;
+
+	int32_t state2 = nfa.GetFiniteAutomate().PushVertex();
+	nfa.GetFiniteAutomate().GetVertex(state2).Data.StateId = state2;
+
+	int32_t state3 = nfa.GetFiniteAutomate().PushVertex();
+	nfa.GetFiniteAutomate().GetVertex(state3).Data.StateId = state3;
+
+	nfa.GetFiniteAutomate().PushEdge(state0, state1, {});
+	nfa.GetFiniteAutomate().PushEdge(state1, state1, { {'a'} });
+	nfa.GetFiniteAutomate().PushEdge(state1, state2, { {'a'}, {'b'} });
+	nfa.GetFiniteAutomate().PushEdge(state2, state2, { {'a'} });
+	nfa.GetFiniteAutomate().PushEdge(state2, state0, { {'a'} });
+	nfa.GetFiniteAutomate().PushEdge(state2, state3, { {'b'} });
+	nfa.GetFiniteAutomate().PushEdge(state3, state1, { {'b'} });
+
+	nfa.SetStart(state0);
+	nfa.GetAccepting().insert(state0);
+	nfa.Print();
+	Lexy::DFA dfa;
+	dfa.GenerateFromNFA(nfa);
+	dfa.Print();
+	exit(1);*/
+}
+
+TestLexer::TestLexer(const std::string& sourceCodePath)
+	: TestLexer(std::ifstream(sourceCodePath))
+{
 }
 
 void TestLexer::UpdateLineCountFromString(const std::string& contentStr)

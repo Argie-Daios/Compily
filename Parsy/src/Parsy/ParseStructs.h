@@ -28,8 +28,22 @@ namespace Parsy
 
 			State = other.State;
 			Symbol = other.Symbol;
+			Token = other.Token;
 			Entry = other.Entry;
 			IsAccept = other.IsAccept;
+
+			return *this;
+		}
+
+		ParseEntryData& operator=(ParseEntryData&& other)
+		{
+			if (this == &other) return *this;
+
+			State = std::move(other.State);
+			Symbol = std::move(other.Symbol);
+			Token = std::move(other.Token);
+			Entry = std::move(other.Entry);
+			IsAccept = std::move(other.IsAccept);
 
 			return *this;
 		}

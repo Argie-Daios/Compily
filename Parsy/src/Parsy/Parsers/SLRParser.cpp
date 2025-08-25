@@ -4,8 +4,8 @@
 
 namespace Parsy
 {
-	SLRParser::SLRParser(const std::ifstream& inputStream, int32_t flags)
-		: LRParser(inputStream, flags)
+	SLRParser::SLRParser(int32_t flags)
+		: LRParser(flags)
 	{
 		m_LR1 = std::make_unique<SLR1>(this);
 	}

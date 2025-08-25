@@ -2,12 +2,15 @@
 
 #include "Constant.h"
 
-struct TLvalueData
+enum class ELvalueType
 {
-
+	Modifiable,
+	Const
 };
 
 struct TLvalue
 {
-	TConstant Constant;
+	ELvalueType Type = ELvalueType::Const;
+	TDataTypeProperties DataType;
+	std::string SymbolTableEntry;
 };

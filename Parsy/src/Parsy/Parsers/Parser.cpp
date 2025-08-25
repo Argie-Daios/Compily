@@ -5,8 +5,8 @@
 
 namespace Parsy
 {
-    Parser::Parser(const std::ifstream& inputStream, int32_t flags)
-        : m_LR1(nullptr), m_Flags(flags)
+    Parser::Parser(int32_t flags)
+        : m_Flags(flags), m_LR1(nullptr)
     {
         m_CFGMap.emplace(m_StartingRule, RuleProperties());
         m_CFGMap.at(m_StartingRule).Grammar.AddElement({});
@@ -211,7 +211,7 @@ namespace Parsy
             ruleID };
         m_CFGMap.at(ruleID).
             RuleTypeConstructCallback(parseEntry.Entry);
-
+        
         auto& productionCallbacks = m_CFGMap.at(ruleID).RuleProductionCallbacks.
             at(production);
         for (auto& function : productionCallbacks)
@@ -238,7 +238,7 @@ namespace Parsy
 #ifdef COMPILY_DEBUG
         std::ofstream stream("CFGInfo.txt");
         stream << "[Terminals]" << std::endl;
-        for (const CFGElement& element : m_LR1->GetSymbols())
+        for (const auto& [element, index] : m_LR1->GetSymbols())
         {
             if (element.Type != CFGElementType::Symbol) continue;
             stream << '\t' << TokenToStr(element.ID) << std::endl;
@@ -246,7 +246,7 @@ namespace Parsy
         stream << std::endl;
 
         stream << "[Non-Terminals]" << std::endl;
-        for (const CFGElement& element : m_LR1->GetNonTerminals())
+        for (const auto& [element, index] : m_LR1->GetNonTerminals())
         {
             if (element.Type != CFGElementType::NonTerminal || element.ID == m_StartingRule) continue;
             stream << '\t' << RuleToStr(element.ID) << std::endl;

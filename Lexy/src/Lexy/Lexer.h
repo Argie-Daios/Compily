@@ -8,6 +8,7 @@
 #include <Utilities.h>
 
 #include "ThompsonCalculator.h"
+#include "Graphs/DFA.h"
 
 #define TOKEN_IGNORE -1
 
@@ -52,6 +53,8 @@ namespace Lexy
 
 	public:
 		Lexer(const std::ifstream& inputStream);
+		Lexer(const std::string& sourceCodePath);
+		void GenerateDFA();
 		std::vector<OfflineToken> Tokenize();
 		Token NextToken();
 		TokenID_t CreateRule(const std::string& regex, const RuleCallback& callback =
@@ -61,7 +64,7 @@ namespace Lexy
 		inline std::any& GetDefaultTokenValue() { return m_DefaultTokenValue; }
 		inline const std::string& GetTokenContent() { return m_TokenContent; }
 		inline void AdvanceLineCount() { m_LineCount++; }
-		inline uint32_t GetLineCount() { return m_LineCount; }
+		inline uint32_t GetLineCount() const { return m_LineCount; }
 		inline const std::string& GetInputString() const { return m_Input; }
 	private:
 		struct Rule
@@ -81,6 +84,9 @@ namespace Lexy
 		uint32_t m_InputOffset = 0U;
 		ThompsonCalculator m_ThompsonCalculator;
 		std::vector<Rule> m_Rules;
+		NFA m_NFA;
+		DFA m_DFA;
+		int32_t m_HighestPriority = 0;
 
 		std::any m_DefaultTokenValue;
 		std::string m_TokenContent;

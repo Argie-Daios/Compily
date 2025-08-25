@@ -5,9 +5,13 @@
 #include <string>
 #include <algorithm>
 
+#include "RuleTypes/Constant.h"
+
 struct SymbolTableEntry
 {
+	TConstant ConstantValue;
 	size_t Scope = 0;
+	size_t Offset = 0;
 	size_t Line = 0;
 	bool Hidden = false;
 

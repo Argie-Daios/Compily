@@ -5,15 +5,15 @@ Edges = { State1[ForStatement], State2[StructDefinition], State3[FunctionDefinit
 	Program --> [Epsilon]., { $ }
 	Statements --> .[Statement][Statements], { $ }
 	Statements --> .[Statement], { $ }
-	Statement --> .[Expression][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[StructDefinition][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[IfStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[WhileStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[ForStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[FunctionDefinition], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Assignment][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[LvalueDeclarationList][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Expression][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[StructDefinition][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[IfStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[WhileStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[ForStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[FunctionDefinition], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Assignment][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[LvalueDeclarationList][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> .[Expression][Plus][Expression], { Semicolon }
 	Expression --> .[Expression][Dash][Expression], { Semicolon }
 	Expression --> .[Expression][Star][Expression], { Semicolon }
@@ -27,10 +27,10 @@ Edges = { State1[ForStatement], State2[StructDefinition], State3[FunctionDefinit
 	Expression --> .[Expression][GreaterEquals][Expression], { Semicolon }
 	Expression --> .[Terminal], { Semicolon }
 	StructDefinition --> .[Struct][Identifier][OpeningBrace][StructMemberDeclarationList][ClosingBrace], { Semicolon }
-	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Assignment --> .[Lvalue][Equals][Expression], { Semicolon }
 	LvalueDeclarationList --> .[LvalueDeclaration][LvalueListNext], { Semicolon }
 	Terminal --> .[OpeningParenthesis][Expression][ClosingParenthesis], { Semicolon }
@@ -68,15 +68,15 @@ Edges = { State1[ForStatement], State2[StructDefinition], State3[FunctionDefinit
 
 [State 1]
 Edges = {  }
-	Statement --> [ForStatement]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [ForStatement]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 2]
 Edges = { State437[Semicolon] }
-	Statement --> [StructDefinition].[Semicolon], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [StructDefinition].[Semicolon], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 3]
 Edges = {  }
-	Statement --> [FunctionDefinition]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [FunctionDefinition]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 4]
 Edges = {  }
@@ -84,11 +84,11 @@ Edges = {  }
 
 [State 5]
 Edges = {  }
-	Statement --> [IfStatement]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [IfStatement]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 6]
 Edges = { State191[Dot], State236[Slash], State435[Semicolon], State225[LessEquals], State226[Plus], State227[EqualsEquals], State228[Caret], State229[Greater], State230[Dash], State231[ExclamationEquals], State232[GreaterEquals], State233[Star], State234[Less], State193[Arrow] }
-	Statement --> [Expression].[Semicolon], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [Expression].[Semicolon], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> [Expression].[Plus][Expression], { Semicolon }
 	Expression --> [Expression].[Dash][Expression], { Semicolon }
 	Expression --> [Expression].[Star][Expression], { Semicolon }
@@ -113,7 +113,7 @@ Edges = {  }
 
 [State 9]
 Edges = {  }
-	Statement --> [WhileStatement]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [WhileStatement]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 10]
 Edges = { State347[IfStatement], State348[Expression], State7[FunctionCall], State448[Statements], State350[WhileStatement], State10[Statement], State352[FunctionDefinition], State1[ForStatement], State2[StructDefinition], State353[Assignment], State354[LvalueDeclarationList], State355[If], State14[Semicolon], State15[Terminal], State16[Ampersand], State17[Struct], State18[While], State358[For], State359[TypeDefinition], State21[Lvalue], State22[LvalueDeclaration], State23[DoubleType], State24[OpeningParenthesis], State25[Dash], State26[Identifier], State27[PlusPlus], State28[DashDash], State29[Constant], State30[IntegerType], State31[BoolType], State32[FloatType], State33[CharacterType], State34[ShortType], State35[LongType], State36[Star], State37[StructMemberReference], State38[Integer], State39[Bool], State40[Float], State41[Double], State42[Character], State43[String] }
@@ -121,15 +121,15 @@ Edges = { State347[IfStatement], State348[Expression], State7[FunctionCall], Sta
 	Statements --> [Statement]., { $ }
 	Statements --> .[Statement][Statements], { $ }
 	Statements --> .[Statement], { $ }
-	Statement --> .[Expression][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[StructDefinition][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[IfStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[WhileStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[ForStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[FunctionDefinition], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Assignment][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[LvalueDeclarationList][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Expression][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[StructDefinition][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[IfStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[WhileStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[ForStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[FunctionDefinition], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Assignment][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[LvalueDeclarationList][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> .[Expression][Plus][Expression], { Semicolon }
 	Expression --> .[Expression][Dash][Expression], { Semicolon }
 	Expression --> .[Expression][Star][Expression], { Semicolon }
@@ -143,10 +143,10 @@ Edges = { State347[IfStatement], State348[Expression], State7[FunctionCall], Sta
 	Expression --> .[Expression][GreaterEquals][Expression], { Semicolon }
 	Expression --> .[Terminal], { Semicolon }
 	StructDefinition --> .[Struct][Identifier][OpeningBrace][StructMemberDeclarationList][ClosingBrace], { Semicolon }
-	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Assignment --> .[Lvalue][Equals][Expression], { Semicolon }
 	LvalueDeclarationList --> .[LvalueDeclaration][LvalueListNext], { Semicolon }
 	Terminal --> .[OpeningParenthesis][Expression][ClosingParenthesis], { Semicolon }
@@ -184,19 +184,19 @@ Edges = { State347[IfStatement], State348[Expression], State7[FunctionCall], Sta
 
 [State 11]
 Edges = { State433[Semicolon] }
-	Statement --> [Assignment].[Semicolon], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [Assignment].[Semicolon], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 12]
 Edges = { State432[Semicolon] }
-	Statement --> [LvalueDeclarationList].[Semicolon], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [LvalueDeclarationList].[Semicolon], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 13]
 Edges = { State426[OpeningParenthesis] }
-	IfStatement --> [If].[OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> [If].[OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 14]
 Edges = {  }
-	Statement --> [Semicolon]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [Semicolon]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 15]
 Edges = {  }
@@ -246,15 +246,15 @@ Edges = { State438[Identifier] }
 
 [State 18]
 Edges = { State420[OpeningParenthesis] }
-	WhileStatement --> [While].[OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> [While].[OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 19]
 Edges = { State360[OpeningParenthesis] }
-	ForStatement --> [For].[OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For].[OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 20]
 Edges = { State328[Identifier], State322[Star], State321[LvalueDeclarationFormat] }
-	FunctionDefinition --> [TypeDefinition].[Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition].[Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	TypeDefinition --> [TypeDefinition].[Star], { Identifier }
 	LvalueDeclaration --> [TypeDefinition].[LvalueDeclarationFormat], { Comma, Semicolon }
 	LvalueDeclarationFormat --> .[Identifier], { Comma, Semicolon }
@@ -5359,13 +5359,13 @@ Edges = { State225[LessEquals], State226[Plus], State227[EqualsEquals], State228
 
 [State 328]
 Edges = { State329[OpeningParenthesis], State263[Equals] }
-	FunctionDefinition --> [TypeDefinition][Identifier].[OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition][Identifier].[OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	LvalueDeclarationFormat --> [Identifier]., { Comma, Semicolon }
 	LvalueDeclarationFormat --> [Identifier].[Equals][Expression], { Comma, Semicolon }
 
 [State 329]
 Edges = { State330[FunctionParameterDeclarationList], State331[LvalueDeclaration], State332[TypeDefinition], State33[CharacterType], State30[IntegerType], State31[BoolType], State32[FloatType], State23[DoubleType], State34[ShortType], State35[LongType], State333[Identifier] }
-	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis].[FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis].[FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	FunctionParameterDeclarationList --> .[LvalueDeclaration][FunctionParameterDeclarationListNext], { ClosingParenthesis }
 	FunctionParameterDeclarationList --> [Epsilon]., { ClosingParenthesis }
 	LvalueDeclaration --> .[TypeDefinition][LvalueDeclarationFormat], { Comma, ClosingParenthesis }
@@ -5381,7 +5381,7 @@ Edges = { State330[FunctionParameterDeclarationList], State331[LvalueDeclaration
 
 [State 330]
 Edges = { State342[ClosingParenthesis] }
-	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList].[ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList].[ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 331]
 Edges = { State338[FunctionParameterDeclarationListNext], State339[Comma] }
@@ -5494,24 +5494,24 @@ Edges = {  }
 
 [State 342]
 Edges = { State343[OpeningBrace] }
-	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis].[OpeningBrace][StatementList][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis].[OpeningBrace][StatementList][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 343]
 Edges = { State344[ForStatement], State345[StructDefinition], State346[StatementList], State347[IfStatement], State348[Expression], State7[FunctionCall], State349[Statements], State350[WhileStatement], State351[Statement], State352[FunctionDefinition], State353[Assignment], State354[LvalueDeclarationList], State355[If], State356[Semicolon], State15[Terminal], State16[Ampersand], State17[Struct], State357[While], State358[For], State359[TypeDefinition], State21[Lvalue], State22[LvalueDeclaration], State23[DoubleType], State24[OpeningParenthesis], State25[Dash], State26[Identifier], State27[PlusPlus], State28[DashDash], State29[Constant], State30[IntegerType], State31[BoolType], State32[FloatType], State33[CharacterType], State34[ShortType], State35[LongType], State36[Star], State37[StructMemberReference], State38[Integer], State39[Bool], State40[Float], State41[Double], State42[Character], State43[String] }
-	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace].[StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace].[StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	StatementList --> .[Statements], { ClosingBrace }
 	StatementList --> [Epsilon]., { ClosingBrace }
 	Statements --> .[Statement][Statements], { ClosingBrace }
 	Statements --> .[Statement], { ClosingBrace }
-	Statement --> .[Expression][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[StructDefinition][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[IfStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[WhileStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[ForStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[FunctionDefinition], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Assignment][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[LvalueDeclarationList][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Expression][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[StructDefinition][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[IfStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[WhileStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[ForStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[FunctionDefinition], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Assignment][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[LvalueDeclarationList][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> .[Expression][Plus][Expression], { Semicolon }
 	Expression --> .[Expression][Dash][Expression], { Semicolon }
 	Expression --> .[Expression][Star][Expression], { Semicolon }
@@ -5525,10 +5525,10 @@ Edges = { State344[ForStatement], State345[StructDefinition], State346[Statement
 	Expression --> .[Expression][GreaterEquals][Expression], { Semicolon }
 	Expression --> .[Terminal], { Semicolon }
 	StructDefinition --> .[Struct][Identifier][OpeningBrace][StructMemberDeclarationList][ClosingBrace], { Semicolon }
-	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Assignment --> .[Lvalue][Equals][Expression], { Semicolon }
 	LvalueDeclarationList --> .[LvalueDeclaration][LvalueListNext], { Semicolon }
 	Terminal --> .[OpeningParenthesis][Expression][ClosingParenthesis], { Semicolon }
@@ -5566,23 +5566,23 @@ Edges = { State344[ForStatement], State345[StructDefinition], State346[Statement
 
 [State 344]
 Edges = {  }
-	Statement --> [ForStatement]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [ForStatement]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 345]
 Edges = { State437[Semicolon] }
-	Statement --> [StructDefinition].[Semicolon], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [StructDefinition].[Semicolon], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 346]
 Edges = { State436[ClosingBrace] }
-	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList].[ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList].[ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 347]
 Edges = {  }
-	Statement --> [IfStatement]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [IfStatement]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 348]
 Edges = { State191[Dot], State236[Slash], State435[Semicolon], State225[LessEquals], State226[Plus], State227[EqualsEquals], State228[Caret], State229[Greater], State230[Dash], State231[ExclamationEquals], State232[GreaterEquals], State233[Star], State234[Less], State193[Arrow] }
-	Statement --> [Expression].[Semicolon], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [Expression].[Semicolon], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> [Expression].[Plus][Expression], { Semicolon }
 	Expression --> [Expression].[Dash][Expression], { Semicolon }
 	Expression --> [Expression].[Star][Expression], { Semicolon }
@@ -5603,7 +5603,7 @@ Edges = {  }
 
 [State 350]
 Edges = {  }
-	Statement --> [WhileStatement]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [WhileStatement]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 351]
 Edges = { State347[IfStatement], State348[Expression], State7[FunctionCall], State434[Statements], State350[WhileStatement], State351[Statement], State352[FunctionDefinition], State1[ForStatement], State2[StructDefinition], State353[Assignment], State354[LvalueDeclarationList], State355[If], State14[Semicolon], State15[Terminal], State16[Ampersand], State17[Struct], State18[While], State358[For], State359[TypeDefinition], State21[Lvalue], State22[LvalueDeclaration], State23[DoubleType], State24[OpeningParenthesis], State25[Dash], State26[Identifier], State27[PlusPlus], State28[DashDash], State29[Constant], State30[IntegerType], State31[BoolType], State32[FloatType], State33[CharacterType], State34[ShortType], State35[LongType], State36[Star], State37[StructMemberReference], State38[Integer], State39[Bool], State40[Float], State41[Double], State42[Character], State43[String] }
@@ -5611,15 +5611,15 @@ Edges = { State347[IfStatement], State348[Expression], State7[FunctionCall], Sta
 	Statements --> [Statement]., { ClosingBrace }
 	Statements --> .[Statement][Statements], { ClosingBrace }
 	Statements --> .[Statement], { ClosingBrace }
-	Statement --> .[Expression][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[StructDefinition][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[IfStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[WhileStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[ForStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[FunctionDefinition], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Assignment][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[LvalueDeclarationList][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Expression][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[StructDefinition][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[IfStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[WhileStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[ForStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[FunctionDefinition], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Assignment][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[LvalueDeclarationList][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> .[Expression][Plus][Expression], { Semicolon }
 	Expression --> .[Expression][Dash][Expression], { Semicolon }
 	Expression --> .[Expression][Star][Expression], { Semicolon }
@@ -5633,10 +5633,10 @@ Edges = { State347[IfStatement], State348[Expression], State7[FunctionCall], Sta
 	Expression --> .[Expression][GreaterEquals][Expression], { Semicolon }
 	Expression --> .[Terminal], { Semicolon }
 	StructDefinition --> .[Struct][Identifier][OpeningBrace][StructMemberDeclarationList][ClosingBrace], { Semicolon }
-	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Assignment --> .[Lvalue][Equals][Expression], { Semicolon }
 	LvalueDeclarationList --> .[LvalueDeclaration][LvalueListNext], { Semicolon }
 	Terminal --> .[OpeningParenthesis][Expression][ClosingParenthesis], { Semicolon }
@@ -5674,35 +5674,35 @@ Edges = { State347[IfStatement], State348[Expression], State7[FunctionCall], Sta
 
 [State 352]
 Edges = {  }
-	Statement --> [FunctionDefinition]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [FunctionDefinition]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 353]
 Edges = { State433[Semicolon] }
-	Statement --> [Assignment].[Semicolon], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [Assignment].[Semicolon], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 354]
 Edges = { State432[Semicolon] }
-	Statement --> [LvalueDeclarationList].[Semicolon], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [LvalueDeclarationList].[Semicolon], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 355]
 Edges = { State426[OpeningParenthesis] }
-	IfStatement --> [If].[OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> [If].[OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 356]
 Edges = {  }
-	Statement --> [Semicolon]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [Semicolon]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 357]
 Edges = { State420[OpeningParenthesis] }
-	WhileStatement --> [While].[OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> [While].[OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 358]
 Edges = { State360[OpeningParenthesis] }
-	ForStatement --> [For].[OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For].[OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 359]
 Edges = { State328[Identifier], State322[Star], State321[LvalueDeclarationFormat] }
-	FunctionDefinition --> [TypeDefinition].[Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition].[Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	TypeDefinition --> [TypeDefinition].[Star], { Identifier }
 	LvalueDeclaration --> [TypeDefinition].[LvalueDeclarationFormat], { Comma, Semicolon }
 	LvalueDeclarationFormat --> .[Identifier], { Comma, Semicolon }
@@ -5710,7 +5710,7 @@ Edges = { State328[Identifier], State322[Star], State321[LvalueDeclarationFormat
 
 [State 360]
 Edges = { State261[TypeDefinition], State361[LvalueDeclarationList], State362[ForDeclarationSlot], State22[LvalueDeclaration], State30[IntegerType], State31[BoolType], State32[FloatType], State23[DoubleType], State33[CharacterType], State34[ShortType], State35[LongType], State333[Identifier] }
-	ForStatement --> [For][OpeningParenthesis].[ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis].[ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	ForDeclarationSlot --> .[LvalueDeclarationList], { Semicolon }
 	ForDeclarationSlot --> [Epsilon]., { Semicolon }
 	LvalueDeclarationList --> .[LvalueDeclaration][LvalueListNext], { Semicolon }
@@ -5731,11 +5731,11 @@ Edges = {  }
 
 [State 362]
 Edges = { State363[Semicolon] }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot].[Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot].[Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 363]
 Edges = { State15[Terminal], State364[OptionalExpression], State365[Expression], State27[PlusPlus], State219[Identifier], State25[Dash], State24[OpeningParenthesis], State28[DashDash], State218[Lvalue], State29[Constant], State220[Star], State221[Ampersand], State222[StructMemberReference], State223[FunctionCall], State38[Integer], State39[Bool], State40[Float], State41[Double], State42[Character], State43[String] }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon].[OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon].[OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	OptionalExpression --> .[Expression], { Semicolon }
 	OptionalExpression --> [Epsilon]., { Semicolon }
 	Expression --> .[Expression][Plus][Expression], { Semicolon }
@@ -5775,7 +5775,7 @@ Edges = { State15[Terminal], State364[OptionalExpression], State365[Expression],
 
 [State 364]
 Edges = { State366[Semicolon] }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression].[Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression].[Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 365]
 Edges = { State225[LessEquals], State226[Plus], State227[EqualsEquals], State228[Caret], State229[Greater], State230[Dash], State231[ExclamationEquals], State232[GreaterEquals], State233[Star], State234[Less], State235[Dot], State236[Slash], State237[Arrow] }
@@ -5796,7 +5796,7 @@ Edges = { State225[LessEquals], State226[Plus], State227[EqualsEquals], State228
 
 [State 366]
 Edges = { State62[Terminal], State367[OptionalExpression], State368[Expression], State63[PlusPlus], State64[Identifier], State65[Dash], State66[OpeningParenthesis], State67[DashDash], State61[Lvalue], State68[Constant], State69[Star], State70[Ampersand], State71[StructMemberReference], State72[FunctionCall], State73[Integer], State74[Bool], State75[Float], State76[Double], State77[Character], State78[String] }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon].[OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon].[OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	OptionalExpression --> .[Expression], { ClosingParenthesis }
 	OptionalExpression --> [Epsilon]., { ClosingParenthesis }
 	Expression --> .[Expression][Plus][Expression], { ClosingParenthesis }
@@ -5836,7 +5836,7 @@ Edges = { State62[Terminal], State367[OptionalExpression], State368[Expression],
 
 [State 367]
 Edges = { State369[ClosingParenthesis] }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression].[ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression].[ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 368]
 Edges = { State80[LessEquals], State81[Plus], State82[EqualsEquals], State83[Caret], State84[Greater], State85[Dash], State86[ExclamationEquals], State87[GreaterEquals], State88[Star], State89[Less], State90[Dot], State91[Slash], State92[Arrow] }
@@ -5857,11 +5857,11 @@ Edges = { State80[LessEquals], State81[Plus], State82[EqualsEquals], State83[Car
 
 [State 369]
 Edges = { State370[OpeningBrace] }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis].[OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis].[OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 370]
 Edges = { State371[OptionalStatement], State372[WhileStatement], State373[Statement], State374[IfStatement], State375[Expression], State376[FunctionDefinition], State377[ForStatement], State378[StructDefinition], State379[Assignment], State380[LvalueDeclarationList], State381[If], State382[Semicolon], State15[Terminal], State16[Ampersand], State17[Struct], State383[While], State384[For], State385[TypeDefinition], State21[Lvalue], State22[LvalueDeclaration], State23[DoubleType], State24[OpeningParenthesis], State25[Dash], State26[Identifier], State27[PlusPlus], State28[DashDash], State29[Constant], State30[IntegerType], State31[BoolType], State32[FloatType], State33[CharacterType], State34[ShortType], State35[LongType], State36[Star], State37[StructMemberReference], State7[FunctionCall], State38[Integer], State39[Bool], State40[Float], State41[Double], State42[Character], State43[String] }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace].[OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace].[OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	OptionalStatement --> .[Statement], { ClosingBrace }
 	OptionalStatement --> [Epsilon]., { ClosingBrace }
 	Statement --> .[Expression][Semicolon], { ClosingBrace }
@@ -5927,7 +5927,7 @@ Edges = { State371[OptionalStatement], State372[WhileStatement], State373[Statem
 
 [State 371]
 Edges = { State419[ClosingBrace] }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement].[ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement].[ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 372]
 Edges = {  }
@@ -6039,15 +6039,15 @@ Edges = { State344[ForStatement], State345[StructDefinition], State391[Statement
 	StatementList --> [Epsilon]., { ClosingBrace }
 	Statements --> .[Statement][Statements], { ClosingBrace }
 	Statements --> .[Statement], { ClosingBrace }
-	Statement --> .[Expression][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[StructDefinition][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[IfStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[WhileStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[ForStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[FunctionDefinition], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Assignment][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[LvalueDeclarationList][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	Statement --> .[Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Expression][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[StructDefinition][Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[IfStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[WhileStatement], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[ForStatement], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[FunctionDefinition], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Assignment][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[LvalueDeclarationList][Semicolon], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> .[Semicolon], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> .[Expression][Plus][Expression], { Semicolon }
 	Expression --> .[Expression][Dash][Expression], { Semicolon }
 	Expression --> .[Expression][Star][Expression], { Semicolon }
@@ -6061,10 +6061,10 @@ Edges = { State344[ForStatement], State345[StructDefinition], State391[Statement
 	Expression --> .[Expression][GreaterEquals][Expression], { Semicolon }
 	Expression --> .[Terminal], { Semicolon }
 	StructDefinition --> .[Struct][Identifier][OpeningBrace][StructMemberDeclarationList][ClosingBrace], { Semicolon }
-	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
-	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> .[If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> .[While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> .[For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> .[TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Assignment --> .[Lvalue][Equals][Expression], { Semicolon }
 	LvalueDeclarationList --> .[LvalueDeclaration][LvalueListNext], { Semicolon }
 	Terminal --> .[OpeningParenthesis][Expression][ClosingParenthesis], { Semicolon }
@@ -6579,11 +6579,11 @@ Edges = {  }
 
 [State 419]
 Edges = {  }
-	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace]., { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	ForStatement --> [For][OpeningParenthesis][ForDeclarationSlot][Semicolon][OptionalExpression][Semicolon][OptionalExpression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace]., { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 420]
 Edges = { State421[Expression], State61[Lvalue], State62[Terminal], State63[PlusPlus], State64[Identifier], State65[Dash], State66[OpeningParenthesis], State67[DashDash], State68[Constant], State69[Star], State70[Ampersand], State71[StructMemberReference], State72[FunctionCall], State73[Integer], State74[Bool], State75[Float], State76[Double], State77[Character], State78[String] }
-	WhileStatement --> [While][OpeningParenthesis].[Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> [While][OpeningParenthesis].[Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> .[Expression][Plus][Expression], { ClosingParenthesis }
 	Expression --> .[Expression][Dash][Expression], { ClosingParenthesis }
 	Expression --> .[Expression][Star][Expression], { ClosingParenthesis }
@@ -6621,7 +6621,7 @@ Edges = { State421[Expression], State61[Lvalue], State62[Terminal], State63[Plus
 
 [State 421]
 Edges = { State86[ExclamationEquals], State87[GreaterEquals], State88[Star], State422[ClosingParenthesis], State80[LessEquals], State81[Plus], State82[EqualsEquals], State83[Caret], State84[Greater], State85[Dash], State90[Dot], State91[Slash], State89[Less], State92[Arrow] }
-	WhileStatement --> [While][OpeningParenthesis][Expression].[ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> [While][OpeningParenthesis][Expression].[ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> [Expression].[Plus][Expression], { ClosingParenthesis }
 	Expression --> [Expression].[Dash][Expression], { ClosingParenthesis }
 	Expression --> [Expression].[Star][Expression], { ClosingParenthesis }
@@ -6638,11 +6638,11 @@ Edges = { State86[ExclamationEquals], State87[GreaterEquals], State88[Star], Sta
 
 [State 422]
 Edges = { State423[OpeningBrace] }
-	WhileStatement --> [While][OpeningParenthesis][Expression][ClosingParenthesis].[OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> [While][OpeningParenthesis][Expression][ClosingParenthesis].[OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 423]
 Edges = { State424[OptionalStatement], State372[WhileStatement], State373[Statement], State374[IfStatement], State375[Expression], State376[FunctionDefinition], State377[ForStatement], State378[StructDefinition], State379[Assignment], State380[LvalueDeclarationList], State381[If], State382[Semicolon], State15[Terminal], State16[Ampersand], State17[Struct], State383[While], State384[For], State385[TypeDefinition], State21[Lvalue], State22[LvalueDeclaration], State23[DoubleType], State24[OpeningParenthesis], State25[Dash], State26[Identifier], State27[PlusPlus], State28[DashDash], State29[Constant], State30[IntegerType], State31[BoolType], State32[FloatType], State33[CharacterType], State34[ShortType], State35[LongType], State36[Star], State37[StructMemberReference], State7[FunctionCall], State38[Integer], State39[Bool], State40[Float], State41[Double], State42[Character], State43[String] }
-	WhileStatement --> [While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace].[OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> [While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace].[OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	OptionalStatement --> .[Statement], { ClosingBrace }
 	OptionalStatement --> [Epsilon]., { ClosingBrace }
 	Statement --> .[Expression][Semicolon], { ClosingBrace }
@@ -6708,15 +6708,15 @@ Edges = { State424[OptionalStatement], State372[WhileStatement], State373[Statem
 
 [State 424]
 Edges = { State425[ClosingBrace] }
-	WhileStatement --> [While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement].[ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> [While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement].[ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 425]
 Edges = {  }
-	WhileStatement --> [While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace]., { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	WhileStatement --> [While][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace]., { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 426]
 Edges = { State427[Expression], State61[Lvalue], State62[Terminal], State63[PlusPlus], State64[Identifier], State65[Dash], State66[OpeningParenthesis], State67[DashDash], State68[Constant], State69[Star], State70[Ampersand], State71[StructMemberReference], State72[FunctionCall], State73[Integer], State74[Bool], State75[Float], State76[Double], State77[Character], State78[String] }
-	IfStatement --> [If][OpeningParenthesis].[Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> [If][OpeningParenthesis].[Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> .[Expression][Plus][Expression], { ClosingParenthesis }
 	Expression --> .[Expression][Dash][Expression], { ClosingParenthesis }
 	Expression --> .[Expression][Star][Expression], { ClosingParenthesis }
@@ -6754,7 +6754,7 @@ Edges = { State427[Expression], State61[Lvalue], State62[Terminal], State63[Plus
 
 [State 427]
 Edges = { State86[ExclamationEquals], State87[GreaterEquals], State88[Star], State428[ClosingParenthesis], State80[LessEquals], State81[Plus], State82[EqualsEquals], State83[Caret], State84[Greater], State85[Dash], State90[Dot], State91[Slash], State89[Less], State92[Arrow] }
-	IfStatement --> [If][OpeningParenthesis][Expression].[ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> [If][OpeningParenthesis][Expression].[ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	Expression --> [Expression].[Plus][Expression], { ClosingParenthesis }
 	Expression --> [Expression].[Dash][Expression], { ClosingParenthesis }
 	Expression --> [Expression].[Star][Expression], { ClosingParenthesis }
@@ -6771,11 +6771,11 @@ Edges = { State86[ExclamationEquals], State87[GreaterEquals], State88[Star], Sta
 
 [State 428]
 Edges = { State429[OpeningBrace] }
-	IfStatement --> [If][OpeningParenthesis][Expression][ClosingParenthesis].[OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> [If][OpeningParenthesis][Expression][ClosingParenthesis].[OpeningBrace][OptionalStatement][ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 429]
 Edges = { State430[OptionalStatement], State372[WhileStatement], State373[Statement], State374[IfStatement], State375[Expression], State376[FunctionDefinition], State377[ForStatement], State378[StructDefinition], State379[Assignment], State380[LvalueDeclarationList], State381[If], State382[Semicolon], State15[Terminal], State16[Ampersand], State17[Struct], State383[While], State384[For], State385[TypeDefinition], State21[Lvalue], State22[LvalueDeclaration], State23[DoubleType], State24[OpeningParenthesis], State25[Dash], State26[Identifier], State27[PlusPlus], State28[DashDash], State29[Constant], State30[IntegerType], State31[BoolType], State32[FloatType], State33[CharacterType], State34[ShortType], State35[LongType], State36[Star], State37[StructMemberReference], State7[FunctionCall], State38[Integer], State39[Bool], State40[Float], State41[Double], State42[Character], State43[String] }
-	IfStatement --> [If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace].[OptionalStatement][ClosingBrace], { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> [If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace].[OptionalStatement][ClosingBrace], { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 	OptionalStatement --> .[Statement], { ClosingBrace }
 	OptionalStatement --> [Epsilon]., { ClosingBrace }
 	Statement --> .[Expression][Semicolon], { ClosingBrace }
@@ -6841,19 +6841,19 @@ Edges = { State430[OptionalStatement], State372[WhileStatement], State373[Statem
 
 [State 430]
 Edges = { State431[ClosingBrace] }
-	IfStatement --> [If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement].[ClosingBrace], { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> [If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement].[ClosingBrace], { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 431]
 Edges = {  }
-	IfStatement --> [If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace]., { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	IfStatement --> [If][OpeningParenthesis][Expression][ClosingParenthesis][OpeningBrace][OptionalStatement][ClosingBrace]., { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 432]
 Edges = {  }
-	Statement --> [LvalueDeclarationList][Semicolon]., { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [LvalueDeclarationList][Semicolon]., { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 433]
 Edges = {  }
-	Statement --> [Assignment][Semicolon]., { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [Assignment][Semicolon]., { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 434]
 Edges = {  }
@@ -6861,15 +6861,15 @@ Edges = {  }
 
 [State 435]
 Edges = {  }
-	Statement --> [Expression][Semicolon]., { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [Expression][Semicolon]., { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 436]
 Edges = {  }
-	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace]., { PlusPlus, Identifier, Dash, DoubleType, OpeningParenthesis, Character, Star, DashDash, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	FunctionDefinition --> [TypeDefinition][Identifier][OpeningParenthesis][FunctionParameterDeclarationList][ClosingParenthesis][OpeningBrace][StatementList][ClosingBrace]., { PlusPlus, Identifier, Dash, OpeningParenthesis, DoubleType, Character, Star, DashDash, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 437]
 Edges = {  }
-	Statement --> [StructDefinition][Semicolon]., { DoubleType, OpeningParenthesis, Dash, Identifier, PlusPlus, DashDash, Star, Character, Ampersand, Struct, Integer, String, Bool, Float, Double, If, Semicolon, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
+	Statement --> [StructDefinition][Semicolon]., { OpeningParenthesis, DoubleType, Dash, Identifier, PlusPlus, DashDash, Star, Character, Struct, Ampersand, Integer, String, Bool, Float, Double, Semicolon, If, While, For, IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType }
 
 [State 438]
 Edges = { State439[OpeningBrace] }
@@ -6882,7 +6882,7 @@ Edges = { State440[StructMemberDeclarationList], State441[StructMemberDeclaratio
 	StructMemberDeclarationList --> [Epsilon]., { ClosingBrace }
 	StructMemberDeclarations --> .[StructMemberDeclaration][StructMemberDeclarations], { ClosingBrace }
 	StructMemberDeclarations --> .[StructMemberDeclaration], { ClosingBrace }
-	StructMemberDeclaration --> .[LvalueDeclarationList][Semicolon], { IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType, DoubleType, Identifier }
+	StructMemberDeclaration --> .[LvalueDeclarationList][Semicolon], { CharacterType, IntegerType, ShortType, BoolType, LongType, FloatType, Identifier, DoubleType }
 	LvalueDeclarationList --> .[LvalueDeclaration][LvalueListNext], { Semicolon }
 	LvalueDeclaration --> .[TypeDefinition][LvalueDeclarationFormat], { Comma, Semicolon }
 	TypeDefinition --> .[IntegerType], { Identifier }
@@ -6905,7 +6905,7 @@ Edges = {  }
 
 [State 442]
 Edges = { State445[Semicolon] }
-	StructMemberDeclaration --> [LvalueDeclarationList].[Semicolon], { IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType, DoubleType, Identifier }
+	StructMemberDeclaration --> [LvalueDeclarationList].[Semicolon], { CharacterType, IntegerType, ShortType, BoolType, LongType, FloatType, Identifier, DoubleType }
 
 [State 443]
 Edges = { State444[StructMemberDeclarations], State261[TypeDefinition], State442[LvalueDeclarationList], State443[StructMemberDeclaration], State22[LvalueDeclaration], State30[IntegerType], State31[BoolType], State32[FloatType], State23[DoubleType], State33[CharacterType], State34[ShortType], State35[LongType], State333[Identifier] }
@@ -6913,7 +6913,7 @@ Edges = { State444[StructMemberDeclarations], State261[TypeDefinition], State442
 	StructMemberDeclarations --> [StructMemberDeclaration]., { ClosingBrace }
 	StructMemberDeclarations --> .[StructMemberDeclaration][StructMemberDeclarations], { ClosingBrace }
 	StructMemberDeclarations --> .[StructMemberDeclaration], { ClosingBrace }
-	StructMemberDeclaration --> .[LvalueDeclarationList][Semicolon], { IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType, DoubleType, Identifier }
+	StructMemberDeclaration --> .[LvalueDeclarationList][Semicolon], { CharacterType, IntegerType, ShortType, BoolType, LongType, FloatType, Identifier, DoubleType }
 	LvalueDeclarationList --> .[LvalueDeclaration][LvalueListNext], { Semicolon }
 	LvalueDeclaration --> .[TypeDefinition][LvalueDeclarationFormat], { Comma, Semicolon }
 	TypeDefinition --> .[IntegerType], { Identifier }
@@ -6932,7 +6932,7 @@ Edges = {  }
 
 [State 445]
 Edges = {  }
-	StructMemberDeclaration --> [LvalueDeclarationList][Semicolon]., { IntegerType, CharacterType, BoolType, ShortType, FloatType, LongType, DoubleType, Identifier }
+	StructMemberDeclaration --> [LvalueDeclarationList][Semicolon]., { CharacterType, IntegerType, ShortType, BoolType, LongType, FloatType, Identifier, DoubleType }
 
 [State 446]
 Edges = {  }

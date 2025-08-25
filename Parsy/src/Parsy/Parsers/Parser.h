@@ -30,8 +30,19 @@ namespace Parsy
 	class Parser
 	{
 	public:
-		Parser(const std::ifstream& inputStream, int32_t flags = 0);
+		Parser(int32_t flags = 0);
 
+		template<typename LexerSubclass, typename ... Args>
+		void AttachLexer(Args&& ... args)
+		{
+			static_assert(
+				std::is_same<LexerSubclass, Lexy::Lexer>::value ||
+				std::is_base_of<Lexy::Lexer, LexerSubclass>::value,
+				"AttachLexer requires a type that is Lexy::Lexer or derived from it"
+				);
+			m_Lexer = new LexerSubclass(std::forward<Args>(args)...);
+		}
+		inline const Lexy::Lexer* GetLexer() const { return m_Lexer; }
 		virtual bool Parse() = 0;
 		void GenerateOutputFiles();
 
@@ -141,11 +152,9 @@ namespace Parsy
 		void GenerateCFGInfo();
 		void CheckIDValidation();
 		std::string ProductionToStr(const ProductionData& production, int32_t invalidElementIndex = -1) const;
-	protected:
+	private:
 		Lexy::Lexer* m_Lexer = nullptr;
 		int32_t m_Flags = 0;
-
-	private:
 		RuleID_t m_StartingRule = INT_MIN;
 		std::unordered_map<RuleID_t, RuleProperties> m_CFGMap;
 		std::unordered_map<Lexy::TokenID_t, TokenProperties> m_TokenMap;

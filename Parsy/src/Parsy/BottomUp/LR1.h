@@ -224,8 +224,8 @@ namespace Parsy
 
 		std::vector<BottomUpAction> m_ActionTable;
 		std::vector<int32_t> m_GotoTable;
-		std::unordered_set<CFGElement> m_Symbols;
-		std::unordered_set<CFGElement> m_NonTerminals;
+		std::unordered_map<CFGElement, size_t> m_Symbols;
+		std::unordered_map<CFGElement, size_t> m_NonTerminals;
 
 		friend class Parser;
 	};

@@ -5,8 +5,8 @@
 
 namespace Parsy
 {
-	CLRParser::CLRParser(const std::ifstream& inputStream, int32_t flags)
-		: LRParser(inputStream, flags)
+	CLRParser::CLRParser(int32_t flags)
+		: LRParser(flags)
 	{
         m_LR1 = std::make_unique<CLR1>(this);
 	}
@@ -84,7 +84,7 @@ namespace Parsy
 	{
 		BottomUpAction* reduceAction = nullptr;
 		const auto& symbols = m_LR1->GetSymbols();
-		for (const CFGElement& element : symbols)
+		for (const auto& [element, index] : symbols)
 		{
 			BottomUpAction& action = m_LR1->GetAction(state, element);
 			if (action.Type == BottomUpActionType::Reduce)
