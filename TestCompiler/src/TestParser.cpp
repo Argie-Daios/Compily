@@ -3,11 +3,62 @@
 #include "TestLexer.h"
 #include "RuleAndTokenIDS.h"
 
+#define ConvertOrderCallbackMacro(leftType, rightType) [](TConstant& constant, bool isOpposite) {\
+	if(isOpposite)\
+		constant.Convert<rightType, leftType>();\
+	else\
+		constant.Convert<leftType, rightType>();\
+}
+
+#define ConvertCallbackMacro(leftType, rightType) [](TConstant& constant, bool isOpposite) {\
+		constant.Convert<leftType, rightType>();\
+}
+
+static const std::string RemoveExtention(const std::string& string)
+{
+	size_t index = string.find_last_of('.');
+	if (index == std::string::npos) return string;
+	return string.substr(0, index);
+}
+
 TestParser::TestParser(const std::string& sourceCodePath)
-	: CLRParser(Parsy::CLRParserFlags_ForcePrecedence)
+	: CLRParser(Parsy::CLRParserFlags_ForcePrecedence), m_QuadGenerator(RemoveExtention(sourceCodePath)),
+	m_TypeConvertionManager(this)
 {
 	AttachLexer<TestLexer>(sourceCodePath);
 	m_Logger = Utilities::Logger::Register("TestParser", sourceCodePath);
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	m_TypeConvertionManager.RegisterType(EDataType::Int16);
+	m_TypeConvertionManager.RegisterType(EDataType::Int32);
+	m_TypeConvertionManager.RegisterType(EDataType::Int64);
+	m_TypeConvertionManager.RegisterType(EDataType::Float);
+	m_TypeConvertionManager.RegisterType(EDataType::Double);
+	
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int16, EDataType::Int32, EConvertionType::Right,
+		ConvertCallbackMacro(int16_t, int32_t));
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int16, EDataType::Int64, EConvertionType::Right,
+		ConvertCallbackMacro(int16_t, int64_t));
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int16, EDataType::Float, EConvertionType::Right,
+		ConvertCallbackMacro(int16_t, float));
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int16, EDataType::Double, EConvertionType::Right,
+		ConvertCallbackMacro(int16_t, double));
+
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int32, EDataType::Int64, EConvertionType::Right,
+		ConvertCallbackMacro(int32_t, int64_t));
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int32, EDataType::Float, EConvertionType::Order,
+		ConvertOrderCallbackMacro(int32_t, float));
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int32, EDataType::Double, EConvertionType::Right,
+		ConvertCallbackMacro(int32_t, double));
+
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int64, EDataType::Float, EConvertionType::Right,
+		ConvertCallbackMacro(int64_t, float));
+	m_TypeConvertionManager.RegisterConversion(EDataType::Int64, EDataType::Double, EConvertionType::Right,
+		ConvertCallbackMacro(int64_t, double));
+
+	m_TypeConvertionManager.RegisterConversion(EDataType::Float, EDataType::Double, EConvertionType::Right,
+		ConvertCallbackMacro(float, double));
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,6 +70,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	DeclarePrecedence(Parsy::PrecedenceAssociativity::Left, PLUS, DASH);
 	DeclarePrecedence(Parsy::PrecedenceAssociativity::Left, STAR, SLASH);
+	DeclarePrecedence(Parsy::PrecedenceAssociativity::Right, CARET);
 	DeclarePrecedence(Parsy::PrecedenceAssociativity::Right, UMINUS);
 	DeclareRootRule(PROGRAM);
 
@@ -89,138 +141,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 			{
 				SymbolTableEntry* symEntry = m_SymbolTable.LookUp(lvalue.SymbolTableEntry, 0);
 				std::cout << "Lvalue[" << lvalue.SymbolTableEntry << "] type: ";
-				switch (lvalue.DataType.Type)
-				{
-				case EDataType::None:
-				{
-					std::cout << "None";
-					break;
-				}
-				case EDataType::Int16:
-				{
-					std::cout << "Int16";
-					for (int32_t i = 0; i < lvalue.DataType.PointerDepth; i++)
-					{
-						std::cout << '*';
-					}
-					if (std::holds_alternative<int16_t>(symEntry->ConstantValue.Data))
-					{
-						int16_t& value = std::get<int16_t>(symEntry->ConstantValue.Data);
-						std::cout << " with value " << value;
-					}
-					break;
-				}
-				case EDataType::Int32:
-				{
-					std::cout << "Int32";
-					for (int32_t i = 0; i < lvalue.DataType.PointerDepth; i++)
-					{
-						std::cout << '*';
-					}
-					if (std::holds_alternative<int32_t>(symEntry->ConstantValue.Data))
-					{
-						int32_t& value = std::get<int32_t>(symEntry->ConstantValue.Data);
-						std::cout << " with value " << value;
-					}
-					break;
-				}
-				case EDataType::Int64:
-				{
-					std::cout << "Int64";
-					for (int32_t i = 0; i < lvalue.DataType.PointerDepth; i++)
-					{
-						std::cout << '*';
-					}
-					if (std::holds_alternative<int64_t>(symEntry->ConstantValue.Data))
-					{
-						int64_t& value = std::get<int64_t>(symEntry->ConstantValue.Data);
-						std::cout << " with value " << value;
-					}
-					break;
-				}
-				case EDataType::Bool:
-				{
-					std::cout << "Bool";
-					for (int32_t i = 0; i < lvalue.DataType.PointerDepth; i++)
-					{
-						std::cout << '*';
-					}
-					if (std::holds_alternative<bool>(symEntry->ConstantValue.Data))
-					{
-						bool& value = std::get<bool>(symEntry->ConstantValue.Data);
-						std::cout << " with value " << (value ? "true" : "false");
-					}
-					break;
-				}
-				case EDataType::Float:
-				{
-					std::cout << "Float";
-					for (int32_t i = 0; i < lvalue.DataType.PointerDepth; i++)
-					{
-						std::cout << '*';
-					}
-					if (std::holds_alternative<float>(symEntry->ConstantValue.Data))
-					{
-						float& value = std::get<float>(symEntry->ConstantValue.Data);
-						std::cout << " with value " << value;
-					}
-					break;
-				}
-				case EDataType::Double:
-				{
-					std::cout << "Double";
-					for (int32_t i = 0; i < lvalue.DataType.PointerDepth; i++)
-					{
-						std::cout << '*';
-					}
-					if (std::holds_alternative<double>(symEntry->ConstantValue.Data))
-					{
-						double& value = std::get<double>(symEntry->ConstantValue.Data);
-						std::cout << " with value " << value;
-					}
-					break;
-				}
-				case EDataType::Char:
-				{
-					std::cout << "Character";
-					for (int32_t i = 0; i < lvalue.DataType.PointerDepth; i++)
-					{
-						std::cout << '*';
-					}
-
-					if (lvalue.DataType.PointerDepth == 1)
-					{
-						if (std::holds_alternative<std::string>(symEntry->ConstantValue.Data))
-						{
-							std::string& value = std::get<std::string>(symEntry->ConstantValue.Data);
-							std::cout << " with value " << value;
-						}
-					}
-					else if (lvalue.DataType.PointerDepth == 0)
-					{
-						if (std::holds_alternative<char>(symEntry->ConstantValue.Data))
-						{
-							char& value = std::get<char>(symEntry->ConstantValue.Data);
-							std::cout << " with value " << value;
-						}
-					}
-					break;
-				}
-				case EDataType::Struct:
-				{
-					std::cout << "Struct";
-					for (int32_t i = 0; i < lvalue.DataType.PointerDepth; i++)
-					{
-						std::cout << '*';
-					}
-					/*if (std::holds_alternative<int16_t>(symEntry->ConstantValue.Data))
-					{
-						int16_t& value = std::get<int16_t>(symEntry->ConstantValue.Data);
-						std::cout << " with value " << value;
-					}*/
-					break;
-				}
-				}
+				std::cout << symEntry->DataType.ToString();
 				std::cout << std::endl;
 			}
 		});
@@ -266,37 +187,80 @@ TestParser::TestParser(const std::string& sourceCodePath)
 			TExpression& leftExpressionValue = Get<TExpression>(0);
 			TExpression& rightExpressionValue = Get<TExpression>(2);
 
-			TConstant& leftConstant = GetConstantValueFromExpression(leftExpressionValue);
-			TConstant& rightConstant = GetConstantValueFromExpression(rightExpressionValue);
+			//VerifyOperation(EOperationType::ADD, leftExpressionValue, rightExpressionValue);
+			TConvertionResult& result = m_TypeConvertionManager.InvokeConversion(&leftExpressionValue,
+				&rightExpressionValue);
+			const TDataTypeProperties* dataTypeProperties = GetDataTypeProperties(*result.Left);
 
-			if (leftConstant.DataTypeProps != rightConstant.DataTypeProps)
-			{
-				m_Logger.Error("Cannot add different type values, on line {}!!",
-					GetLexer()->GetLineCount());
-				return;
-			}
-
-			entryValue.Type = EExpressionType::Constant;
-			entryValue.ConstantValue = ExecuteOperation(EOperationType::Plus, leftConstant, rightConstant);
+			entryValue.Type = EExpressionType::Lvalue;
+			entryValue.SymbolTableEntry = "t" + std::to_string(m_TempVariables++);
+			m_SymbolTable.Emplace(entryValue.SymbolTableEntry, ELvalueType::Modifiable,
+				*dataTypeProperties, 0, GetLexer()->GetLineCount());
+			m_QuadGenerator.AddInstruction(OperationCode_Add, result.Left,
+				result.Right, new TExpression(entryValue), GetLexer()->GetLineCount());
 		});
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 		Add(Parsy::CFGElementType::Symbol, DASH);
-		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
+			TExpression& entryValue = Get<TExpression>(entry);
+			TExpression& leftExpressionValue = Get<TExpression>(0);
+			TExpression& rightExpressionValue = Get<TExpression>(2);
+
+			VerifyOperation(EOperationType::SUB, leftExpressionValue, rightExpressionValue);
+			const TDataTypeProperties* dataTypeProperties = GetDataTypeProperties(leftExpressionValue);
+
+			entryValue.Type = EExpressionType::Lvalue;
+			entryValue.SymbolTableEntry = "t" + std::to_string(m_TempVariables++);
+			m_SymbolTable.Emplace(entryValue.SymbolTableEntry, ELvalueType::Modifiable, 
+				*dataTypeProperties, 0,
+				GetLexer()->GetLineCount());
+			m_QuadGenerator.AddInstruction(OperationCode_Substract, new TExpression(leftExpressionValue),
+				new TExpression(rightExpressionValue), new TExpression(entryValue), GetLexer()->GetLineCount());
+		});
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 		Add(Parsy::CFGElementType::Symbol, STAR);
-		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
+			TExpression& entryValue = Get<TExpression>(entry);
+			TExpression& leftExpressionValue = Get<TExpression>(0);
+			TExpression& rightExpressionValue = Get<TExpression>(2);
+
+			VerifyOperation(EOperationType::MUL, leftExpressionValue, rightExpressionValue);
+			const TDataTypeProperties* dataTypeProperties = GetDataTypeProperties(leftExpressionValue);
+
+			entryValue.Type = EExpressionType::Lvalue;
+			entryValue.SymbolTableEntry = "t" + std::to_string(m_TempVariables++);
+			m_SymbolTable.Emplace(entryValue.SymbolTableEntry, ELvalueType::Modifiable,
+				*dataTypeProperties, 0, GetLexer()->GetLineCount());
+			m_QuadGenerator.AddInstruction(OperationCode_Multiply, new TExpression(leftExpressionValue),
+				new TExpression(rightExpressionValue), new TExpression(entryValue), GetLexer()->GetLineCount());
+		});
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 		Add(Parsy::CFGElementType::Symbol, SLASH);
-		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
+			TExpression& entryValue = Get<TExpression>(entry);
+			TExpression& leftExpressionValue = Get<TExpression>(0);
+			TExpression& rightExpressionValue = Get<TExpression>(2);
+
+			VerifyOperation(EOperationType::DIV, leftExpressionValue, rightExpressionValue);
+			const TDataTypeProperties* dataTypeproperties =  GetDataTypeProperties(leftExpressionValue);
+
+			entryValue.Type = EExpressionType::Lvalue;
+			entryValue.SymbolTableEntry = "t" + std::to_string(m_TempVariables++);
+			m_SymbolTable.Emplace(entryValue.SymbolTableEntry, ELvalueType::Modifiable,
+				*dataTypeproperties, 0, GetLexer()->GetLineCount());
+
+			m_QuadGenerator.AddInstruction(OperationCode_Divide, new TExpression(leftExpressionValue),
+				new TExpression(rightExpressionValue), new TExpression(entryValue), GetLexer()->GetLineCount());
+		});
 
 		Union();
 
@@ -338,6 +302,18 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 		Add(Parsy::CFGElementType::Symbol, GREATER_EQUALS);
+		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+
+		Union();
+
+		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+		Add(Parsy::CFGElementType::Symbol, PIPE_PIPE);
+		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+
+		Union();
+
+		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+		Add(Parsy::CFGElementType::Symbol, AMPERSAND_AMPERSAND);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
@@ -391,7 +367,19 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE);
 		Add(Parsy::CFGElementType::Symbol, EQUALS);
-		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
+		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
+			TLvalue& lvalue = Get<TLvalue>(0);
+			TExpression& expression = Get<TExpression>(2);
+
+			//VerifyASSIGN(lvalue, expression);
+			TExpression* lvalueExpression = new TExpression();
+			lvalueExpression->Type = EExpressionType::Lvalue;
+			lvalueExpression->SymbolTableEntry = lvalue.SymbolTableEntry;
+			TConvertionResult& convertionResult =  m_TypeConvertionManager.InvokeConversion(lvalueExpression, &expression);
+
+			m_QuadGenerator.AddInstruction(OperationCode_Assign, convertionResult.Right, nullptr, convertionResult.Left,
+				GetLexer()->GetLineCount());
+		});
 
 	EndRule();
 
@@ -401,7 +389,11 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Add(Parsy::CFGElementType::Symbol, OPENING_PARENTHESIS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Symbol, CLOSING_PARENTHESIS, [this](Parsy::EntryValue& entry) {
+			TExpression& entryValue = Get<TExpression>(entry);
+			TExpression& expressionValue = Get<TExpression>(1);
+			entryValue = expressionValue;
+		});
 
 		Union();
 
@@ -530,16 +522,16 @@ TestParser::TestParser(const std::string& sourceCodePath)
 			TLvalue& lvalueDeclaration = Get<TLvalue>(1);
 
 			SymbolTableEntry* symEntry = m_SymbolTable.LookUp(lvalueDeclaration.SymbolTableEntry, 0);
-			if (symEntry->ConstantValue.DataTypeProps.Type != EDataType::None && 
-				(symEntry->ConstantValue.DataTypeProps.Type != dataProperties.Type ||
-				symEntry->ConstantValue.DataTypeProps.PointerDepth != dataProperties.PointerDepth))
+			if (symEntry->DataType.Type != EDataType::None &&
+				(symEntry->DataType.Type != dataProperties.Type ||
+					symEntry->DataType.PointerDepth != dataProperties.PointerDepth))
 			{
 				m_Logger.Error("Type mismatch between assigned value and type declaration on line {}!!",
 					GetLexer()->GetLineCount());
 			}
 			else
 			{
-				lvalueDeclaration.DataType = dataProperties;
+				symEntry->DataType = dataProperties;
 			}
 			entryValue = lvalueDeclaration;
 		});
@@ -553,7 +545,6 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Add(Parsy::CFGElementType::Symbol, IDENTIFIER, [this](Parsy::EntryValue& entry) {
 			TLvalue& entryValue = Get<TLvalue>(entry);
 			entryValue.SymbolTableEntry = Get<std::string>(0);
-			entryValue.Type = ELvalueType::Const;
 			m_SymbolTable.Emplace(entryValue.SymbolTableEntry);
 		});
 
@@ -564,25 +555,32 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
 			TLvalue& entryValue = Get<TLvalue>(entry);
 			entryValue.SymbolTableEntry = Get<std::string>(0);
-			entryValue.Type = ELvalueType::Const;
 			m_SymbolTable.Emplace(entryValue.SymbolTableEntry, 0, 0);
 			SymbolTableEntry* symEntry = m_SymbolTable.LookUp(entryValue.SymbolTableEntry, 0);
 
 			TExpression& expressionValue = Get<TExpression>(2);
+
 			switch (expressionValue.Type)
 			{
 			case EExpressionType::Constant:
 			{
-				symEntry->ConstantValue = expressionValue.ConstantValue;
+				symEntry->DataType = expressionValue.ConstantValue.DataTypeProps;
 				break;
 			}
 			case EExpressionType::Lvalue:
 			{
 				SymbolTableEntry* expressionSymEntry = m_SymbolTable.LookUp(expressionValue.SymbolTableEntry, 0);
-				symEntry->ConstantValue = expressionSymEntry->ConstantValue;
+				symEntry->DataType = expressionSymEntry->DataType;
+				symEntry->Type = expressionSymEntry->Type;
 				break;
 			}
 			}
+
+			TExpression* result = new TExpression();
+			result->Type = EExpressionType::Lvalue;
+			result->SymbolTableEntry = entryValue.SymbolTableEntry;
+			m_QuadGenerator.AddInstruction(OperationCode_Assign, new TExpression(expressionValue), nullptr, result,
+				GetLexer()->GetLineCount());
 		});
 
 	EndRule();
@@ -594,8 +592,6 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Add(Parsy::CFGElementType::Symbol, IDENTIFIER, [this](Parsy::EntryValue& entry) {
 			TLvalue& entryValue = Get<TLvalue>(entry);
 			entryValue.SymbolTableEntry = Get<std::string>(0);
-			entryValue.Type = ELvalueType::Const;
-			//m_SymbolTable.LookUp(entryValue.SymbolTableEntry, 0);
 		});
 
 		Union();
@@ -629,26 +625,27 @@ TestParser::TestParser(const std::string& sourceCodePath)
 			std::vector<TLvalue>& lvalueNextValue = Get<std::vector<TLvalue>>(1);
 
 			entryValue.push_back(lvalueDeclarationValue);
-			TDataTypeProperties currentType = lvalueDeclarationValue.DataType;
+			SymbolTableEntry* lvalueDeclerationSymEntry = m_SymbolTable.LookUp(lvalueDeclarationValue.SymbolTableEntry, 0);
+			TDataTypeProperties currentType = lvalueDeclerationSymEntry->DataType;
 			for (TLvalue& lvalue : lvalueNextValue)
 			{
 				SymbolTableEntry* symEntry = m_SymbolTable.LookUp(lvalue.SymbolTableEntry, 0);
-				if (lvalue.DataType.Type != EDataType::None && (lvalue.DataType.Type != currentType.Type ||
-					lvalue.DataType.PointerDepth != currentType.PointerDepth))
+				if (symEntry->DataType.Type != EDataType::None && (symEntry->DataType.Type != currentType.Type ||
+					symEntry->DataType.PointerDepth != currentType.PointerDepth))
 				{
-					currentType = lvalue.DataType;
+					currentType = symEntry->DataType;
 				}
 
-				if (symEntry->ConstantValue.DataTypeProps.Type != EDataType::None &&
-					(symEntry->ConstantValue.DataTypeProps.Type != currentType.Type ||
-						symEntry->ConstantValue.DataTypeProps.PointerDepth != currentType.PointerDepth))
+				if (symEntry->DataType.Type != EDataType::None &&
+					(symEntry->DataType.Type != currentType.Type ||
+						symEntry->DataType.PointerDepth != currentType.PointerDepth))
 				{
 					m_Logger.Error("Type mismatch between assigned value and type declaration on line {}!!",
 						GetLexer()->GetLineCount());
 				}
-				else if (lvalue.DataType.Type == EDataType::None)
+				else if (symEntry->DataType.Type == EDataType::None)
 				{
-					lvalue.DataType = currentType;
+					symEntry->DataType = currentType;
 				}
 				entryValue.push_back(lvalue);
 			}
@@ -668,26 +665,27 @@ TestParser::TestParser(const std::string& sourceCodePath)
 			std::vector<TLvalue>& lvalueNextValue = Get<std::vector<TLvalue>>(2);
 
 			entryValue.push_back(lvalueDeclarationValue);
-			TDataTypeProperties currentType = lvalueDeclarationValue.DataType;
+			SymbolTableEntry* lvalueDeclerationSymEntry = m_SymbolTable.LookUp(lvalueDeclarationValue.SymbolTableEntry, 0);
+			TDataTypeProperties currentType = lvalueDeclerationSymEntry->DataType;
 			for (TLvalue& lvalue : lvalueNextValue)
 			{
 				SymbolTableEntry* symEntry = m_SymbolTable.LookUp(lvalue.SymbolTableEntry, 0);
-				if (lvalue.DataType.Type != EDataType::None && (lvalue.DataType.Type != currentType.Type ||
-					lvalue.DataType.PointerDepth != currentType.PointerDepth))
+				if (symEntry->DataType.Type != EDataType::None && (symEntry->DataType.Type != currentType.Type ||
+					symEntry->DataType.PointerDepth != currentType.PointerDepth))
 				{
-					currentType = lvalue.DataType;
+					currentType = symEntry->DataType;
 				}
 
-				if (symEntry->ConstantValue.DataTypeProps.Type != EDataType::None &&
-					(symEntry->ConstantValue.DataTypeProps.Type != currentType.Type ||
-						symEntry->ConstantValue.DataTypeProps.PointerDepth != currentType.PointerDepth))
+				if (symEntry->DataType.Type != EDataType::None &&
+					(symEntry->DataType.Type != currentType.Type ||
+						symEntry->DataType.PointerDepth != currentType.PointerDepth))
 				{
 					m_Logger.Error("Type mismatch between assigned value and type declaration on line {}!!",
 						GetLexer()->GetLineCount());
 				}
-				else if (lvalue.DataType.Type == EDataType::None)
+				else if (symEntry->DataType.Type == EDataType::None)
 				{
-					lvalue.DataType = currentType;
+					symEntry->DataType = currentType;
 				}
 				entryValue.push_back(lvalue);
 			}
@@ -984,6 +982,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	Utilities::Time::TimerHandle& timerHandle = Utilities::Time::BenchmarkRoutine(BIND_CALLBACK(Parse));
 	m_Logger.Info("Parsing took {}ms", timerHandle.GetTimeElapsed());
+	m_QuadGenerator.ExportDebugFormat();
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
@@ -1070,6 +1069,8 @@ const std::string TestParser::TokenToStr(Lexy::TokenID_t tokenID) const
 	case LESS_EQUALS: return "LessEquals";
 	case GREATER: return "Greater";
 	case GREATER_EQUALS: return "GreaterEquals";
+	case PIPE_PIPE: return "PipePipe";
+	case AMPERSAND_AMPERSAND: return "AmpersandAmpersand";
 	case DOT: return "Dot";
 	case DOT_DOT: return "DotDot";
 	case COMMA: return "Comma";
@@ -1103,94 +1104,91 @@ void TestParser::SyntaxErrorHandler()
 	exit(1);
 }
 
-TConstant TestParser::GetConstantValueFromExpression(const TExpression& expression)
+bool TestParser::VerifyOperation(const EOperationType& operation, const TExpression& leftExpression,
+	const TExpression& rightExpression)
+{
+	switch (operation)
+	{
+	case EOperationType::ADD: return VerifyADD(leftExpression, rightExpression);
+	case EOperationType::SUB: return VerifySUB(leftExpression, rightExpression);
+	case EOperationType::MUL: return VerifyMUL(leftExpression, rightExpression);
+	case EOperationType::DIV: return VerifyDIV(leftExpression, rightExpression);
+	}
+	return false;
+}
+
+bool TestParser::VerifyTypeParity(const TExpression& leftExpression, const TExpression& rightExpression)
+{
+	const TDataTypeProperties* leftTypeProperties = GetDataTypeProperties(leftExpression);
+	const TDataTypeProperties* rightTypeProperties = GetDataTypeProperties(rightExpression);
+	return *leftTypeProperties == *rightTypeProperties;
+}
+
+bool TestParser::VerifyADD(const TExpression& leftExpression, const TExpression& rightExpression)
+{
+	if (!VerifyTypeParity(leftExpression, rightExpression))
+	{
+		m_Logger.Error("Different type operads");
+		return false;
+	}
+	return true;
+}
+
+bool TestParser::VerifySUB(const TExpression& leftExpression, const TExpression& rightExpression)
+{
+	if (!VerifyTypeParity(leftExpression, rightExpression))
+	{
+		m_Logger.Error("Different type operads");
+		return false;
+	}
+	return true;
+}
+
+bool TestParser::VerifyMUL(const TExpression& leftExpression, const TExpression& rightExpression)
+{
+	if (!VerifyTypeParity(leftExpression, rightExpression))
+	{
+		m_Logger.Error("Different type operads");
+		return false;
+	}
+	return true;
+}
+
+bool TestParser::VerifyDIV(const TExpression& leftExpression, const TExpression& rightExpression)
+{
+	if (!VerifyTypeParity(leftExpression, rightExpression))
+	{
+		m_Logger.Error("Different type operads");
+		return false;
+	}
+	return true;
+}
+
+bool TestParser::VerifyASSIGN(const TLvalue& lvalue, const TExpression& expression)
+{
+	SymbolTableEntry* symEntry = m_SymbolTable.LookUp(lvalue.SymbolTableEntry, 0);
+	const TDataTypeProperties* expressionTypeProperties = GetDataTypeProperties(expression);
+	if (symEntry->DataType != *expressionTypeProperties)
+	{
+		m_Logger.Error("Different type operads");
+		return false;
+	}
+	return false;
+}
+
+const TDataTypeProperties* TestParser::GetDataTypeProperties(const TExpression& expression)
 {
 	switch (expression.Type)
 	{
 	case EExpressionType::Constant:
 	{
-		return expression.ConstantValue;
+		return &expression.ConstantValue.DataTypeProps;
 	}
 	case EExpressionType::Lvalue:
 	{
 		SymbolTableEntry* symEntry = m_SymbolTable.LookUp(expression.SymbolTableEntry, 0);
-		return symEntry->ConstantValue;
+		return &symEntry->DataType;
 	}
 	}
-
-	return TConstant();
-}
-
-TConstant TestParser::ExecuteOperation(const EOperationType& operationType, const TConstant& leftConstant, const TConstant& rightConstant)
-{
-	TConstant result;
-	result.DataTypeProps = leftConstant.DataTypeProps;
-	switch (operationType)
-	{
-	case EOperationType::Plus:
-	{
-		switch (leftConstant.DataTypeProps.Type)
-		{
-		case EDataType::None:
-		{
-			std::cout << "None";
-			break;
-		}
-		case EDataType::Int16:
-		{
-			const int16_t& leftValue = leftConstant.Get<int16_t>();
-			const int16_t& rightValue = rightConstant.Get<int16_t>();
-			result.Data = leftValue + rightValue;
-			break;
-		}
-		case EDataType::Int32:
-		{
-			const int32_t& leftValue = leftConstant.Get<int32_t>();
-			const int32_t& rightValue = rightConstant.Get<int32_t>();
-			result.Data = leftValue + rightValue;
-			break;
-		}
-		case EDataType::Int64:
-		{
-			const int64_t& leftValue = leftConstant.Get<int64_t>();
-			const int64_t& rightValue = rightConstant.Get<int64_t>();
-			result.Data = leftValue + rightValue;
-			break;
-		}
-		case EDataType::Bool:
-		{
-			m_Logger.Error("You cannot add booleans, on line {}!!", GetLexer()->GetLineCount());
-			break;
-		}
-		case EDataType::Float:
-		{
-			const float& leftValue = leftConstant.Get<float>();
-			const float& rightValue = rightConstant.Get<float>();
-			result.Data = leftValue + rightValue;
-			break;
-		}
-		case EDataType::Double:
-		{
-			const double& leftValue = leftConstant.Get<double>();
-			const double& rightValue = rightConstant.Get<double>();
-			result.Data = leftValue + rightValue;
-			break;
-		}
-		case EDataType::Char:
-		{
-			const char& leftValue = leftConstant.Get<char>();
-			const char& rightValue = rightConstant.Get<char>();
-			result.Data = leftValue + rightValue;
-			break;
-		}
-		case EDataType::Struct:
-		{
-			m_Logger.Error("You cannot add structs, on line {}!!", GetLexer()->GetLineCount());
-			break;
-		}
-		}
-		break;
-	}
-	}
-	return result;
+	return nullptr;
 }

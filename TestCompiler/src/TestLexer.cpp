@@ -44,6 +44,8 @@ static Lexy::Lexer::RuleBuffer s_Punctuation = {
 	{LESS_EQUALS, R"(\<\=)"},
 	{GREATER, R"(\>)"},
 	{GREATER_EQUALS, R"(\>\=)"},
+	{PIPE_PIPE, R"(\|\|)"},
+	{AMPERSAND_AMPERSAND, R"(\&\&)"},
 	{DOT, R"(\.)"},
 	{DOT_DOT, R"(\.\.)"},
 	{COMMA, R"(\,)"},

@@ -5,11 +5,12 @@
 #include <string>
 #include <algorithm>
 
-#include "RuleTypes/Constant.h"
+#include "RuleTypes/Lvalue.h"
 
 struct SymbolTableEntry
 {
-	TConstant ConstantValue;
+	ELvalueType Type = ELvalueType::Modifiable;
+	TDataTypeProperties DataType;
 	size_t Scope = 0;
 	size_t Offset = 0;
 	size_t Line = 0;
@@ -18,6 +19,11 @@ struct SymbolTableEntry
 	SymbolTableEntry() = default;
 	SymbolTableEntry(size_t scope, size_t line)
 		: Scope(scope), Line(line)
+	{
+
+	}
+	SymbolTableEntry(ELvalueType type, TDataTypeProperties dataType, size_t scope, size_t line)
+		: Type(type), DataType(dataType), Scope(scope), Line(line)
 	{
 
 	}
@@ -31,11 +37,12 @@ public:
 	SymbolTable() = default;
 
 	template<typename ... Args>
-	void Emplace(const std::string& id, Args&& ... args)
+	SymbolTableEntry& Emplace(const std::string& id, Args&& ... args)
 	{
 		m_Entries.try_emplace(id);
 		auto& entries = m_Entries.at(id);
 		entries.emplace_back(std::forward<Args>(args)...);
+		return entries.back();
 	}
 
 	std::vector<SymbolTableEntry>& LookUp(const std::string& id)

@@ -6,7 +6,8 @@ enum class EExpressionType
 {
 	None,
 	Constant,
-	Lvalue
+	Lvalue,
+	Type
 };
 
 struct TExpression

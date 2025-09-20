@@ -10,7 +10,5 @@ enum class ELvalueType
 
 struct TLvalue
 {
-	ELvalueType Type = ELvalueType::Const;
-	TDataTypeProperties DataType;
 	std::string SymbolTableEntry;
 };

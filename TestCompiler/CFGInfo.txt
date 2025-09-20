@@ -4,42 +4,44 @@
 	Character
 	ExclamationEquals
 	Dot
-	Slash
-	If
-	Semicolon
-	LessEquals
-	Plus
-	Comma
 	Caret
 	Greater
 	Dash
+	For
+	Semicolon
+	LessEquals
+	Plus
+	PipePipe
+	Slash
 	Double
 	EqualsEquals
 	String
 	Less
-	Arrow
+	AmpersandAmpersand
+	BoolType
+	Comma
 	Equals
-	DoubleType
+	ShortType
 	OpeningParenthesis
-	CharacterType
+	LongType
 	ClosingParenthesis
 	Identifier
+	Ampersand
 	PlusPlus
+	Arrow
 	DashDash
 	IntegerType
-	BoolType
 	FloatType
-	ShortType
-	LongType
-	Struct
-	Ampersand
+	DoubleType
+	CharacterType
 	Integer
 	Bool
 	Float
+	Struct
+	If
 	OpeningBrace
 	ClosingBrace
 	While
-	For
 
 [Non-Terminals]
 	ForStatement
@@ -80,14 +82,11 @@
 [CFG Grammar]
 	Start --> Program 
 
-	OptionalStatement --> Statement  | 
-			Empty 
+	Statements --> Statement Statements  | 
+			Statement 
 
 	Program --> Statements  | 
 			Empty 
-
-	Statements --> Statement Statements  | 
-			Statement 
 
 	Statement --> Expression Semicolon  | 
 			StructDefinition Semicolon  | 
@@ -98,6 +97,9 @@
 			Assignment Semicolon  | 
 			LvalueDeclarationList Semicolon  | 
 			Semicolon 
+
+	OptionalStatement --> Statement  | 
+			Empty 
 
 	StatementList --> Statements  | 
 			Empty 
@@ -113,6 +115,8 @@
 			Expression LessEquals Expression  | 
 			Expression Greater Expression  | 
 			Expression GreaterEquals Expression  | 
+			Expression PipePipe Expression  | 
+			Expression AmpersandAmpersand Expression  | 
 			Terminal 
 
 	OptionalExpression --> Expression  | 
