@@ -11,4 +11,5 @@ enum class ELvalueType
 struct TLvalue
 {
 	std::string SymbolTableEntry;
+	bool HasFinalType = true;
 };

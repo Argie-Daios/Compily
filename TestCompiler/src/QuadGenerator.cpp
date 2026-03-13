@@ -10,6 +10,7 @@ QuadGenerator::QuadGenerator(const std::string& fileName)
 
 void QuadGenerator::ExportDebugFormat()
 {
+	return;
 	const InstructionSet& instructionSet = GetInstructionSet();
 	std::vector<std::string> labels = { "Operation", "Arg1", "Arg2", "Result", "Line" };
 	Utilities::TableStream tableStream(GetFileName() + ".i", std::ios::out, Utilities::TableStreamFlags_RowsLabel |

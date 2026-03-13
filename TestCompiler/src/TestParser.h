@@ -26,6 +26,10 @@ protected:
 private:
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	void HandleAssignmentTypeMismatch(const EDataType& targetType);
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	bool VerifyOperation(const EOperationType& operation, const TExpression& leftExpression,
 		const TExpression& rightExpression);
 	bool VerifyTypeParity(const TExpression& leftExpression, const TExpression& rightExpression);

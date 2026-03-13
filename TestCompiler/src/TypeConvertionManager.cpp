@@ -148,7 +148,7 @@ TExpression* TypeConvertionManager::SubmitConversion(TExpression* expression,
 	convertedTypeExpression->ConstantValue.DataTypeProps.Type = convertionData.DataType;
 	convertedTypeExpression->ConstantValue.DataTypeProps.PointerDepth = 0;
 
-	m_ParserRef->m_QuadGenerator.AddInstruction(OperationCode_Cast, new TExpression(*expression), convertedTypeExpression,
+	m_ParserRef->m_QuadGenerator.AddInstruction(OperationCode_Cast, Iry::InstructionFlag::None, new TExpression(*expression), convertedTypeExpression,
 		convertedExpression, m_ParserRef->GetLexer()->GetLineCount());
 	return convertedExpression;
 }
