@@ -120,29 +120,15 @@ TExpression* TypeConvertionManager::SubmitConversion(TExpression* expression,
 {
 	if (expression == nullptr) return nullptr;
 
-	TExpression* convertedExpression = new TExpression();
 	auto& convertionData = m_ConvertorMap.at(srcType).at(dstType);
-	switch (expression->Type)
-	{
-	case EExpressionType::Lvalue:
-	{
-		const std::string tempID = m_ParserRef->CreateTempVariable(ELvalueType::Modifiable,
-			TDataTypeProperties{convertionData.DataType, 0}, m_ParserRef->m_Scope, m_ParserRef->GetLexer()->GetLineCount());
-		m_ParserRef->m_SymbolTable.LookUp(tempID, m_ParserRef->m_Scope);
-		convertedExpression->Type = EExpressionType::Lvalue;
-		convertedExpression->SymbolTableEntry = tempID;
-		break;
-	}
-	case EExpressionType::Constant:
-	{
-		convertedExpression->Type = EExpressionType::Constant;
-		convertedExpression->ConstantValue = expression->ConstantValue;
-		constConvertionCallback(convertedExpression->ConstantValue, isOpposite);
-		convertedExpression->ConstantValue.DataTypeProps.Type = convertionData.DataType;
-		convertedExpression->ConstantValue.DataTypeProps.PointerDepth = 0;
-		break;
-	}
-	}
+
+	TExpression* convertedExpression = new TExpression();
+	const std::string tempID = m_ParserRef->CreateTempVariable(ELvalueType::Modifiable,
+		TDataTypeProperties{convertionData.DataType, 0}, m_ParserRef->m_Scope, m_ParserRef->GetLexer()->GetLineCount());
+	m_ParserRef->m_SymbolTable.LookUp(tempID, m_ParserRef->m_Scope);
+	convertedExpression->Type = EExpressionType::Lvalue;
+	convertedExpression->SymbolTableEntry = tempID;
+
 	TExpression* convertedTypeExpression = new TExpression();
 	convertedTypeExpression->Type = EExpressionType::Type;
 	convertedTypeExpression->ConstantValue.DataTypeProps.Type = convertionData.DataType;
