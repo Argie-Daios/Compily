@@ -1,7 +1,7 @@
 workspace "Compily"
 	platforms { "x86", "x64" }
 	configurations { "Debug", "Release" }
-	startproject "MyCompiler"
+	startproject "TestCompiler"
 	buildoptions { "/utf-8" }
 
 	configurations 
@@ -148,38 +148,6 @@ group "Dependencies"
 		}
 
 group ""
-
-project "MyCompiler"
-	location "MyCompiler"
-	kind "ConsoleApp"
-	language "C++"
-	cppdialect "C++17"
-
-	targetdir  ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
-	}
-
-	includedirs
-	{
-		"%{wks.location}/Utilities/src",
-		"%{wks.location}/Lexy/src",
-		"%{wks.location}/Parsy/src",
-		"%{wks.location}/Iry/src",
-		"%{prj.name}/src",
-		"%{IncludeDirs.spdlog}"
-	}
-
-	links
-	{
-		"Lexy",
-		"Parsy",
-		"Iry"
-	}
 
 project "TestCompiler"
 	location "TestCompiler"

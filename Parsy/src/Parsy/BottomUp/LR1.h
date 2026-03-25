@@ -220,7 +220,7 @@ namespace Parsy
 
 		StateGraph m_StateGraph;
 
-		std::unordered_map <int32_t, RuleSets> m_RulesSets;
+		std::unordered_map<int32_t, RuleSets> m_RulesSets;
 
 		std::vector<BottomUpAction> m_ActionTable;
 		std::vector<int32_t> m_GotoTable;

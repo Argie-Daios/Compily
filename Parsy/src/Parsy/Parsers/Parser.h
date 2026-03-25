@@ -79,32 +79,24 @@ namespace Parsy
 		void DeclareRootRule(RuleID_t rule);
 		inline void EnableDebugTools() { m_IsDebugToolsEnabled = true; }
 		void BeginRule(RuleID_t rule);
-		template<typename Type>
-		void BeginRule(RuleID_t rule)
+		template<typename Type, typename ... Args>
+		void BeginRule(RuleID_t rule, Args&& ... args)
 		{
 			BeginRule(rule);
-			if constexpr (std::is_pointer<Type>::value)
-			{
-				m_CFGMap.at(rule).RuleTypeConstructCallback = [](EntryValue& entry) { entry = Type(); };
-			}
-			else
-			{
-				m_CFGMap.at(rule).RuleTypeConstructCallback = [](EntryValue& entry) {
-					using PointerType = std::remove_pointer_t<Type>;
-					entry = new PointerType();
-					};
-			}
-			m_CFGMap.at(rule).RuleTypeConstructCallback = [](EntryValue& entry)
-				{
-					if constexpr (std::is_pointer<Type>::value)
-					{
-						using Pointee = std::remove_pointer_t<Type>;
-						entry = new Pointee{};
-					}
-					else
-					{
-						entry = Type{};
-					}
+
+			m_CFGMap.at(rule).RuleTypeConstructCallback =
+				[capturedArgs = std::make_tuple(std::forward<Args>(args)...)](EntryValue& entry) mutable {
+					std::apply([&](auto&&... unpackedArgs) {
+							if constexpr (std::is_pointer<Type>::value)
+							{
+								using Pointee = std::remove_pointer_t<Type>;
+								entry = new Pointee(std::forward<decltype(unpackedArgs)>(unpackedArgs)...);
+							}
+							else
+							{
+								entry = Type(std::forward<decltype(unpackedArgs)>(unpackedArgs)...);
+							}
+						}, capturedArgs);
 				};
 		}
 		void Add(const CFGElementType& type, int32_t id, const TypeCallback& callback = [](EntryValue& entry) {});
