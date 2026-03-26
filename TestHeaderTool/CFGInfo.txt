@@ -1,0 +1,28 @@
+[Terminals]
+	Identifier
+	LeftBrace
+	Semicolon
+	Class
+	RightBrace
+
+[Non-Terminals]
+	8
+	9
+	10
+	ClassDefinition
+
+[CFG Grammar]
+	8 --> 9  | 
+			Empty 
+
+	Start --> 8 
+
+	9 --> 10 9  | 
+			10 
+
+	10 --> ClassDefinition  | 
+			Semicolon 
+
+	ClassDefinition --> Class Identifier LeftBrace RightBrace 
+
+[Conflicts]

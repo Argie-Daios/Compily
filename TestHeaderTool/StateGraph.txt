@@ -1,0 +1,57 @@
+[State 0]
+Edges = { State1[8], State2[9], State3[10], State4[ClassDefinition], State5[Semicolon], State6[Class] }
+	StartRule --> .[8], { $ }
+	8 --> .[9], { $ }
+	8 --> [Epsilon]., { $ }
+	9 --> .[10][9], { $ }
+	9 --> .[10], { $ }
+	10 --> .[ClassDefinition], { Class, Semicolon }
+	10 --> .[Semicolon], { Class, Semicolon }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][RightBrace], { Class, Semicolon }
+
+[State 1]
+Edges = {  }
+	StartRule --> [8]., { $ }
+
+[State 2]
+Edges = {  }
+	8 --> [9]., { $ }
+
+[State 3]
+Edges = { State10[9], State3[10], State4[ClassDefinition], State5[Semicolon], State6[Class] }
+	9 --> [10].[9], { $ }
+	9 --> [10]., { $ }
+	9 --> .[10][9], { $ }
+	9 --> .[10], { $ }
+	10 --> .[ClassDefinition], { Class, Semicolon }
+	10 --> .[Semicolon], { Class, Semicolon }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][RightBrace], { Class, Semicolon }
+
+[State 4]
+Edges = {  }
+	10 --> [ClassDefinition]., { Class, Semicolon }
+
+[State 5]
+Edges = {  }
+	10 --> [Semicolon]., { Class, Semicolon }
+
+[State 6]
+Edges = { State7[Identifier] }
+	ClassDefinition --> [Class].[Identifier][LeftBrace][RightBrace], { Class, Semicolon }
+
+[State 7]
+Edges = { State8[LeftBrace] }
+	ClassDefinition --> [Class][Identifier].[LeftBrace][RightBrace], { Class, Semicolon }
+
+[State 8]
+Edges = { State9[RightBrace] }
+	ClassDefinition --> [Class][Identifier][LeftBrace].[RightBrace], { Class, Semicolon }
+
+[State 9]
+Edges = {  }
+	ClassDefinition --> [Class][Identifier][LeftBrace][RightBrace]., { Class, Semicolon }
+
+[State 10]
+Edges = {  }
+	9 --> [10][9]., { $ }
+

@@ -144,8 +144,9 @@ namespace Parsy
 		void GenerateCFGInfo();
 		void CheckIDValidation();
 		std::string ProductionToStr(const ProductionData& production, int32_t invalidElementIndex = -1) const;
-	private:
+	protected:
 		Lexy::Lexer* m_Lexer = nullptr;
+	private:
 		int32_t m_Flags = 0;
 		RuleID_t m_StartingRule = INT_MIN;
 		std::unordered_map<RuleID_t, RuleProperties> m_CFGMap;

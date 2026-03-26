@@ -9,6 +9,7 @@ namespace Lexy
 	{
 		int32_t Length = -1;
 		int32_t TokenIndex = -1;
+		int32_t Priority = INT_MIN;
 	};
 
 	class FA

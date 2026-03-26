@@ -22,7 +22,7 @@ namespace Lexy
 			const std::unordered_set<CharacterData, CharacterDataHash>& set);
 		void GenerateFromNFA(NFA& nfa);
 	private:
-		bool IsStateAccepting(int32_t state, int32_t& maxPriorityTokenIndex);
+		bool IsStateAccepting(int32_t state, int32_t& maxPriorityTokenIndex, int32_t& maxPriority);
 	private:
 		DFAGraph m_Graph;
 	};

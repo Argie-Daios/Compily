@@ -46,10 +46,12 @@ namespace Lexy
 		int32_t currentState = m_Start;
 
 		int32_t maxPriorityTokenIndex = -1;
-		if (IsStateAccepting(currentState, maxPriorityTokenIndex))
+		int32_t maxPriority= -1;
+		if (IsStateAccepting(currentState, maxPriorityTokenIndex, maxPriority) && result.Priority <= maxPriority)
 		{
 			result.Length = 0;
 			result.TokenIndex = maxPriorityTokenIndex;
+			result.Priority = maxPriority;
 		}
 
 		for (int i = start; i < input.length(); ++i)
@@ -74,10 +76,12 @@ namespace Lexy
 			}
 
 			int32_t maxPriorityTokenIndex = -1;
-			if (IsStateAccepting(currentState, maxPriorityTokenIndex))
+			int32_t maxPriority = -1;
+			if (IsStateAccepting(currentState, maxPriorityTokenIndex, maxPriority) && result.Priority <= maxPriority)
 			{
 				result.Length = i - start + 1;
 				result.TokenIndex = maxPriorityTokenIndex;
+				result.Priority = maxPriority;
 			}
 		}
 
@@ -234,9 +238,9 @@ namespace Lexy
 		}
 	}
 
-	bool DFA::IsStateAccepting(int32_t state, int32_t& maxPriorityTokenIndex)
+	bool DFA::IsStateAccepting(int32_t state, int32_t& maxPriorityTokenIndex, int32_t& maxPriority)
 	{
-		int32_t maxPriority = INT_MIN;
+		maxPriority = INT_MIN;
 		bool isAccepting = false;
 
 		auto& it = m_Accepting.find(state);
