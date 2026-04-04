@@ -47,7 +47,7 @@ namespace Parsy
 
 	void LR1::RegisterToken(const CFGElement& element)
 	{
-		if (element.Type != CFGElementType::Symbol) return;
+		if (element.Type != CFGElementType::Terminal) return;
 		m_Symbols.emplace(element, m_Symbols.size());
 	}
 
@@ -115,7 +115,7 @@ namespace Parsy
 					stream << m_ParserRef->RuleToStr(edge.Data.ID);
 					break;
 				}
-				case CFGElementType::Symbol:
+				case CFGElementType::Terminal:
 				{
 					stream << m_ParserRef->TokenToStr(edge.Data.ID);
 					break;
@@ -205,14 +205,16 @@ namespace Parsy
 			if (col >= m_Symbols.size())
 			{
 				size_t index = (col - m_Symbols.size());
-				auto& it = m_NonTerminals.begin();
-				std::advance(it, index);
+				auto& it = std::find_if(m_NonTerminals.begin(), m_NonTerminals.end(), [index](const std::pair<CFGElement, size_t>& pair) {
+					return pair.second == index;
+				});
 				helperString = m_ParserRef->RuleToStr(it->first.ID);
 				return helperString;
 			}
 
-			auto& it = m_Symbols.begin();
-			std::advance(it, col);
+			auto& it = std::find_if(m_Symbols.begin(), m_Symbols.end(), [col](const std::pair<CFGElement, size_t>& pair) {
+				return pair.second == col;
+			});
 			helperString = m_ParserRef->CFGElementToStr(it->first);
 			return helperString;
 		});

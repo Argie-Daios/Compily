@@ -1,28 +1,42 @@
 [Terminals]
+	RightBrace
+	RightParenthesis
 	Identifier
+	LeftParenthesis
 	LeftBrace
 	Semicolon
 	Class
-	RightBrace
+	Property
+	Type
 
 [Non-Terminals]
-	8
-	9
-	10
+	PropertyDefinition
+	Program
+	Statements
+	Statement
 	ClassDefinition
 
 [CFG Grammar]
-	8 --> 9  | 
+	Start --> Program 
+
+	Program --> Statements  | 
 			Empty 
 
-	Start --> 8 
+	Statements --> Statement Statements  | 
+			Statement 
 
-	9 --> 10 9  | 
-			10 
-
-	10 --> ClassDefinition  | 
+	Statement --> ClassDefinition  | 
+			PropertyDefinition  | 
+			Identifier  | 
+			LeftParenthesis  | 
+			RightParenthesis  | 
 			Semicolon 
 
-	ClassDefinition --> Class Identifier LeftBrace RightBrace 
+	ClassDefinition --> Error Identifier LeftBrace Statements RightBrace  | 
+			Class Identifier LeftBrace Statements RightBrace  | 
+			Class Identifier Error Statements RightBrace  | 
+			Class Identifier LeftBrace Statements Error 
+
+	PropertyDefinition --> Property LeftParenthesis RightParenthesis Type Identifier 
 
 [Conflicts]

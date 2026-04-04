@@ -1,4 +1,4 @@
-#include "Parser.h"
+ #include "Parser.h"
 
 #include <iostream>
 #include "Parsy/Macros.h"
@@ -41,7 +41,7 @@ namespace Parsy
         ASSERT(m_BoundRule != -1, "You can not add an element outside a rule declaration!!");
 
         CFGElement element(type, id);
-        if (element.Type == CFGElementType::Symbol && m_TokenMap.find(element.ID) == m_TokenMap.end())
+        if (element.Type == CFGElementType::Terminal && m_TokenMap.find(element.ID) == m_TokenMap.end())
         {
             m_TokenMap.emplace(element.ID, TokenProperties());
         }
@@ -56,7 +56,7 @@ namespace Parsy
             m_LR1->RegisterNonTerminal(element);
             break;
         }
-        case CFGElementType::Symbol:
+        case CFGElementType::Terminal:
         {
             m_LR1->RegisterToken(element);
             break;
@@ -110,7 +110,7 @@ namespace Parsy
         {
         case CFGElementType::Epsilon: return "Epsilon";
         case CFGElementType::Dollar: return "$";
-        case CFGElementType::Symbol: return TokenToStr(element.ID);
+        case CFGElementType::Terminal: return TokenToStr(element.ID);
         case CFGElementType::NonTerminal: return RuleToStr(element.ID);
         case CFGElementType::Error: return "Error";
         }
@@ -132,7 +132,7 @@ namespace Parsy
         {
         case Lexy::Lexer::TokenState::Success:
         {
-            tokenElement.Type = CFGElementType::Symbol;
+            tokenElement.Type = CFGElementType::Terminal;
             tokenElement.ID = token.TokenID;
             break;
         }
@@ -157,7 +157,7 @@ namespace Parsy
         {
         case Lexy::Lexer::TokenState::Success:
         {
-            tokenElement.Type = CFGElementType::Symbol;
+            tokenElement.Type = CFGElementType::Terminal;
             tokenElement.ID = token.TokenID;
             break;
         }
@@ -240,7 +240,7 @@ namespace Parsy
         stream << "[Terminals]" << std::endl;
         for (const auto& [element, index] : m_LR1->GetSymbols())
         {
-            if (element.Type != CFGElementType::Symbol) continue;
+            if (element.Type != CFGElementType::Terminal) continue;
             stream << '\t' << TokenToStr(element.ID) << std::endl;
         }
         stream << std::endl;
@@ -271,7 +271,7 @@ namespace Parsy
                     EntryValue entry;
                     switch (element.Type)
                     {
-                    case CFGElementType::Symbol:
+                    case CFGElementType::Terminal:
                     {
                         stream << TokenToStr(element.ID);
                         m_TokenMap.at(element.ID).TokenTypeConstructCallback(entry);
@@ -355,19 +355,19 @@ namespace Parsy
                     {
                         if (m_RuleIDCheckCallback && !m_RuleIDCheckCallback(element.ID))
                         {
-                            PARSY_LOG_WARN_DEBUG("Used invalid rule ID inside rule: {}, production: {}!!"
-                                " (NOTE: You might have put non terminal type with a token ID)", RuleToStr(ruleID),
+                            PARSY_LOG_WARN_DEBUG("Used invalid rule ID inside rule: {}, production[{}]: {}!!"
+                                " (NOTE: You might have put non terminal type with a token ID)", RuleToStr(ruleID), i,
                                 ProductionToStr(production, i));
                             errorOccured = true;
                         }
                         break;
                     }
-                    case CFGElementType::Symbol:
+                    case CFGElementType::Terminal:
                     {
                         if (m_TokenIDCheckCallback && !m_TokenIDCheckCallback(element.ID))
                         {
-                            PARSY_LOG_WARN_DEBUG("Used invalid token ID inside rule: {}, production: {}!!"
-                                " (NOTE: You might have put terminal type with a rule ID)", RuleToStr(ruleID),
+                            PARSY_LOG_WARN_DEBUG("Used invalid token ID inside rule: {}, production[{}]: {}!!"
+                                " (NOTE: You might have put terminal type with a rule ID)", RuleToStr(ruleID), i,
                                 ProductionToStr(production, i));
                             errorOccured = true;
                         }
@@ -399,7 +399,7 @@ namespace Parsy
             {
                 switch (element.Type)
                 {
-                case CFGElementType::Symbol:
+                case CFGElementType::Terminal:
                 {
                     output += TokenToStr(element.ID);
                     break;

@@ -380,7 +380,7 @@ namespace Parsy
 			if (entryData.ReducedFromState == -1)
 			{
 				Lexy::Lexer::OfflineToken& token = m_TokenStream.at(entryData.SymbolIndex);
-				return { CFGElementType::Symbol, m_TokenStream.at(symbolIndex - totalReducedTokens).TokenData.TokenID };
+				return { CFGElementType::Terminal, m_TokenStream.at(symbolIndex - totalReducedTokens).TokenData.TokenID };
 			}
 			totalReducedTokens += entryData.Elements;
 			id = GetStateBefore(id);

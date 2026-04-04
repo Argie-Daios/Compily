@@ -10,7 +10,7 @@ namespace Parsy
 		Epsilon,
 		Dollar,
 		Error,
-		Symbol,
+		Terminal,
 		NonTerminal
 	};
 

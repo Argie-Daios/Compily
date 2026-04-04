@@ -59,7 +59,26 @@ THTParser::THTParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+		Add(Parsy::CFGElementType::NonTerminal, PROPERTY_DEFINITION,
+			[this](Parsy::EntryValue& entry) {
+				m_Logger.Warn("Found property");
+			});
+
+		Union();
+
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+
+		Union();
+
+		Add(Parsy::CFGElementType::Terminal, LEFT_PARENTHESIS);
+
+		Union();
+
+		Add(Parsy::CFGElementType::Terminal, RIGHT_PARENTHESIS);
+
+		Union();
+
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON);
 
 	EndRule();
 
@@ -67,10 +86,45 @@ THTParser::THTParser(const std::string& sourceCodePath)
 
 	BeginRule(CLASS_DEFINITION);
 
-		Add(Parsy::CFGElementType::Symbol, CLASS);
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
-		Add(Parsy::CFGElementType::Symbol, LEFT_BRACE);
-		Add(Parsy::CFGElementType::Symbol, RIGHT_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLASS);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, LEFT_BRACE);
+		Add(Parsy::CFGElementType::NonTerminal, STATEMENTS);
+		Add(Parsy::CFGElementType::Terminal, RIGHT_BRACE);
+
+		Union();
+
+		Add(Parsy::CFGElementType::Terminal, CLASS);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Error);
+		Add(Parsy::CFGElementType::NonTerminal, STATEMENTS);
+		Add(Parsy::CFGElementType::Terminal, RIGHT_BRACE,
+			[this](Parsy::EntryValue& entry) {
+				m_Logger.Warn("Missing '{'");
+			});
+
+		Union();
+
+		Add(Parsy::CFGElementType::Terminal, CLASS);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, LEFT_BRACE);
+		Add(Parsy::CFGElementType::NonTerminal, STATEMENTS);
+		Add(Parsy::CFGElementType::Error,
+			[this](Parsy::EntryValue& entry) {
+				m_Logger.Warn("Missing '}'");
+			});
+
+	EndRule();
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	BeginRule(PROPERTY_DEFINITION);
+
+		Add(Parsy::CFGElementType::Terminal, PROPERTY);
+		Add(Parsy::CFGElementType::Terminal, LEFT_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, RIGHT_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, TYPE);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
 
 	EndRule();
 
@@ -86,7 +140,11 @@ const std::string THTParser::RuleToStr(Parsy::RuleID_t ruleID) const
 {
 	switch (ruleID)
 	{
+	case PROGRAM: return "Program";
+	case STATEMENT: return "Statement";
+	case STATEMENTS: return "Statements";
 	case CLASS_DEFINITION: return "ClassDefinition";
+	case PROPERTY_DEFINITION: return "PropertyDefinition";
 	}
 
 	return Parser::RuleToStr(ruleID);
@@ -97,6 +155,8 @@ const std::string THTParser::TokenToStr(Lexy::TokenID_t tokenID) const
 	switch (tokenID)
 	{
 	case CLASS: return "Class";
+	case PROPERTY: return "Property";
+	case TYPE: return "Type";
 	case IDENTIFIER: return "Identifier";
 	case LEFT_BRACE: return "LeftBrace";
 	case RIGHT_BRACE: return "RightBrace";

@@ -8,7 +8,7 @@ namespace Parsy
 	{
         switch (Type)
         {
-        case CFGElementType::Symbol:
+        case CFGElementType::Terminal:
         {
             std::cout << "Token(" << ID << ")";
             break;

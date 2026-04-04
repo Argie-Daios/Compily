@@ -1,5 +1,5 @@
 [State 0]
-Edges = { State1[Epsilon], State11[Epsilon], State13[Epsilon], State15[Epsilon], State17[Epsilon], State19[Epsilon], State21[Epsilon], State29[Epsilon], State33[Epsilon], State37[Epsilon] }
+Edges = { State1[Epsilon], State11[Epsilon], State57[Epsilon], State59[Epsilon], State61[Epsilon], State63[Epsilon], State65[Epsilon], State67[Epsilon], State69[Epsilon], State77[Epsilon], State81[Epsilon], State83[Epsilon] }
 	TokenIndex: 0, Priority: 0
 
 [State 1]
@@ -43,114 +43,298 @@ Edges = {  }
 	TokenIndex: 0, Priority: 0
 
 [State 11]
-Edges = { State12[{] }
+Edges = { State12[P] }
 	TokenIndex: -1, Priority: 0
 
-[State 12] (Accepting)
-Edges = {  }
-	TokenIndex: 1, Priority: -1
+[State 12]
+Edges = { State13[Epsilon] }
+	TokenIndex: -1, Priority: 0
 
 [State 13]
-Edges = { State14[}] }
+Edges = { State14[R] }
 	TokenIndex: -1, Priority: 0
 
-[State 14] (Accepting)
-Edges = {  }
-	TokenIndex: 2, Priority: -2
+[State 14]
+Edges = { State15[Epsilon] }
+	TokenIndex: -1, Priority: 0
 
 [State 15]
-Edges = { State16[(] }
+Edges = { State16[O] }
 	TokenIndex: -1, Priority: 0
 
-[State 16] (Accepting)
-Edges = {  }
-	TokenIndex: 3, Priority: -3
+[State 16]
+Edges = { State17[Epsilon] }
+	TokenIndex: -1, Priority: 0
 
 [State 17]
-Edges = { State18[)] }
+Edges = { State18[P] }
 	TokenIndex: -1, Priority: 0
 
-[State 18] (Accepting)
-Edges = {  }
-	TokenIndex: 4, Priority: -4
+[State 18]
+Edges = { State19[Epsilon] }
+	TokenIndex: -1, Priority: 0
 
 [State 19]
-Edges = { State20[;] }
+Edges = { State20[E] }
 	TokenIndex: -1, Priority: 0
 
-[State 20] (Accepting)
-Edges = {  }
-	TokenIndex: 5, Priority: -5
+[State 20]
+Edges = { State21[Epsilon] }
+	TokenIndex: -1, Priority: 0
 
 [State 21]
-Edges = { State22[52] }
+Edges = { State22[R] }
 	TokenIndex: -1, Priority: 0
 
 [State 22]
-Edges = { State25[Epsilon] }
+Edges = { State23[Epsilon] }
 	TokenIndex: -1, Priority: 0
 
 [State 23]
-Edges = { State24[63] }
+Edges = { State24[T] }
 	TokenIndex: -1, Priority: 0
 
 [State 24]
-Edges = { State26[Epsilon], State23[Epsilon] }
+Edges = { State25[Epsilon] }
 	TokenIndex: -1, Priority: 0
 
 [State 25]
-Edges = { State23[Epsilon], State26[Epsilon] }
+Edges = { State26[Y] }
 	TokenIndex: -1, Priority: 0
 
 [State 26] (Accepting)
 Edges = {  }
-	TokenIndex: 6, Priority: -6
+	TokenIndex: 1, Priority: -1
 
 [State 27]
-Edges = { State28[2] }
+Edges = { State28[i] }
 	TokenIndex: -1, Priority: 0
 
 [State 28]
-Edges = { State30[Epsilon], State27[Epsilon] }
+Edges = { State29[Epsilon] }
 	TokenIndex: -1, Priority: 0
 
 [State 29]
-Edges = { State27[Epsilon] }
+Edges = { State30[n] }
 	TokenIndex: -1, Priority: 0
 
-[State 30] (Accepting)
-Edges = {  }
-	TokenIndex: 7, Priority: -7
-
-[State 31]
-Edges = { State32[2] }
-	TokenIndex: -1, Priority: 0
-
-[State 32]
-Edges = { State34[Epsilon], State31[Epsilon] }
-	TokenIndex: -1, Priority: 0
-
-[State 33]
+[State 30]
 Edges = { State31[Epsilon] }
 	TokenIndex: -1, Priority: 0
 
-[State 34] (Accepting)
-Edges = {  }
-	TokenIndex: 8, Priority: -8
+[State 31]
+Edges = { State32[t] }
+	TokenIndex: -1, Priority: 0
+
+[State 32]
+Edges = { State44[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 33]
+Edges = { State34[f] }
+	TokenIndex: -1, Priority: 0
+
+[State 34]
+Edges = { State35[Epsilon] }
+	TokenIndex: -1, Priority: 0
 
 [State 35]
-Edges = { State36[254] }
+Edges = { State36[l] }
 	TokenIndex: -1, Priority: 0
 
 [State 36]
-Edges = { State38[Epsilon], State35[Epsilon] }
+Edges = { State37[Epsilon] }
 	TokenIndex: -1, Priority: 0
 
 [State 37]
-Edges = { State35[Epsilon], State38[Epsilon] }
+Edges = { State38[o] }
 	TokenIndex: -1, Priority: 0
 
-[State 38] (Accepting)
+[State 38]
+Edges = { State39[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 39]
+Edges = { State40[a] }
+	TokenIndex: -1, Priority: 0
+
+[State 40]
+Edges = { State41[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 41]
+Edges = { State42[t] }
+	TokenIndex: -1, Priority: 0
+
+[State 42]
+Edges = { State44[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 43]
+Edges = { State27[Epsilon], State33[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 44]
+Edges = { State58[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 45]
+Edges = { State46[d] }
+	TokenIndex: -1, Priority: 0
+
+[State 46]
+Edges = { State47[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 47]
+Edges = { State48[o] }
+	TokenIndex: -1, Priority: 0
+
+[State 48]
+Edges = { State49[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 49]
+Edges = { State50[u] }
+	TokenIndex: -1, Priority: 0
+
+[State 50]
+Edges = { State51[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 51]
+Edges = { State52[b] }
+	TokenIndex: -1, Priority: 0
+
+[State 52]
+Edges = { State53[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 53]
+Edges = { State54[l] }
+	TokenIndex: -1, Priority: 0
+
+[State 54]
+Edges = { State55[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 55]
+Edges = { State56[e] }
+	TokenIndex: -1, Priority: 0
+
+[State 56]
+Edges = { State58[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 57]
+Edges = { State43[Epsilon], State45[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 58] (Accepting)
+Edges = {  }
+	TokenIndex: 2, Priority: -2
+
+[State 59]
+Edges = { State60[{] }
+	TokenIndex: -1, Priority: 0
+
+[State 60] (Accepting)
+Edges = {  }
+	TokenIndex: 3, Priority: -3
+
+[State 61]
+Edges = { State62[}] }
+	TokenIndex: -1, Priority: 0
+
+[State 62] (Accepting)
+Edges = {  }
+	TokenIndex: 4, Priority: -4
+
+[State 63]
+Edges = { State64[(] }
+	TokenIndex: -1, Priority: 0
+
+[State 64] (Accepting)
+Edges = {  }
+	TokenIndex: 5, Priority: -5
+
+[State 65]
+Edges = { State66[)] }
+	TokenIndex: -1, Priority: 0
+
+[State 66] (Accepting)
+Edges = {  }
+	TokenIndex: 6, Priority: -6
+
+[State 67]
+Edges = { State68[;] }
+	TokenIndex: -1, Priority: 0
+
+[State 68] (Accepting)
+Edges = {  }
+	TokenIndex: 7, Priority: -7
+
+[State 69]
+Edges = { State70[52] }
+	TokenIndex: -1, Priority: 0
+
+[State 70]
+Edges = { State73[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 71]
+Edges = { State72[63] }
+	TokenIndex: -1, Priority: 0
+
+[State 72]
+Edges = { State74[Epsilon], State71[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 73]
+Edges = { State71[Epsilon], State74[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 74] (Accepting)
+Edges = {  }
+	TokenIndex: 8, Priority: -8
+
+[State 75]
+Edges = { State76[2] }
+	TokenIndex: -1, Priority: 0
+
+[State 76]
+Edges = { State78[Epsilon], State75[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 77]
+Edges = { State75[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 78] (Accepting)
 Edges = {  }
 	TokenIndex: 9, Priority: -9
+
+[State 79]
+Edges = { State80[2] }
+	TokenIndex: -1, Priority: 0
+
+[State 80]
+Edges = { State82[Epsilon], State79[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 81]
+Edges = { State79[Epsilon] }
+	TokenIndex: -1, Priority: 0
+
+[State 82] (Accepting)
+Edges = {  }
+	TokenIndex: 10, Priority: -10
+
+[State 83]
+Edges = { State84[254] }
+	TokenIndex: -1, Priority: 0
+
+[State 84] (Accepting)
+Edges = {  }
+	TokenIndex: 11, Priority: -11
 

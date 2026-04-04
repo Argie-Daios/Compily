@@ -104,12 +104,12 @@ TestParser::TestParser(const std::string& sourceCodePath)
 	BeginRule(STATEMENT);
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, STRUCT_DEFINITION);
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON);
 
 		Union();
 
@@ -130,12 +130,12 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, ASSIGNMENT);
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE_DECLARATION_LIST);
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON, [this](Parsy::EntryValue& entry) {
 			std::vector<TLvalue>& lvalueDeclarationList = Get<std::vector<TLvalue>>(0);
 			for (TLvalue& lvalue : lvalueDeclarationList)
 			{
@@ -148,7 +148,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON);
 
 	EndRule();
 
@@ -181,7 +181,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 	BeginRule<TExpression>(EXPRESSION);
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, PLUS);
+		Add(Parsy::CFGElementType::Terminal, PLUS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
 			TExpression& entryValue = Get<TExpression>(entry);
 			TExpression& leftExpressionValue = Get<TExpression>(0);
@@ -204,7 +204,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, DASH);
+		Add(Parsy::CFGElementType::Terminal, DASH);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
 			TExpression& entryValue = Get<TExpression>(entry);
 			TExpression& leftExpressionValue = Get<TExpression>(0);
@@ -227,7 +227,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, STAR);
+		Add(Parsy::CFGElementType::Terminal, STAR);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
 			TExpression& entryValue = Get<TExpression>(entry);
 			TExpression& leftExpressionValue = Get<TExpression>(0);
@@ -249,7 +249,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, SLASH);
+		Add(Parsy::CFGElementType::Terminal, SLASH);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
 			TExpression& entryValue = Get<TExpression>(entry);
 			TExpression& leftExpressionValue = Get<TExpression>(0);
@@ -272,55 +272,55 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, CARET);
+		Add(Parsy::CFGElementType::Terminal, CARET);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, EQUALS_EQUALS);
+		Add(Parsy::CFGElementType::Terminal, EQUALS_EQUALS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, EXCLAMATION_EQUALS);
+		Add(Parsy::CFGElementType::Terminal, EXCLAMATION_EQUALS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, LESS);
+		Add(Parsy::CFGElementType::Terminal, LESS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, LESS_EQUALS);
+		Add(Parsy::CFGElementType::Terminal, LESS_EQUALS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, GREATER);
+		Add(Parsy::CFGElementType::Terminal, GREATER);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, GREATER_EQUALS);
+		Add(Parsy::CFGElementType::Terminal, GREATER_EQUALS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, PIPE_PIPE);
+		Add(Parsy::CFGElementType::Terminal, PIPE_PIPE);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, AMPERSAND_AMPERSAND);
+		Add(Parsy::CFGElementType::Terminal, AMPERSAND_AMPERSAND);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
@@ -358,7 +358,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule(EXPRESSION_LIST_NEXT);
 
-		Add(Parsy::CFGElementType::Symbol, COMMA);
+		Add(Parsy::CFGElementType::Terminal, COMMA);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION_LIST_NEXT);
 
@@ -373,7 +373,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 	BeginRule(ASSIGNMENT);
 
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE);
-		Add(Parsy::CFGElementType::Symbol, EQUALS);
+		Add(Parsy::CFGElementType::Terminal, EQUALS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
 			TLvalue& lvalue = Get<TLvalue>(0);
 			TExpression& expression = Get<TExpression>(2);
@@ -401,9 +401,9 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TExpression>(TERMINAL);
 
-		Add(Parsy::CFGElementType::Symbol, OPENING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, OPENING_PARENTHESIS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_PARENTHESIS, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, CLOSING_PARENTHESIS, [this](Parsy::EntryValue& entry) {
 			TExpression& entryValue = Get<TExpression>(entry);
 			TExpression& expressionValue = Get<TExpression>(1);
 			entryValue = expressionValue;
@@ -411,29 +411,29 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, DASH);
+		Add(Parsy::CFGElementType::Terminal, DASH);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 		Prec(UMINUS);
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
-		Add(Parsy::CFGElementType::Symbol, PLUS_PLUS);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, PLUS_PLUS);
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, PLUS_PLUS);
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, PLUS_PLUS);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
-		Add(Parsy::CFGElementType::Symbol, DASH_DASH);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, DASH_DASH);
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, DASH_DASH);
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, DASH_DASH);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
 
 		Union();
 
@@ -459,56 +459,56 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TDataTypeProperties>(TYPE_DEFINITION);
 
-		Add(Parsy::CFGElementType::Symbol, INTEGER_TYPE, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, INTEGER_TYPE, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			entryValue.Type = EDataType::Int32;
 		});
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, BOOL_TYPE, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, BOOL_TYPE, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			entryValue.Type = EDataType::Bool;
 		});
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, FLOAT_TYPE, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, FLOAT_TYPE, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			entryValue.Type = EDataType::Float;
 			});
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, DOUBLE_TYPE, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, DOUBLE_TYPE, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			entryValue.Type = EDataType::Double;
 			});
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, CHARACTER_TYPE, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, CHARACTER_TYPE, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			entryValue.Type = EDataType::Char;
 			});
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, SHORT_TYPE, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, SHORT_TYPE, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			entryValue.Type = EDataType::Int16;
 			});
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, LONG_TYPE, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, LONG_TYPE, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			entryValue.Type = EDataType::Int64;
 			});
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			entryValue.Type = EDataType::Struct;
 		});
@@ -516,7 +516,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, TYPE_DEFINITION);
-		Add(Parsy::CFGElementType::Symbol, STAR, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, STAR, [this](Parsy::EntryValue& entry) {
 			TDataTypeProperties& entryValue = Get<TDataTypeProperties>(entry);
 			TDataTypeProperties& dataTypeValue = Get<TDataTypeProperties>(0);
 			dataTypeValue.PointerDepth++;
@@ -556,7 +556,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TLvalue>(LVALUE_DECLARATION_FORMAT);
 
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER, [this](Parsy::EntryValue& entry) {
 			TLvalue& entryValue = Get<TLvalue>(entry);
 			entryValue.SymbolTableEntry = Get<std::string>(0);
 			m_SymbolTable.Emplace(entryValue.SymbolTableEntry);
@@ -564,8 +564,8 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
-		Add(Parsy::CFGElementType::Symbol, EQUALS);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, EQUALS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION, [this](Parsy::EntryValue& entry) {
 			TLvalue& entryValue = Get<TLvalue>(entry);
 			entryValue.SymbolTableEntry = Get<std::string>(0);
@@ -604,19 +604,19 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TLvalue>(LVALUE);
 
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER, [this](Parsy::EntryValue& entry) {
 			TLvalue& entryValue = Get<TLvalue>(entry);
 			entryValue.SymbolTableEntry = Get<std::string>(0);
 		});
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, STAR);
+		Add(Parsy::CFGElementType::Terminal, STAR);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, AMPERSAND);
+		Add(Parsy::CFGElementType::Terminal, AMPERSAND);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
 
 		Union();
@@ -672,7 +672,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<std::vector<TLvalue>>(LVALUE_LIST_NEXT);
 
-		Add(Parsy::CFGElementType::Symbol, COMMA);
+		Add(Parsy::CFGElementType::Terminal, COMMA);
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE_DECLARATION);
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE_LIST_NEXT, [this](Parsy::EntryValue& entry) {
 			std::vector<TLvalue>& entryValue = Get<std::vector<TLvalue>>(entry);
@@ -701,7 +701,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, COMMA);
+		Add(Parsy::CFGElementType::Terminal, COMMA);
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE_DECLARATION_FORMAT);
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE_LIST_NEXT, [this](Parsy::EntryValue& entry) {
 			std::vector<TLvalue>& entryValue = Get<std::vector<TLvalue>>(entry);
@@ -726,7 +726,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule(IDENTIFIER_LIST);
 
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
 		Add(Parsy::CFGElementType::NonTerminal, IDENTIFIER_LIST_NEXT);
 
 	EndRule();
@@ -735,8 +735,8 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule(IDENTIFIER_LIST_NEXT);
 
-		Add(Parsy::CFGElementType::Symbol, COMMA);
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, COMMA);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
 		Add(Parsy::CFGElementType::NonTerminal, IDENTIFIER_LIST_NEXT);
 
 		Union();
@@ -749,7 +749,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TConstant>(CONSTANT);
 
-		Add(Parsy::CFGElementType::Symbol, _INTEGER, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, _INTEGER, [this](Parsy::EntryValue& entry) {
 			TConstant& constantValue = Get<TConstant>(entry);
 			int32_t integerValue = Get<int32_t>(0);
 			constantValue.DataTypeProps.Type = EDataType::Int32;
@@ -758,7 +758,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, _BOOL, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, _BOOL, [this](Parsy::EntryValue& entry) {
 			TConstant& constantValue = Get<TConstant>(entry);
 			bool boolValue = Get<bool>(0);
 			constantValue.DataTypeProps.Type = EDataType::Bool;
@@ -767,7 +767,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, _FLOAT, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, _FLOAT, [this](Parsy::EntryValue& entry) {
 			TConstant& constantValue = Get<TConstant>(entry);
 			float floatValue = Get<float>(0);
 			constantValue.DataTypeProps.Type = EDataType::Float;
@@ -776,7 +776,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, _DOUBLE, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, _DOUBLE, [this](Parsy::EntryValue& entry) {
 			TConstant& constantValue = Get<TConstant>(entry);
 			double doubleValue = Get<double>(0);
 			constantValue.DataTypeProps.Type = EDataType::Double;
@@ -785,7 +785,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, _CHARACTER, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, _CHARACTER, [this](Parsy::EntryValue& entry) {
 			TConstant& constantValue = Get<TConstant>(entry);
 			char characterValue = Get<char>(0);
 			constantValue.DataTypeProps.Type = EDataType::Char;
@@ -794,7 +794,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 		Union();
 
-		Add(Parsy::CFGElementType::Symbol, _STRING, [this](Parsy::EntryValue& entry) {
+		Add(Parsy::CFGElementType::Terminal, _STRING, [this](Parsy::EntryValue& entry) {
 			TConstant& constantValue = Get<TConstant>(entry);
 			std::string& stringValue = Get<std::string>(0);
 			constantValue.DataTypeProps.Type = EDataType::Char;
@@ -808,11 +808,11 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TStruct>(STRUCT_DEFINITION);
 
-		Add(Parsy::CFGElementType::Symbol, STRUCT);
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
-		Add(Parsy::CFGElementType::Symbol, OPENING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, STRUCT);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, OPENING_BRACE);
 		Add(Parsy::CFGElementType::NonTerminal, STRUCT_MEMBER_DECLARATION_LIST);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_BRACE);
 
 	EndRule();
 
@@ -846,7 +846,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 	BeginRule<TStructMemberDeclaration>(STRUCT_MEMBER_DECLARATION);
 
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE_DECLARATION_LIST);
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON);
 
 	EndRule();
 
@@ -855,14 +855,14 @@ TestParser::TestParser(const std::string& sourceCodePath)
 	BeginRule<TStructMemberDeclaration>(STRUCT_MEMBER_REFERENCE);
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, DOT);
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, DOT);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
 
 		Union();
 
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, ARROW);
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, ARROW);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
 
 	EndRule();
 
@@ -870,13 +870,13 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TStructMemberDeclaration>(IF_STATEMENT);
 
-		Add(Parsy::CFGElementType::Symbol, IF);
-		Add(Parsy::CFGElementType::Symbol, OPENING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, IF);
+		Add(Parsy::CFGElementType::Terminal, OPENING_PARENTHESIS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_PARENTHESIS);
-		Add(Parsy::CFGElementType::Symbol, OPENING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, OPENING_BRACE);
 		Add(Parsy::CFGElementType::NonTerminal, OPTIONAL_STATEMENT);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_BRACE);
 
 	EndRule();
 
@@ -884,13 +884,13 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TStructMemberDeclaration>(WHILE_STATEMENT);
 
-		Add(Parsy::CFGElementType::Symbol, WHILE);
-		Add(Parsy::CFGElementType::Symbol, OPENING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, WHILE);
+		Add(Parsy::CFGElementType::Terminal, OPENING_PARENTHESIS);
 		Add(Parsy::CFGElementType::NonTerminal, EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_PARENTHESIS);
-		Add(Parsy::CFGElementType::Symbol, OPENING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, OPENING_BRACE);
 		Add(Parsy::CFGElementType::NonTerminal, OPTIONAL_STATEMENT);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_BRACE);
 
 	EndRule();
 
@@ -908,17 +908,17 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TStructMemberDeclaration>(FOR_STATEMENT);
 
-		Add(Parsy::CFGElementType::Symbol, FOR);
-		Add(Parsy::CFGElementType::Symbol, OPENING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, FOR);
+		Add(Parsy::CFGElementType::Terminal, OPENING_PARENTHESIS);
 		Add(Parsy::CFGElementType::NonTerminal, FOR_DECLARATION_SLOT);
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON);
 		Add(Parsy::CFGElementType::NonTerminal, OPTIONAL_EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, SEMICOLON);
+		Add(Parsy::CFGElementType::Terminal, SEMICOLON);
 		Add(Parsy::CFGElementType::NonTerminal, OPTIONAL_EXPRESSION);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_PARENTHESIS);
-		Add(Parsy::CFGElementType::Symbol, OPENING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, OPENING_BRACE);
 		Add(Parsy::CFGElementType::NonTerminal, OPTIONAL_STATEMENT);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_BRACE);
 
 	EndRule();
 
@@ -939,7 +939,7 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TStructMemberDeclaration>(FUNCTION_PARAMETER_DECLARATION_LIST_NEXT);
 
-		Add(Parsy::CFGElementType::Symbol, COMMA);
+		Add(Parsy::CFGElementType::Terminal, COMMA);
 		Add(Parsy::CFGElementType::NonTerminal, LVALUE_DECLARATION);
 		Add(Parsy::CFGElementType::NonTerminal, FUNCTION_PARAMETER_DECLARATION_LIST_NEXT);
 
@@ -966,13 +966,13 @@ TestParser::TestParser(const std::string& sourceCodePath)
 	BeginRule<TStructMemberDeclaration>(FUNCTION_DEFINITION);
 
 		Add(Parsy::CFGElementType::NonTerminal, TYPE_DEFINITION);
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
-		Add(Parsy::CFGElementType::Symbol, OPENING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, OPENING_PARENTHESIS);
 		Add(Parsy::CFGElementType::NonTerminal, FUNCTION_PARAMETER_DECLARATION_LIST);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_PARENTHESIS);
-		Add(Parsy::CFGElementType::Symbol, OPENING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, OPENING_BRACE);
 		Add(Parsy::CFGElementType::NonTerminal, STATEMENT_LIST);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_BRACE);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_BRACE);
 
 	EndRule();
 
@@ -980,10 +980,10 @@ TestParser::TestParser(const std::string& sourceCodePath)
 
 	BeginRule<TStructMemberDeclaration>(FUNCTION_CALL);
 
-		Add(Parsy::CFGElementType::Symbol, IDENTIFIER);
-		Add(Parsy::CFGElementType::Symbol, OPENING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, IDENTIFIER);
+		Add(Parsy::CFGElementType::Terminal, OPENING_PARENTHESIS);
 		Add(Parsy::CFGElementType::NonTerminal, FUNCTION_PARAMETER_LIST);
-		Add(Parsy::CFGElementType::Symbol, CLOSING_PARENTHESIS);
+		Add(Parsy::CFGElementType::Terminal, CLOSING_PARENTHESIS);
 
 	EndRule();
 

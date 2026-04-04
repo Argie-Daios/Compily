@@ -1,57 +1,252 @@
 [State 0]
-Edges = { State1[8], State2[9], State3[10], State4[ClassDefinition], State5[Semicolon], State6[Class] }
-	StartRule --> .[8], { $ }
-	8 --> .[9], { $ }
-	8 --> [Epsilon]., { $ }
-	9 --> .[10][9], { $ }
-	9 --> .[10], { $ }
-	10 --> .[ClassDefinition], { Class, Semicolon }
-	10 --> .[Semicolon], { Class, Semicolon }
-	ClassDefinition --> .[Class][Identifier][LeftBrace][RightBrace], { Class, Semicolon }
+Edges = { State1[PropertyDefinition], State2[Program], State3[Statements], State4[Statement], State5[ClassDefinition], State6[RightParenthesis], State7[Identifier], State8[LeftParenthesis], State9[Semicolon], State10[Error], State11[Class], State12[Property] }
+	StartRule --> .[Program], { $ }
+	Program --> .[Statements], { $ }
+	Program --> [Epsilon]., { $ }
+	Statements --> .[Statement][Statements], { $ }
+	Statements --> .[Statement], { $ }
+	Statement --> .[ClassDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[PropertyDefinition], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[LeftParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[RightParenthesis], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[Semicolon], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Error][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][Error][Statements][RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][Error], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	PropertyDefinition --> .[Property][LeftParenthesis][RightParenthesis][Type][Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
 
 [State 1]
 Edges = {  }
-	StartRule --> [8]., { $ }
+	Statement --> [PropertyDefinition]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
 
 [State 2]
 Edges = {  }
-	8 --> [9]., { $ }
+	StartRule --> [Program]., { $ }
 
 [State 3]
-Edges = { State10[9], State3[10], State4[ClassDefinition], State5[Semicolon], State6[Class] }
-	9 --> [10].[9], { $ }
-	9 --> [10]., { $ }
-	9 --> .[10][9], { $ }
-	9 --> .[10], { $ }
-	10 --> .[ClassDefinition], { Class, Semicolon }
-	10 --> .[Semicolon], { Class, Semicolon }
-	ClassDefinition --> .[Class][Identifier][LeftBrace][RightBrace], { Class, Semicolon }
+Edges = {  }
+	Program --> [Statements]., { $ }
 
 [State 4]
-Edges = {  }
-	10 --> [ClassDefinition]., { Class, Semicolon }
+Edges = { State40[Statements], State4[Statement], State25[ClassDefinition], State1[PropertyDefinition], State6[RightParenthesis], State26[Identifier], State22[LeftParenthesis], State9[Semicolon], State10[Error], State11[Class], State27[Property] }
+	Statements --> [Statement].[Statements], { $ }
+	Statements --> [Statement]., { $ }
+	Statements --> .[Statement][Statements], { $ }
+	Statements --> .[Statement], { $ }
+	Statement --> .[ClassDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[PropertyDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[LeftParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[RightParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[Semicolon], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Error][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][Error][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][Error], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	PropertyDefinition --> .[Property][LeftParenthesis][RightParenthesis][Type][Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
 
 [State 5]
 Edges = {  }
-	10 --> [Semicolon]., { Class, Semicolon }
+	Statement --> [ClassDefinition]., { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
 
 [State 6]
-Edges = { State7[Identifier] }
-	ClassDefinition --> [Class].[Identifier][LeftBrace][RightBrace], { Class, Semicolon }
+Edges = {  }
+	Statement --> [RightParenthesis]., { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
 
 [State 7]
-Edges = { State8[LeftBrace] }
-	ClassDefinition --> [Class][Identifier].[LeftBrace][RightBrace], { Class, Semicolon }
+Edges = {  }
+	Statement --> [Identifier]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
 
 [State 8]
-Edges = { State9[RightBrace] }
-	ClassDefinition --> [Class][Identifier][LeftBrace].[RightBrace], { Class, Semicolon }
+Edges = {  }
+	Statement --> [LeftParenthesis]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
 
 [State 9]
 Edges = {  }
-	ClassDefinition --> [Class][Identifier][LeftBrace][RightBrace]., { Class, Semicolon }
+	Statement --> [Semicolon]., { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
 
 [State 10]
+Edges = { State36[Identifier] }
+	ClassDefinition --> [Error].[Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 11]
+Edges = { State17[Identifier] }
+	ClassDefinition --> [Class].[Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> [Class].[Identifier][Error][Statements][RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> [Class].[Identifier][LeftBrace][Statements][Error], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 12]
+Edges = { State13[LeftParenthesis] }
+	PropertyDefinition --> [Property].[LeftParenthesis][RightParenthesis][Type][Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 13]
+Edges = { State14[RightParenthesis] }
+	PropertyDefinition --> [Property][LeftParenthesis].[RightParenthesis][Type][Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 14]
+Edges = { State15[Type] }
+	PropertyDefinition --> [Property][LeftParenthesis][RightParenthesis].[Type][Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 15]
+Edges = { State16[Identifier] }
+	PropertyDefinition --> [Property][LeftParenthesis][RightParenthesis][Type].[Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 16]
 Edges = {  }
-	9 --> [10][9]., { $ }
+	PropertyDefinition --> [Property][LeftParenthesis][RightParenthesis][Type][Identifier]., { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 17]
+Edges = { State18[LeftBrace], State19[Error] }
+	ClassDefinition --> [Class][Identifier].[LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> [Class][Identifier].[Error][Statements][RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> [Class][Identifier].[LeftBrace][Statements][Error], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 18]
+Edges = { State33[Statements], State21[Statement], State25[ClassDefinition], State1[PropertyDefinition], State6[RightParenthesis], State26[Identifier], State22[LeftParenthesis], State9[Semicolon], State10[Error], State11[Class], State27[Property] }
+	ClassDefinition --> [Class][Identifier][LeftBrace].[Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> [Class][Identifier][LeftBrace].[Statements][Error], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statements --> .[Statement][Statements], { RightBrace }
+	Statements --> .[Statement], { RightBrace }
+	Statement --> .[ClassDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[PropertyDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[LeftParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[RightParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[Semicolon], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Error][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][Error][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][Error], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	PropertyDefinition --> .[Property][LeftParenthesis][RightParenthesis][Type][Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 19]
+Edges = { State20[Statements], State21[Statement], State5[ClassDefinition], State1[PropertyDefinition], State6[RightParenthesis], State7[Identifier], State22[LeftParenthesis], State23[Semicolon], State10[Error], State11[Class], State12[Property] }
+	ClassDefinition --> [Class][Identifier][Error].[Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statements --> .[Statement][Statements], { RightBrace }
+	Statements --> .[Statement], { RightBrace }
+	Statement --> .[ClassDefinition], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[PropertyDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[LeftParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[RightParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[Semicolon], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Error][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][Error][Statements][RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][Error], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	PropertyDefinition --> .[Property][LeftParenthesis][RightParenthesis][Type][Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 20]
+Edges = { State32[RightBrace] }
+	ClassDefinition --> [Class][Identifier][Error][Statements].[RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 21]
+Edges = { State24[Statements], State21[Statement], State25[ClassDefinition], State1[PropertyDefinition], State6[RightParenthesis], State26[Identifier], State22[LeftParenthesis], State9[Semicolon], State10[Error], State11[Class], State27[Property] }
+	Statements --> [Statement].[Statements], { RightBrace }
+	Statements --> [Statement]., { RightBrace }
+	Statements --> .[Statement][Statements], { RightBrace }
+	Statements --> .[Statement], { RightBrace }
+	Statement --> .[ClassDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[PropertyDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[LeftParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[RightParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[Semicolon], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Error][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][Error][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][Error], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	PropertyDefinition --> .[Property][LeftParenthesis][RightParenthesis][Type][Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 22]
+Edges = {  }
+	Statement --> [LeftParenthesis]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 23]
+Edges = {  }
+	Statement --> [Semicolon]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 24]
+Edges = {  }
+	Statements --> [Statement][Statements]., { RightBrace }
+
+[State 25]
+Edges = {  }
+	Statement --> [ClassDefinition]., { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 26]
+Edges = {  }
+	Statement --> [Identifier]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 27]
+Edges = { State28[LeftParenthesis] }
+	PropertyDefinition --> [Property].[LeftParenthesis][RightParenthesis][Type][Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 28]
+Edges = { State29[RightParenthesis] }
+	PropertyDefinition --> [Property][LeftParenthesis].[RightParenthesis][Type][Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 29]
+Edges = { State30[Type] }
+	PropertyDefinition --> [Property][LeftParenthesis][RightParenthesis].[Type][Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 30]
+Edges = { State31[Identifier] }
+	PropertyDefinition --> [Property][LeftParenthesis][RightParenthesis][Type].[Identifier], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 31]
+Edges = {  }
+	PropertyDefinition --> [Property][LeftParenthesis][RightParenthesis][Type][Identifier]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 32]
+Edges = {  }
+	ClassDefinition --> [Class][Identifier][Error][Statements][RightBrace]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 33]
+Edges = { State34[RightBrace], State35[Error] }
+	ClassDefinition --> [Class][Identifier][LeftBrace][Statements].[RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> [Class][Identifier][LeftBrace][Statements].[Error], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 34]
+Edges = {  }
+	ClassDefinition --> [Class][Identifier][LeftBrace][Statements][RightBrace]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 35]
+Edges = {  }
+	ClassDefinition --> [Class][Identifier][LeftBrace][Statements][Error]., { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 36]
+Edges = { State37[LeftBrace] }
+	ClassDefinition --> [Error][Identifier].[LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+
+[State 37]
+Edges = { State38[Statements], State21[Statement], State5[ClassDefinition], State1[PropertyDefinition], State6[RightParenthesis], State7[Identifier], State22[LeftParenthesis], State23[Semicolon], State10[Error], State11[Class], State12[Property] }
+	ClassDefinition --> [Error][Identifier][LeftBrace].[Statements][RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statements --> .[Statement][Statements], { RightBrace }
+	Statements --> .[Statement], { RightBrace }
+	Statement --> .[ClassDefinition], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[PropertyDefinition], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	Statement --> .[LeftParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[RightParenthesis], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	Statement --> .[Semicolon], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Error][Identifier][LeftBrace][Statements][RightBrace], { Error, Semicolon, Class, Property, RightParenthesis, Identifier, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][Error][Statements][RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	ClassDefinition --> .[Class][Identifier][LeftBrace][Statements][Error], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+	PropertyDefinition --> .[Property][LeftParenthesis][RightParenthesis][Type][Identifier], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 38]
+Edges = { State39[RightBrace] }
+	ClassDefinition --> [Error][Identifier][LeftBrace][Statements].[RightBrace], { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 39]
+Edges = {  }
+	ClassDefinition --> [Error][Identifier][LeftBrace][Statements][RightBrace]., { Error, Class, Semicolon, Property, Identifier, RightParenthesis, LeftParenthesis }
+
+[State 40]
+Edges = {  }
+	Statements --> [Statement][Statements]., { $ }
 

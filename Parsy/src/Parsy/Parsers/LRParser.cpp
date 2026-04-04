@@ -50,7 +50,7 @@ namespace Parsy
             case BottomUpActionType::Shift:
             {
                 timer.Start();
-                OnShift(topState.State, action, CFGElementType::Symbol, token);
+                OnShift(topState.State, action, CFGElementType::Terminal, token);
                 timer.End();
                 shiftTimer += timer.GetTimeElapsed();
                 break;
@@ -94,10 +94,11 @@ namespace Parsy
             case BottomUpActionType::Empty:
             {
                 timer.Start();
-                if (topState.Symbol.Type == CFGElementType::Error)
-                {
-                    SyntaxErrorHandler();
-                }
+                //if (topState.Symbol.Type == CFGElementType::Error)
+                //{
+                //    ExportResult("Error", labels, elements);
+                //    SyntaxErrorHandler();
+                //}
                 if (!OnEmpty(topState.State, action, token))
                 {
                     auto& errorAction = m_LR1->GetAction(topState.State, CFGElement(CFGElementType::Error, -1));
@@ -263,7 +264,7 @@ namespace Parsy
         if (leftPrecedenceData.Priority < rightPrecedenceData.Priority)
         {
             ASSERT(shiftActionData != nullptr, "There is no shift action!!");
-            Shift(state, action, CFGElementType::Symbol, token);
+            Shift(state, action, CFGElementType::Terminal, token);
         }
         else if (leftPrecedenceData.Priority > rightPrecedenceData.Priority)
         {
@@ -291,7 +292,7 @@ namespace Parsy
         CFGElement* lastTerminal = nullptr;
         for (auto it = m_InputStack.Stack.rbegin(); it != m_InputStack.Stack.rend(); it++)
         {
-            if (it->Symbol.Type == CFGElementType::Symbol || it->Symbol.Type == CFGElementType::Dollar)
+            if (it->Symbol.Type == CFGElementType::Terminal || it->Symbol.Type == CFGElementType::Dollar)
             {
                 lastTerminal = &it->Symbol;
                 break;
@@ -372,7 +373,7 @@ namespace Parsy
                 stack += '{' + CFGElementToStr(entry.Symbol) + '}';
                 break;
             }
-            case CFGElementType::Symbol:
+            case CFGElementType::Terminal:
             {
                 stack += '{' + CFGElementToStr(entry.Symbol) + '}';
                 break;
@@ -434,7 +435,7 @@ namespace Parsy
         {
             const BottomUpActionData* shiftActionData = shiftAction.GetActionData(BottomUpActionType::Shift);
             ASSERT(shiftActionData != nullptr, "There is no shift action!!");
-            Shift(state, shiftAction, CFGElementType::Symbol, token);
+            Shift(state, shiftAction, CFGElementType::Terminal, token);
             break;
         }
         case PrecedenceAssociativity::NonAssociate:

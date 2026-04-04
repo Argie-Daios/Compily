@@ -3,7 +3,9 @@
 #include "RuleAndTokenIDS.h"
 
 static Lexy::Lexer::RuleBuffer s_Keywords = {
-	{CLASS, R"(class)"}
+	{CLASS, R"(class)"},
+	{PROPERTY, R"(PROPERTY)"},
+	{TYPE, R"(int|float|double)"}
 };
 
 static Lexy::Lexer::RuleBuffer s_Punctuation = {
@@ -35,7 +37,7 @@ THTLexer::THTLexer(const std::ifstream& inputStream)
 		return TOKEN_IGNORE;
 	});
 
-	CreateRule(R"(.*)", [this]() { return TOKEN_IGNORE; });
+	CreateRule(R"(.)", [this]() { return TOKEN_IGNORE; });
 
 	GenerateDFA();
 }
